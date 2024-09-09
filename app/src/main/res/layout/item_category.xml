@@ -23,7 +23,7 @@
         android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/tv_category_count"
+        android:id="@+id/tv_item_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/iv_category_image"

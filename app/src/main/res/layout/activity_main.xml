@@ -102,7 +102,7 @@
                 android:textAlignment="center"
                 android:textColor="#FF000000"
                 android:background="@color/white"
-                android:drawableStart="@drawable/password"
+                android:drawableStart="@drawable/lock"
                 android:inputType="textPassword"
                 android:textSize="18sp"/>
         </androidx.cardview.widget.CardView>

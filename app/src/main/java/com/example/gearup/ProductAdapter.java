@@ -13,32 +13,42 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHolder> {
+public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
 
     private final List<Product> products;
-    private final OnProductClickListener listener;
+    private final OnProductClickListener onProductClickListener;
 
-    public ProductAdapter(List<Product> products, OnProductClickListener listener) {
+    public ProductAdapter(List<Product> products, OnProductClickListener onProductClickListener) {
+        if (products == null || onProductClickListener == null) {
+            throw new IllegalArgumentException("Arguments cannot be null");
+        }
         this.products = products;
-        this.listener = listener;
+        this.onProductClickListener = onProductClickListener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
-        return new ViewHolder(view);
+    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_product, parent, false);
+        return new ProductViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = products.get(position);
-        holder.productName.setText(product.getName());
-        holder.productPrice.setText(String.format("$%.2f", product.getPrice()));
-        holder.productDescription.setText(product.getDescription());
-        Glide.with(holder.itemView.getContext()).load(product.getImageUri()).into(holder.productImage);
 
-        holder.itemView.setOnClickListener(v -> listener.onProductClick(position));
+        holder.productName.setText(product.getName());
+        holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
+        holder.productDescription.setText(product.getDescription());
+
+        // Load image using Glide
+        Glide.with(holder.itemView.getContext())
+                .load(product.getImageUrl())
+                .into(holder.productImage);
+
+        // Set click listener for each item
+        holder.itemView.setOnClickListener(v -> onProductClickListener.onProductClick(position));
     }
 
     @Override
@@ -46,20 +56,20 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
         return products.size();
     }
 
-    public interface OnProductClickListener {
-        void onProductClick(int position);
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName, productPrice, productDescription;
         ImageView productImage;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.tv_product_name);
             productPrice = itemView.findViewById(R.id.tv_product_price);
             productDescription = itemView.findViewById(R.id.tv_product_description);
             productImage = itemView.findViewById(R.id.iv_product_image);
         }
+    }
+
+    public interface OnProductClickListener {
+        void onProductClick(int position);
     }
 }

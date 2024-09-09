@@ -105,12 +105,10 @@ public class Login extends AppCompatActivity {
 
     private void navigateToHomePage(String role) {
         if ("seller".equals(role)) {
-            // Redirect to Seller Homepage
             Intent intent = new Intent(Login.this, HomePageSeller.class);
             startActivity(intent);
             finish();
         } else if ("buyer".equals(role)) {
-            // Redirect to Buyer Homepage
             Intent intent = new Intent(Login.this, HomePageBuyer.class);
             startActivity(intent);
             finish();

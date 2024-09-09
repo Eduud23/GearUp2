@@ -1,18 +1,17 @@
 package com.example.gearup;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class HomePageBuyer extends AppCompatActivity {
 
-    private BottomNavigationView bottomNavigationView;
+public class HomePageBuyer extends AppCompatActivity  {
     private FragmentManager fragmentManager;
 
     @Override
@@ -20,25 +19,23 @@ public class HomePageBuyer extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page_buyer);
 
-        // Initialize BottomNavigationView
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // Initialize FragmentManager
         fragmentManager = getSupportFragmentManager();
 
-        // Set default fragment
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
         if (savedInstanceState == null) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
+                    .replace(R.id.fragment_container, new HomeFragmentBuyer())
                     .commit();
         }
 
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
+            int itemId = item.getItemId();
 
-            if (item.getItemId() == R.id.homeId) {
+            if (itemId == R.id.homeBuyerId) {
                 selectedFragment = new HomeFragmentBuyer();
-            } else if (item.getItemId() == R.id.trendsId) {
+            } else if (itemId == R.id.trendsId) {
                 selectedFragment = new TrendsFragment();
             }
 
@@ -46,10 +43,9 @@ public class HomePageBuyer extends AppCompatActivity {
                 fragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
                         .commit();
+                return true;
             }
-
-            return true;
+            return false;
         });
-
     }
 }
