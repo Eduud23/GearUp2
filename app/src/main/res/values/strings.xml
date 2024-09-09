@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">GearUp</string>
+    <string name="show_password">Hide</string>
+    <string name="hide_password">Show</string>
+
+    <string-array name="category_array">
+        <item>Central Components</item>
+        <item>Peripherals</item>
+        <item>Connectors</item>
+        <item>Body</item>
+    </string-array>
+    <string name="category_image">Category Image</string>
+    <string name="product_image_desc">Product Image</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

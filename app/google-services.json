@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "193768441801",
+    "project_id": "gearup-df833",
+    "storage_bucket": "gearup-df833.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193768441801:android:8ee48ba0c4d81c5fad8a18",
+        "android_client_info": {
+          "package_name": "com.example.gearup"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcNMoxjZ8WpDBZ039zD2ApXYH33LavnMw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
