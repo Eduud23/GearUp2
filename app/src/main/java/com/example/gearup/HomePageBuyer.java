@@ -37,6 +37,10 @@ public class HomePageBuyer extends AppCompatActivity  {
                 selectedFragment = new HomeFragmentBuyer();
             } else if (itemId == R.id.trendsId) {
                 selectedFragment = new TrendsFragment();
+            } else if (itemId == R.id.notificationId) {
+                selectedFragment = new NotificationFragmentBuyer();
+            } else if (itemId == R.id.meId) {
+                selectedFragment = new MeFragmentBuyer();
             }
 
             if (selectedFragment != null) {
@@ -47,5 +51,6 @@ public class HomePageBuyer extends AppCompatActivity  {
             }
             return false;
         });
+
     }
 }

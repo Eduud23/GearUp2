@@ -5,9 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragmentBuyer">
+    tools:context=".HomeFragmentSeller">
 
-    <!-- Top bar for search bar and icons -->
+
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"
@@ -26,10 +26,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Search Product"
-            android:layout_marginTop="5dp"
             android:drawableStart="@drawable/search"
             android:drawablePadding="8dp"
             android:padding="8dp"
+            android:layout_marginTop="5dp"
             android:background="@drawable/search_bar_background"
             android:inputType="text"
             android:imeOptions="actionSearch"/>

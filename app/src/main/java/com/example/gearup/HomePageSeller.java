@@ -21,7 +21,7 @@ public class HomePageSeller extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             fragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
+                    .replace(R.id.fragment_container, new HomeFragmentSeller())
                     .commit();
         }
 
@@ -30,7 +30,7 @@ public class HomePageSeller extends AppCompatActivity {
             int itemId = item.getItemId();
 
             if (itemId == R.id.homeId) {
-                selectedFragment = new HomeFragment();
+                selectedFragment = new HomeFragmentSeller();
             } else if (itemId == R.id.inventoryId) {
                 selectedFragment = new InventoryFragment();
             }
