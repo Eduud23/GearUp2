@@ -33,7 +33,11 @@ public class HomePageSeller extends AppCompatActivity {
                 selectedFragment = new HomeFragmentSeller();
             } else if (itemId == R.id.inventoryId) {
                 selectedFragment = new InventoryFragment();
+            }else if (itemId == R.id.meId) {
+                selectedFragment = new MeFragmentSeller();
             }
+
+
 
             if (selectedFragment != null) {
                 fragmentManager.beginTransaction()

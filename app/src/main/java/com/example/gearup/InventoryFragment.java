@@ -214,7 +214,9 @@ public class InventoryFragment extends Fragment {
     }
 
     private void saveProductToFirestore(String userId, String name, double price, String description, String category, String imageUrl) {
-        Product product = new Product(name, price, description, imageUrl, category);
+        String sellerProfileImageUrl = ""; // Fetch the actual seller profile image URL from Firestore or your data source
+        String productId = ""; // Generate or fetch the product ID if necessary
+        Product product = new Product(productId, name, price, description, imageUrl, category, userId, sellerProfileImageUrl); // Pass the sellerProfileImageUrl
 
         db.collection("users").document(userId)
                 .collection("products").add(product)
@@ -225,8 +227,9 @@ public class InventoryFragment extends Fragment {
                     categoryAdapter.notifyDataSetChanged();
                     alertDialog.dismiss();
                 })
-                .addOnFailureListener(e -> Toast.makeText(requireContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
     }
+
 
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

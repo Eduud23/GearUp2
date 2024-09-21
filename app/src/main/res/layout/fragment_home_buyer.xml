@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".HomeFragmentBuyer">
 
-    <!-- Top bar for search bar and icons -->
+
     <LinearLayout
         android:id="@+id/top_bar"
         android:layout_width="match_parent"

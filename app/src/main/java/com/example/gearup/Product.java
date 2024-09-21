@@ -4,33 +4,40 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Product implements Parcelable {
-    private String id; // Unique identifier for the product
+    private String id;
     private String name;
     private double price;
     private String description;
     private String imageUrl;
     private String category;
+    private String sellerId;
+    private String sellerProfileImageUrl; // Field for seller profile image URL
 
-    // Default constructor
+    // Default constructor required for calls to DataSnapshot.getValue(Product.class)
     public Product() {}
 
-    // Constructor with all fields
-    public Product(String name, double price, String description, String imageUrl, String category) {
+    // Parameterized constructor
+    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, String sellerProfileImageUrl) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
         this.category = category;
+        this.sellerId = sellerId;
+        this.sellerProfileImageUrl = sellerProfileImageUrl;
     }
 
     // Parcelable implementation
     protected Product(Parcel in) {
-        id = in.readString(); // Read id
+        id = in.readString();
         name = in.readString();
         price = in.readDouble();
         description = in.readString();
         imageUrl = in.readString();
         category = in.readString();
+        sellerId = in.readString();
+        sellerProfileImageUrl = in.readString();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -47,12 +54,14 @@ public class Product implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id); // Write id
+        dest.writeString(id);
         dest.writeString(name);
         dest.writeDouble(price);
         dest.writeString(description);
         dest.writeString(imageUrl);
         dest.writeString(category);
+        dest.writeString(sellerId);
+        dest.writeString(sellerProfileImageUrl);
     }
 
     @Override
@@ -107,5 +116,21 @@ public class Product implements Parcelable {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
+    }
+
+    public String getSellerProfileImageUrl() {
+        return sellerProfileImageUrl;
+    }
+
+    public void setSellerProfileImageUrl(String sellerProfileImageUrl) {
+        this.sellerProfileImageUrl = sellerProfileImageUrl;
     }
 }

@@ -8,6 +8,10 @@
         android:id="@+id/inventoryId"
         android:icon="@drawable/home"
         android:title="Inventory" />
+    <item
+        android:id="@+id/meId"
+        android:icon="@drawable/me"
+        android:title="Me" />
 
 </menu>
 

@@ -42,14 +42,25 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
         holder.productDescription.setText(product.getDescription());
 
-        // Load image using Glide
+        // Load product image
         Glide.with(holder.itemView.getContext())
                 .load(product.getImageUrl())
                 .into(holder.productImage);
 
+        // Load seller profile image
+        String profileImageUrl = product.getSellerProfileImageUrl();
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(profileImageUrl)
+                    .into(holder.sellerProfileImage);
+        } else {
+            holder.sellerProfileImage.setImageResource(R.drawable.ic_launcher_foreground); // Default image
+        }
+
         // Set click listener for each item
         holder.itemView.setOnClickListener(v -> onProductClickListener.onProductClick(position));
     }
+
 
     @Override
     public int getItemCount() {
@@ -58,7 +69,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName, productPrice, productDescription;
-        ImageView productImage;
+        ImageView productImage, sellerProfileImage;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,6 +77,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productPrice = itemView.findViewById(R.id.tv_product_price);
             productDescription = itemView.findViewById(R.id.tv_product_description);
             productImage = itemView.findViewById(R.id.iv_product_image);
+            sellerProfileImage = itemView.findViewById(R.id.civ_seller_profile_image);
         }
     }
 

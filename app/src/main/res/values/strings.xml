@@ -2,6 +2,7 @@
     <string name="app_name">GearUp</string>
     <string name="show_password">Hide</string>
     <string name="hide_password">Show</string>
+    <string name="seller_profile_image_desc">Seller Profile Image</string>
 
     <string-array name="category_array">
         <item>Central Components</item>
