@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ public class InventoryFragment extends Fragment {
     private static final int REQUEST_CODE_PRODUCT_DETAILS = 2;
 
     private Map<String, List<Product>> categorizedProducts = new HashMap<>();
-    private Map<String, Integer> categoryImages = new HashMap<>();
+    private Map<String, String> categoryImages = new HashMap<>();
     private Map<String, Integer> categoryCounts = new HashMap<>();
     private Uri selectedImageUri;
     private AlertDialog alertDialog;
@@ -68,47 +69,54 @@ public class InventoryFragment extends Fragment {
 
         initializeCategories();
 
-        categoryAdapter = new CategoryAdapter(getContext(),
-                new ArrayList<>(categorizedProducts.keySet()),
-                categorizedProducts,
-                categoryImages,
-                categoryCounts,
-                this::showProductsForCategory);
-        recyclerViewCategories.setAdapter(categoryAdapter);
+        swipeRefreshLayout.setOnRefreshListener(this::refreshProductList);
 
         Button addProductButton = view.findViewById(R.id.btn_add_product);
         addProductButton.setOnClickListener(v -> showAddProductDialog());
-
-        swipeRefreshLayout.setOnRefreshListener(this::refreshProductList);
 
         return view;
     }
 
     private void initializeCategories() {
-        // Define static categories
-        categorizedProducts.put("Central Components", new ArrayList<>());
-        categorizedProducts.put("Peripherals", new ArrayList<>());
-        categorizedProducts.put("Connectors", new ArrayList<>());
-        categorizedProducts.put("Body", new ArrayList<>());
+        categorizedProducts.clear();
+        categoryImages.clear();
+        categoryCounts.clear();
 
-        categoryImages.put("Central Components", R.drawable.automotive);
-        categoryImages.put("Peripherals", R.drawable.automotive);
-        categoryImages.put("Connectors", R.drawable.automotive);
-        categoryImages.put("Body", R.drawable.automotive);
+        db.collection("category")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String categoryName = document.getString("name");
+                            String logoUrl = document.getString("logo");
 
-        // Initialize category counts to zero
-        for (String category : categorizedProducts.keySet()) {
-            categoryCounts.put(category, 0);
-        }
+                            if (categoryName != null && logoUrl != null) {
+                                categorizedProducts.put(categoryName, new ArrayList<>());
+                                categoryCounts.put(categoryName, 0);
+                                categoryImages.put(categoryName, logoUrl);
+                            }
+                        }
+                        Log.d("InventoryFragment", "Categories: " + categorizedProducts.keySet());
 
-        // Fetch product counts for each category from Firestore
-        updateProductCounts();
+                        categoryAdapter = new CategoryAdapter(getContext(),
+                                new ArrayList<>(categorizedProducts.keySet()),
+                                categorizedProducts,
+                                categoryImages,
+                                categoryCounts,
+                                this::showProductsForCategory);
+                        recyclerViewCategories.setAdapter(categoryAdapter);
+
+                        updateProductCounts();
+                    } else {
+                        Log.e("InventoryFragment", "Error fetching categories: ", task.getException());
+                        Toast.makeText(getContext(), "Failed to fetch categories", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void refreshProductList() {
         updateProductCounts();
-        // After refreshing data, you should call:
-        swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void updateProductCounts() {
@@ -119,12 +127,10 @@ public class InventoryFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Reset category counts
                         for (String category : categoryCounts.keySet()) {
                             categoryCounts.put(category, 0);
                         }
 
-                        // Clear current products and reload
                         for (List<Product> products : categorizedProducts.values()) {
                             products.clear();
                         }
@@ -143,13 +149,12 @@ public class InventoryFragment extends Fragment {
                     } else {
                         Toast.makeText(getContext(), "Failed to fetch product counts", Toast.LENGTH_SHORT).show();
                     }
-                    swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
+                    swipeRefreshLayout.setRefreshing(false);
                 });
     }
 
     private void showProductsForCategory(String category) {
         List<Product> products = categorizedProducts.get(category);
-
         Intent intent = new Intent(getContext(), ProductList.class);
         intent.putExtra("CATEGORY", category);
         intent.putParcelableArrayListExtra("PRODUCTS", new ArrayList<>(products));
@@ -214,9 +219,7 @@ public class InventoryFragment extends Fragment {
     }
 
     private void saveProductToFirestore(String userId, String name, double price, String description, String category, String imageUrl) {
-        String sellerProfileImageUrl = ""; // Fetch the actual seller profile image URL from Firestore or your data source
-        String productId = ""; // Generate or fetch the product ID if necessary
-        Product product = new Product(productId, name, price, description, imageUrl, category, userId, sellerProfileImageUrl); // Pass the sellerProfileImageUrl
+        Product product = new Product("", name, price, description, imageUrl, category, userId, ""); // Pass sellerProfileImageUrl
 
         db.collection("users").document(userId)
                 .collection("products").add(product)
@@ -229,7 +232,6 @@ public class InventoryFragment extends Fragment {
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
     }
-
 
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -244,6 +246,7 @@ public class InventoryFragment extends Fragment {
             selectedImageUri = data.getData();
             ImageView productImage = alertDialog.findViewById(R.id.iv_product_image);
             if (productImage != null) {
+
                 productImage.setVisibility(View.VISIBLE);
                 Glide.with(this).load(selectedImageUri).into(productImage);
             }

@@ -7,7 +7,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,7 +34,8 @@ public class ProductList extends AppCompatActivity {
         setContentView(R.layout.activity_product_list);
 
         recyclerViewProducts = findViewById(R.id.recyclerView_products);
-        recyclerViewProducts.setLayoutManager(new LinearLayoutManager(this));
+        // Change the layout manager to GridLayoutManager with 3 columns
+        recyclerViewProducts.setLayoutManager(new GridLayoutManager(this, 3));
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();

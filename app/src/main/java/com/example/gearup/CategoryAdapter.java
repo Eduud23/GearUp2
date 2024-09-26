@@ -20,19 +20,19 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private Context context;
     private List<String> categories;
     private Map<String, List<Product>> categorizedProducts;
-    private Map<String, Integer> categoryImages;
-    private Map<String, Integer> categoryCounts; // Added for counts
+    private Map<String, String> categoryImages; // Change to String for URL
+    private Map<String, Integer> categoryCounts; // For counts
     private OnCategoryClickListener onCategoryClickListener;
 
     public CategoryAdapter(Context context, List<String> categories,
                            Map<String, List<Product>> categorizedProducts,
-                           Map<String, Integer> categoryImages,
-                           Map<String, Integer> categoryCounts, // Added for counts
+                           Map<String, String> categoryImages, // Change to String for URL
+                           Map<String, Integer> categoryCounts, // For counts
                            OnCategoryClickListener onCategoryClickListener) {
         this.context = context;
         this.categories = categories;
         this.categorizedProducts = categorizedProducts;
-        this.categoryImages = categoryImages;
+        this.categoryImages = categoryImages; // Initialize with URL map
         this.categoryCounts = categoryCounts; // Initialize counts
         this.onCategoryClickListener = onCategoryClickListener;
     }
@@ -50,6 +50,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.categoryName.setText(category);
         holder.itemCount.setText(String.valueOf(categoryCounts.get(category))); // Show count
 
+        // Load the category logo from the URL
         Glide.with(context)
                 .load(categoryImages.get(category))
                 .into(holder.categoryImage);

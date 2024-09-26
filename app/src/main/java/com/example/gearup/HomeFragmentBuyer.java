@@ -6,33 +6,28 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class HomeFragmentBuyer extends Fragment implements ProductAdapter.OnProductClickListener {
-    private FirebaseAuth mAuth;
-    private RecyclerView recyclerViewProducts;
-    private ProductAdapter productAdapter;
-    private List<Product> productList = new ArrayList<>();
+public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.OnProductClickListener {
     private FirebaseFirestore db;
+    private ViewPager2 viewPagerCentralComponents, viewPagerBody, viewPagerConnectors, viewPagerPeripherals;
+    private ProductAdapterBuyer adapterCentralComponents, adapterBody, adapterConnectors, adapterPeripherals;
+    private List<Product> centralComponentsList = new ArrayList<>();
+    private List<Product> bodyList = new ArrayList<>();
+    private List<Product> connectorsList = new ArrayList<>();
+    private List<Product> peripheralsList = new ArrayList<>();
 
     @SuppressLint("MissingInflatedId")
     @Nullable
@@ -40,14 +35,12 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapter.OnProd
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_buyer, container, false);
 
-        recyclerViewProducts = view.findViewById(R.id.recyclerView_products);
-        recyclerViewProducts.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        viewPagerCentralComponents = view.findViewById(R.id.viewPager_central_components);
+        viewPagerBody = view.findViewById(R.id.viewPager_body);
+        viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
+        viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
 
         db = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance(); // Initialize FirebaseAuth
-        productAdapter = new ProductAdapter(productList, this);
-        recyclerViewProducts.setAdapter(productAdapter);
-
         loadProducts();
 
         return view;
@@ -58,43 +51,96 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapter.OnProd
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        productList.clear();
+                        centralComponentsList.clear();
+                        bodyList.clear();
+                        connectorsList.clear();
+                        peripheralsList.clear();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
-                                productList.add(product);
-                                loadSellerProfile(product); // Load seller profile for each product
+                                categorizeProduct(product);
+                                loadSellerProfile(product);
                                 Log.d("HomeFragmentBuyer", "Loaded product: " + product.getName());
                             }
                         }
-                        productAdapter.notifyDataSetChanged(); // Notify adapter after loading products
+
+                        setAdapters();
                     } else {
                         Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    private void categorizeProduct(Product product) {
+        switch (product.getCategory()) {
+            case "Central Components":
+                centralComponentsList.add(product);
+                break;
+            case "Body":
+                bodyList.add(product);
+                break;
+            case "Connectors":
+                connectorsList.add(product);
+                break;
+            case "Peripherals":
+                peripheralsList.add(product);
+                break;
+        }
+    }
+
+    private void setAdapters() {
+        adapterCentralComponents = new ProductAdapterBuyer(centralComponentsList, this);
+        viewPagerCentralComponents.setAdapter(adapterCentralComponents);
+        viewPagerCentralComponents.setOffscreenPageLimit(1);
+
+        adapterBody = new ProductAdapterBuyer(bodyList, this);
+        viewPagerBody.setAdapter(adapterBody);
+        viewPagerBody.setOffscreenPageLimit(1);
+
+        adapterConnectors = new ProductAdapterBuyer(connectorsList, this);
+        viewPagerConnectors.setAdapter(adapterConnectors);
+        viewPagerConnectors.setOffscreenPageLimit(1);
+
+        adapterPeripherals = new ProductAdapterBuyer(peripheralsList, this);
+        viewPagerPeripherals.setAdapter(adapterPeripherals);
+        viewPagerPeripherals.setOffscreenPageLimit(1);
+
+        Log.d("HomeFragmentBuyer", "Total products loaded: " + (centralComponentsList.size() + bodyList.size() + connectorsList.size() + peripheralsList.size()));
+    }
 
     private void loadSellerProfile(Product product) {
-        String sellerId = product.getSellerId(); // Ensure the Product class has this method
+        String sellerId = product.getSellerId();
         if (sellerId != null) {
             db.collection("sellers").document(sellerId).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         String profileImageUrl = document.getString("profileImageUrl");
-                        product.setSellerProfileImageUrl(profileImageUrl); // Set profile image URL
-                        productAdapter.notifyDataSetChanged(); // Notify adapter after updating seller info
+                        product.setSellerProfileImageUrl(profileImageUrl);
+                        notifyAdapters();
                     }
                 }
             });
         }
     }
 
+    private void notifyAdapters() {
+        adapterCentralComponents.notifyDataSetChanged();
+        adapterBody.notifyDataSetChanged();
+        adapterConnectors.notifyDataSetChanged();
+        adapterPeripherals.notifyDataSetChanged();
+    }
 
     @Override
     public void onProductClick(int position) {
-        Product clickedProduct = productList.get(position);
-        Toast.makeText(getContext(), "Clicked: " + clickedProduct.getName(), Toast.LENGTH_SHORT).show();
+        // Handle product click
+        // Determine which category the clicked product belongs to
+        // Example:
+        if (position < centralComponentsList.size()) {
+            Product clickedProduct = centralComponentsList.get(position);
+            Toast.makeText(getContext(), "Clicked: " + clickedProduct.getName(), Toast.LENGTH_SHORT).show();
+        }
+        // Add similar checks for other categories
     }
 }
