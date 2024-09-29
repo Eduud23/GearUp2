@@ -12,12 +12,15 @@ public class Product implements Parcelable {
     private String category;
     private String sellerId;
     private String sellerProfileImageUrl; // Field for seller profile image URL
+    private int quantity;
 
-    // Default constructor required for calls to DataSnapshot.getValue(Product.class)
-    public Product() {}
+    // No-argument constructor for Firebase Firestore
+    public Product() {
+        // Default constructor required for calls to DataSnapshot.getValue(Product.class)
+    }
 
-    // Parameterized constructor
-    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, String sellerProfileImageUrl) {
+    // Parameterized constructor (original)
+    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, String sellerProfileImageUrl, int quantity) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -26,6 +29,20 @@ public class Product implements Parcelable {
         this.category = category;
         this.sellerId = sellerId;
         this.sellerProfileImageUrl = sellerProfileImageUrl;
+        this.quantity = quantity; // Initialize the new field
+    }
+
+    // New constructor to match your InventoryFragment usage
+    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, int quantity) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.category = category;
+        this.sellerId = sellerId;
+        this.sellerProfileImageUrl = ""; // Default value if not provided
+        this.quantity = quantity;
     }
 
     // Parcelable implementation
@@ -38,6 +55,7 @@ public class Product implements Parcelable {
         category = in.readString();
         sellerId = in.readString();
         sellerProfileImageUrl = in.readString();
+        quantity = in.readInt(); // Read the new field
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -62,6 +80,7 @@ public class Product implements Parcelable {
         dest.writeString(category);
         dest.writeString(sellerId);
         dest.writeString(sellerProfileImageUrl);
+        dest.writeInt(quantity); // Write the new field
     }
 
     @Override
@@ -132,5 +151,13 @@ public class Product implements Parcelable {
 
     public void setSellerProfileImageUrl(String sellerProfileImageUrl) {
         this.sellerProfileImageUrl = sellerProfileImageUrl;
+    }
+
+    public int getQuantity() { // Getter for quantity
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) { // Setter for quantity
+        this.quantity = quantity;
     }
 }

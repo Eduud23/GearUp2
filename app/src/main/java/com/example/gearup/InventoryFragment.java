@@ -169,6 +169,7 @@ public class InventoryFragment extends Fragment {
         EditText productName = dialogView.findViewById(R.id.et_product_name);
         EditText productPrice = dialogView.findViewById(R.id.et_product_price);
         EditText productDescription = dialogView.findViewById(R.id.et_product_description);
+        EditText productQuantity = dialogView.findViewById(R.id.et_product_quantity); // New field
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
         Button chooseImageButton = dialogView.findViewById(R.id.btn_choose_image);
         ImageView productImage = dialogView.findViewById(R.id.iv_product_image);
@@ -186,19 +187,21 @@ public class InventoryFragment extends Fragment {
             String name = productName.getText().toString();
             String priceString = productPrice.getText().toString();
             String description = productDescription.getText().toString();
+            String quantityString = productQuantity.getText().toString(); // Get quantity
             String category = categorySpinner.getSelectedItem().toString();
 
-            if (name.isEmpty() || priceString.isEmpty() || selectedImageUri == null) {
+            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUri == null) {
                 Toast.makeText(getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             double price = Double.parseDouble(priceString);
+            int quantity = Integer.parseInt(quantityString); // Parse quantity
 
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
                 String userId = user.getUid();
-                uploadProductImage(userId, name, price, description, category);
+                uploadProductImage(userId, name, price, description, quantity, category); // Pass quantity
             } else {
                 Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
             }
@@ -208,18 +211,18 @@ public class InventoryFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void uploadProductImage(String userId, String name, double price, String description, String category) {
+    private void uploadProductImage(String userId, String name, double price, String description, int quantity, String category) {
         StorageReference storageRef = storage.getReference().child("products/" + userId + "/" + System.currentTimeMillis() + ".jpg");
 
         UploadTask uploadTask = storageRef.putFile(selectedImageUri);
         uploadTask.addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
             String imageUrl = uri.toString();
-            saveProductToFirestore(userId, name, price, description, category, imageUrl);
+            saveProductToFirestore(userId, name, price, description, quantity, category, imageUrl); // Pass quantity
         })).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
     }
 
-    private void saveProductToFirestore(String userId, String name, double price, String description, String category, String imageUrl) {
-        Product product = new Product("", name, price, description, imageUrl, category, userId, ""); // Pass sellerProfileImageUrl
+    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String imageUrl) {
+        Product product = new Product("", name, price, description, imageUrl, category, userId, quantity); // Pass quantity
 
         db.collection("users").document(userId)
                 .collection("products").add(product)
@@ -246,7 +249,6 @@ public class InventoryFragment extends Fragment {
             selectedImageUri = data.getData();
             ImageView productImage = alertDialog.findViewById(R.id.iv_product_image);
             if (productImage != null) {
-
                 productImage.setVisibility(View.VISIBLE);
                 Glide.with(this).load(selectedImageUri).into(productImage);
             }

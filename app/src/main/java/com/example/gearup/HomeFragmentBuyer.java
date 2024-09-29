@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -73,7 +74,13 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     }
 
     private void categorizeProduct(Product product) {
-        switch (product.getCategory()) {
+        String category = product.getCategory();
+        if (category == null) {
+            Log.e("HomeFragmentBuyer", "Product category is null for product: " + product.getName());
+            return; // Early exit if category is null
+        }
+
+        switch (category) {
             case "Central Components":
                 centralComponentsList.add(product);
                 break;
@@ -85,6 +92,9 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                 break;
             case "Peripherals":
                 peripheralsList.add(product);
+                break;
+            default:
+                Log.e("HomeFragmentBuyer", "Unknown category: " + category + " for product: " + product.getName());
                 break;
         }
     }
@@ -134,13 +144,21 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
 
     @Override
     public void onProductClick(int position) {
-        // Handle product click
-        // Determine which category the clicked product belongs to
-        // Example:
+        Product clickedProduct;
+
         if (position < centralComponentsList.size()) {
-            Product clickedProduct = centralComponentsList.get(position);
-            Toast.makeText(getContext(), "Clicked: " + clickedProduct.getName(), Toast.LENGTH_SHORT).show();
+            clickedProduct = centralComponentsList.get(position);
+        } else if (position < centralComponentsList.size() + bodyList.size()) {
+            clickedProduct = bodyList.get(position - centralComponentsList.size());
+        } else if (position < centralComponentsList.size() + bodyList.size() + connectorsList.size()) {
+            clickedProduct = connectorsList.get(position - (centralComponentsList.size() + bodyList.size()));
+        } else {
+            clickedProduct = peripheralsList.get(position - (centralComponentsList.size() + bodyList.size() + connectorsList.size()));
         }
-        // Add similar checks for other categories
+
+        // Start ProductDetailsActivity
+        Intent intent = new Intent(getContext(), ProductDetailsBuyer.class);
+        intent.putExtra("PRODUCT", clickedProduct);
+        startActivity(intent);
     }
 }
