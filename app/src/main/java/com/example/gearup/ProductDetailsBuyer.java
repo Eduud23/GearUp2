@@ -62,7 +62,21 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         if (product != null) {
             String quantityText = productQuantity.getText().toString();
             int quantity = quantityText.isEmpty() ? 1 : Integer.parseInt(quantityText); // Default to 1 if empty
-            Cart.getInstance().addToCart(product, quantity);
+
+            // Check if the product is already in the cart
+            boolean alreadyInCart = false;
+            for (CartItem item : Cart.getInstance().getItems()) {
+                if (item.getProduct().getId().equals(product.getId())) {
+                    item.setQuantity(item.getQuantity() + quantity); // Increase the quantity
+                    alreadyInCart = true;
+                    break;
+                }
+            }
+
+            if (!alreadyInCart) {
+                Cart.getInstance().addToCart(product, quantity); // Add as new item
+            }
+
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
 
             // Navigate to CartActivity
@@ -70,6 +84,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             startActivity(intent);
         }
     }
+
 
     private void checkout() {
         // Navigate to checkout logic

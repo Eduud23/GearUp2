@@ -1,18 +1,22 @@
 package com.example.gearup;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
     private static Cart instance;
     private List<CartItem> items;
+    private FirebaseFirestore db;
 
-    // Private constructor
     private Cart() {
         items = new ArrayList<>();
+        db = FirebaseFirestore.getInstance();
+        loadCart(); // Load cart items from Firestore when initialized
     }
 
-    // Singleton instance getter
     public static Cart getInstance() {
         if (instance == null) {
             instance = new Cart();
@@ -20,50 +24,39 @@ public class Cart {
         return instance;
     }
 
-    // Add product to cart
     public void addToCart(Product product, int quantity) {
-        // Check if the product is already in the cart
-        for (CartItem cartItem : items) {
-            if (cartItem.getProduct().getId().equals(product.getId())) {
-                // If it is, update the quantity
-                cartItem.setQuantity(cartItem.getQuantity() + quantity);
-                return;
-            }
-        }
-        // If not, add a new item
         items.add(new CartItem(product, quantity));
+        saveCart(); // Save cart items to Firestore
     }
 
-    // Get list of items in the cart
     public List<CartItem> getItems() {
         return items;
     }
 
-    // Remove an item from the cart
-    public void removeFromCart(Product product) {
-        items.removeIf(cartItem -> cartItem.getProduct().getId().equals(product.getId()));
-    }
-
-    // Clear the cart
-    public void clearCart() {
-        items.clear();
-    }
-
-    // Get total item count
-    public int getTotalItemCount() {
-        int totalCount = 0;
-        for (CartItem cartItem : items) {
-            totalCount += cartItem.getQuantity();
+    private void saveCart() {
+        // Save each item in the cart to Firestore
+        for (CartItem item : items) {
+            // Assuming you have a structure for your cart in Firestore
+            db.collection("carts").document("user_cart") // Use a unique user identifier
+                    .collection("items")
+                    .add(item); // Save each item
         }
-        return totalCount;
     }
 
-    // Get total price of items in the cart
-    public double getTotalPrice() {
-        double totalPrice = 0.0;
-        for (CartItem cartItem : items) {
-            totalPrice += cartItem.getProduct().getPrice() * cartItem.getQuantity();
-        }
-        return totalPrice;
+    private void loadCart() {
+        db.collection("carts").document("user_cart")
+                .collection("items")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        items.clear(); // Clear current items
+                        for (DocumentSnapshot document : task.getResult()) {
+                            CartItem cartItem = document.toObject(CartItem.class);
+                            if (cartItem != null) {
+                                items.add(cartItem); // Add to local cart
+                            }
+                        }
+                    }
+                });
     }
 }

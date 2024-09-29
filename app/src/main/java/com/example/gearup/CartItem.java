@@ -7,13 +7,15 @@ public class CartItem implements Parcelable {
     private Product product;
     private int quantity;
 
-    // Constructor
+    // No-argument constructor required for Firestore
+    public CartItem() {
+    }
+
     public CartItem(Product product, int quantity) {
         this.product = product;
         this.quantity = quantity;
     }
 
-    // Parcelable implementation
     protected CartItem(Parcel in) {
         product = in.readParcelable(Product.class.getClassLoader());
         quantity = in.readInt();
@@ -31,7 +33,6 @@ public class CartItem implements Parcelable {
         }
     };
 
-    // Getters
     public Product getProduct() {
         return product;
     }
@@ -40,18 +41,15 @@ public class CartItem implements Parcelable {
         return quantity;
     }
 
-    // Setter for quantity if needed
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
-    // Describe contents
     @Override
     public int describeContents() {
         return 0;
     }
 
-    // Write to parcel
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(product, flags);
