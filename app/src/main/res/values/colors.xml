@@ -6,4 +6,9 @@
     <color name="gear">#D2DBCF</color>
     <color name="login">#D2C69C</color>
     <color name="grey">#8C8A8A</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorText">#000000</color>
 </resources>

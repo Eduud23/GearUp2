@@ -1,15 +1,22 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 
 public class ProductDetailsBuyer extends AppCompatActivity {
-    private TextView productName, productPrice, productDescription, productQuantity;
+    private TextView productName, productPrice, productDescription;
     private ImageView productImage;
+    private Button addToCartButton, checkoutButton;
+    private EditText productQuantity; // Change from TextView to EditText
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -20,18 +27,52 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productName = findViewById(R.id.tv_product_name);
         productPrice = findViewById(R.id.tv_product_price);
         productDescription = findViewById(R.id.tv_product_description);
-        productQuantity = findViewById(R.id.tv_product_quantity);
         productImage = findViewById(R.id.iv_product_image);
+        addToCartButton = findViewById(R.id.btn_add_to_cart);
+        checkoutButton = findViewById(R.id.btn_checkout);
+        productQuantity = findViewById(R.id.et_product_quantity); // Initialize the EditText
 
         // Get product from intent
         Product product = getIntent().getParcelableExtra("PRODUCT");
 
         if (product != null) {
             productName.setText(product.getName());
-            productPrice.setText(String.format("$%.2f", product.getPrice()));
+            productPrice.setText(String.format("₱%.2f", product.getPrice()));
             productDescription.setText(product.getDescription());
-            productQuantity.setText("Quantity: " + product.getQuantity());
             Glide.with(this).load(product.getImageUrl()).into(productImage);
         }
+
+        // Set up button click listeners
+        addToCartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addToCart(product);
+            }
+        });
+
+        checkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkout();
+            }
+        });
+    }
+
+    private void addToCart(Product product) {
+        if (product != null) {
+            String quantityText = productQuantity.getText().toString();
+            int quantity = quantityText.isEmpty() ? 1 : Integer.parseInt(quantityText); // Default to 1 if empty
+            Cart.getInstance().addToCart(product, quantity);
+            Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+
+            // Navigate to CartActivity
+            Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    private void checkout() {
+        // Navigate to checkout logic
+        Toast.makeText(this, "Checkout not implemented", Toast.LENGTH_SHORT).show();
     }
 }

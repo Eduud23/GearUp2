@@ -32,9 +32,34 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"/>
 
-    <TextView
-        android:id="@+id/tv_product_quantity"
+    <EditText
+        android:id="@+id/et_product_quantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:hint="Enter Quantity"
+        android:inputType="number"
+        android:maxLines="1"
         android:layout_marginTop="8dp"/>
+
+
+    <!-- Add to Cart Button -->
+    <Button
+        android:id="@+id/btn_add_to_cart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add to Cart"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/btn_checkout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Checkout"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorAccent"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"/>
 </LinearLayout>

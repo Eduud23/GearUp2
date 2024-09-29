@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,12 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         viewPagerBody = view.findViewById(R.id.viewPager_body);
         viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
         viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
+
+        ImageView iconCart = view.findViewById(R.id.icon_cart);
+        iconCart.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CartActivity.class);
+            startActivity(intent);
+        });
 
         db = FirebaseFirestore.getInstance();
         loadProducts();

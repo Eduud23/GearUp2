@@ -160,4 +160,13 @@ public class Product implements Parcelable {
     public void setQuantity(int quantity) { // Setter for quantity
         this.quantity = quantity;
     }
+
+    // New method to adjust quantity
+    public void adjustQuantity(int amount) {
+        if (this.quantity + amount >= 0) {
+            this.quantity += amount; // Adjust quantity by the specified amount
+        } else {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+    }
 }
