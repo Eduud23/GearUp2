@@ -2,13 +2,14 @@ package com.example.gearup;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import java.util.List;
 
 public class Product implements Parcelable {
     private String id;
     private String name;
     private double price;
     private String description;
-    private String imageUrl;
+    private List<String> imageUrls; // Change this to List<String>
     private String category;
     private String sellerId;
     private String sellerProfileImageUrl; // Field for seller profile image URL
@@ -19,26 +20,13 @@ public class Product implements Parcelable {
         // Default constructor required for calls to DataSnapshot.getValue(Product.class)
     }
 
-    // Parameterized constructor (original)
-    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, String sellerProfileImageUrl, int quantity) {
+    // Updated constructor for multiple images
+    public Product(String id, String name, double price, String description, List<String> imageUrls, String category, String sellerId, int quantity) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
-        this.imageUrl = imageUrl;
-        this.category = category;
-        this.sellerId = sellerId;
-        this.sellerProfileImageUrl = sellerProfileImageUrl;
-        this.quantity = quantity; // Initialize the new field
-    }
-
-    // New constructor to match your InventoryFragment usage
-    public Product(String id, String name, double price, String description, String imageUrl, String category, String sellerId, int quantity) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.imageUrl = imageUrl;
+        this.imageUrls = imageUrls; // Set the list of image URLs
         this.category = category;
         this.sellerId = sellerId;
         this.sellerProfileImageUrl = ""; // Default value if not provided
@@ -51,11 +39,11 @@ public class Product implements Parcelable {
         name = in.readString();
         price = in.readDouble();
         description = in.readString();
-        imageUrl = in.readString();
+        imageUrls = in.createStringArrayList(); // Read the list of image URLs
         category = in.readString();
         sellerId = in.readString();
         sellerProfileImageUrl = in.readString();
-        quantity = in.readInt(); // Read the new field
+        quantity = in.readInt();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -76,11 +64,11 @@ public class Product implements Parcelable {
         dest.writeString(name);
         dest.writeDouble(price);
         dest.writeString(description);
-        dest.writeString(imageUrl);
+        dest.writeStringList(imageUrls); // Write the list of image URLs
         dest.writeString(category);
         dest.writeString(sellerId);
         dest.writeString(sellerProfileImageUrl);
-        dest.writeInt(quantity); // Write the new field
+        dest.writeInt(quantity);
     }
 
     @Override
@@ -121,12 +109,12 @@ public class Product implements Parcelable {
         this.description = description;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public List<String> getImageUrls() { // New getter for image URLs
+        return imageUrls;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageUrls(List<String> imageUrls) { // New setter for image URLs
+        this.imageUrls = imageUrls;
     }
 
     public String getCategory() {
@@ -153,18 +141,18 @@ public class Product implements Parcelable {
         this.sellerProfileImageUrl = sellerProfileImageUrl;
     }
 
-    public int getQuantity() { // Getter for quantity
+    public int getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) { // Setter for quantity
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 
     // New method to adjust quantity
     public void adjustQuantity(int amount) {
         if (this.quantity + amount >= 0) {
-            this.quantity += amount; // Adjust quantity by the specified amount
+            this.quantity += amount;
         } else {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }

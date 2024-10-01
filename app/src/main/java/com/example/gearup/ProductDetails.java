@@ -7,24 +7,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+import androidx.viewpager2.widget.ViewPager2;
 
 public class ProductDetails extends AppCompatActivity {
 
-    private EditText etProductName, etProductPrice, etProductDescription;
-    private ImageView ivProductImage;
+    private EditText etProductName, etProductPrice, etProductDescription, etProductQuantity;
     private Button btnSave, btnDelete;
     private Product product;
     private int position;
@@ -38,30 +28,39 @@ public class ProductDetails extends AppCompatActivity {
         etProductName = findViewById(R.id.et_product_name);
         etProductPrice = findViewById(R.id.et_product_price);
         etProductDescription = findViewById(R.id.et_product_description);
-        ivProductImage = findViewById(R.id.iv_product_image);
+        etProductQuantity = findViewById(R.id.et_product_quantity);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btn_delete);
 
         product = getIntent().getParcelableExtra("PRODUCT");
         position = getIntent().getIntExtra("POSITION", -1);
 
+        // Initialize ViewPager2
+        ViewPager2 viewPager = findViewById(R.id.viewPager);
         if (product != null) {
             etProductName.setText(product.getName());
             etProductPrice.setText(String.valueOf(product.getPrice()));
             etProductDescription.setText(product.getDescription());
-            Glide.with(this).load(product.getImageUrl()).into(ivProductImage);
+            etProductQuantity.setText(String.valueOf(product.getQuantity())); // Assuming getQuantity() exists
+
+            // Load images into ViewPager2
+            ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
+            viewPager.setAdapter(imageSliderAdapter);
         }
 
         btnSave.setOnClickListener(v -> {
             String name = etProductName.getText().toString();
             String priceString = etProductPrice.getText().toString();
             String description = etProductDescription.getText().toString();
+            String quantityString = etProductQuantity.getText().toString();
 
-            if (!name.isEmpty() && !priceString.isEmpty()) {
+            if (!name.isEmpty() && !priceString.isEmpty() && !quantityString.isEmpty()) {
                 double price = Double.parseDouble(priceString);
+                int quantity = Integer.parseInt(quantityString); // Parse quantity
                 product.setName(name);
                 product.setPrice(price);
                 product.setDescription(description);
+                product.setQuantity(quantity); // Assuming setQuantity() exists
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("UPDATED_PRODUCT", product);

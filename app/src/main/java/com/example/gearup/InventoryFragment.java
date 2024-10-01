@@ -30,7 +30,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +47,7 @@ public class InventoryFragment extends Fragment {
     private Map<String, List<Product>> categorizedProducts = new HashMap<>();
     private Map<String, String> categoryImages = new HashMap<>();
     private Map<String, Integer> categoryCounts = new HashMap<>();
-    private Uri selectedImageUri;
+    private List<Uri> selectedImageUris = new ArrayList<>();
     private AlertDialog alertDialog;
 
     private FirebaseFirestore db;
@@ -166,92 +165,152 @@ public class InventoryFragment extends Fragment {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_product, null);
         builder.setView(dialogView);
 
+        // Initialize dialog views
         EditText productName = dialogView.findViewById(R.id.et_product_name);
         EditText productPrice = dialogView.findViewById(R.id.et_product_price);
         EditText productDescription = dialogView.findViewById(R.id.et_product_description);
-        EditText productQuantity = dialogView.findViewById(R.id.et_product_quantity); // New field
+        EditText productQuantity = dialogView.findViewById(R.id.et_product_quantity);
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
-        Button chooseImageButton = dialogView.findViewById(R.id.btn_choose_image);
-        ImageView productImage = dialogView.findViewById(R.id.iv_product_image);
+
+        // Populate the spinner with categories
+        List<String> categoryList = new ArrayList<>(categorizedProducts.keySet());
+        ArrayAdapter<String> categoryAdapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, categoryList);
+        categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(categoryAdapter);
+
+        ImageView productImage1 = dialogView.findViewById(R.id.iv_product_image1);
+        ImageView productImage2 = dialogView.findViewById(R.id.iv_product_image2);
+        ImageView productImage3 = dialogView.findViewById(R.id.iv_product_image3);
+
+        Button chooseImageButton1 = dialogView.findViewById(R.id.btn_choose_image1);
+        Button chooseImageButton2 = dialogView.findViewById(R.id.btn_choose_image2);
+        Button chooseImageButton3 = dialogView.findViewById(R.id.btn_choose_image3);
+
+        // Reset selected image URIs for new product
+        selectedImageUris.clear();
+        for (int i = 0; i < 3; i++) {
+            selectedImageUris.add(null);
+        }
+
+        // Set up image selection buttons
+        chooseImageButton1.setOnClickListener(v -> openFileChooser(0, productImage1));
+        chooseImageButton2.setOnClickListener(v -> openFileChooser(1, productImage2));
+        chooseImageButton3.setOnClickListener(v -> openFileChooser(2, productImage3));
+
+        // Add product button listener
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item,
-                new ArrayList<>(categorizedProducts.keySet()));
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-
-        chooseImageButton.setOnClickListener(v -> openFileChooser());
-
         addProductButton.setOnClickListener(v -> {
-            String name = productName.getText().toString();
-            String priceString = productPrice.getText().toString();
-            String description = productDescription.getText().toString();
-            String quantityString = productQuantity.getText().toString(); // Get quantity
-            String category = categorySpinner.getSelectedItem().toString();
+            // Get input values
+            String name = productName.getText().toString().trim();
+            String priceString = productPrice.getText().toString().trim();
+            String description = productDescription.getText().toString().trim();
+            String quantityString = productQuantity.getText().toString().trim();
+            String category = categorySpinner.getSelectedItem() != null ? categorySpinner.getSelectedItem().toString() : "";
 
-            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUri == null) {
-                Toast.makeText(getContext(), "Please fill out all fields", Toast.LENGTH_SHORT).show();
+            // Validate input fields
+            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUris.size() < 3) {
+                Toast.makeText(getContext(), "Please fill out all fields and choose 3 images", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            double price = Double.parseDouble(priceString);
-            int quantity = Integer.parseInt(quantityString); // Parse quantity
+            try {
+                double price = Double.parseDouble(priceString);
+                int quantity = Integer.parseInt(quantityString);
 
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
-                String userId = user.getUid();
-                uploadProductImage(userId, name, price, description, quantity, category); // Pass quantity
-            } else {
-                Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+                // Get current user
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    String userId = user.getUid();
+                    uploadProductImages(userId, name, price, description, quantity, category, selectedImageUris);
+                } else {
+                    Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid price or quantity", Toast.LENGTH_SHORT).show();
             }
         });
 
+        // Create and show the dialog
         alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void uploadProductImage(String userId, String name, double price, String description, int quantity, String category) {
-        StorageReference storageRef = storage.getReference().child("products/" + userId + "/" + System.currentTimeMillis() + ".jpg");
 
-        UploadTask uploadTask = storageRef.putFile(selectedImageUri);
-        uploadTask.addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-            String imageUrl = uri.toString();
-            saveProductToFirestore(userId, name, price, description, quantity, category, imageUrl); // Pass quantity
-        })).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
-    }
-
-    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String imageUrl) {
-        Product product = new Product("", name, price, description, imageUrl, category, userId, quantity); // Pass quantity
-
-        db.collection("users").document(userId)
-                .collection("products").add(product)
-                .addOnSuccessListener(documentReference -> {
-                    categorizedProducts.get(category).add(product);
-                    categoryCounts.put(category, categoryCounts.get(category) + 1);
-                    Toast.makeText(requireContext(), "Product added", Toast.LENGTH_SHORT).show();
-                    categoryAdapter.notifyDataSetChanged();
-                    alertDialog.dismiss();
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
-    }
-
-    private void openFileChooser() {
+    private void openFileChooser(int index, ImageView productImage) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST + index);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData();
-            ImageView productImage = alertDialog.findViewById(R.id.iv_product_image);
-            if (productImage != null) {
-                productImage.setVisibility(View.VISIBLE);
-                Glide.with(this).load(selectedImageUri).into(productImage);
+        if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri selectedImageUri = data.getData();
+            int index = requestCode - PICK_IMAGE_REQUEST;
+            if (index >= 0 && index < 3) {
+                selectedImageUris.set(index, selectedImageUri);
+                ImageView productImage = alertDialog.findViewById(getImageViewId(index));
+                if (productImage != null) {
+                    productImage.setVisibility(View.VISIBLE);
+                    Glide.with(this).load(selectedImageUri).into(productImage);
+                }
             }
         }
+    }
+
+    private int getImageViewId(int index) {
+        switch (index) {
+            case 0: return R.id.iv_product_image1;
+            case 1: return R.id.iv_product_image2;
+            case 2: return R.id.iv_product_image3;
+            default: return -1;
+        }
+    }
+
+    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, List<Uri> selectedImageUris) {
+        List<String> imageUrls = new ArrayList<>();
+        StorageReference storageRef = storage.getReference().child("products/" + userId);
+
+        for (int i = 0; i < selectedImageUris.size(); i++) {
+            Uri imageUri = selectedImageUris.get(i);
+            StorageReference imageRef = storageRef.child(System.currentTimeMillis() + "_" + i + ".jpg");
+
+            imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    imageUrls.add(uri.toString());
+                    if (imageUrls.size() == selectedImageUris.size()) {
+                        saveProductToFirestore(userId, name, price, description, quantity, category, imageUrls);
+                    }
+                });
+            }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, List<String> imageUrls) {
+        Product product = new Product("", name, price, description, imageUrls, category, userId, quantity);
+
+        db.collection("users").document(userId)
+                .collection("products").add(product)
+                .addOnSuccessListener(documentReference -> {
+                    if (categorizedProducts.containsKey(category)) {
+                        categorizedProducts.get(category).add(product);
+
+                        // Safely update category count
+                        Integer currentCount = categoryCounts.get(category);
+                        if (currentCount == null) {
+                            currentCount = 0; // Initialize if null
+                        }
+                        categoryCounts.put(category, currentCount + 1);
+
+                        Toast.makeText(requireContext(), "Product added", Toast.LENGTH_SHORT).show();
+                        categoryAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.e("InventoryFragment", "Category not found: " + category);
+                    }
+                    alertDialog.dismiss();
+                })
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
     }
 }

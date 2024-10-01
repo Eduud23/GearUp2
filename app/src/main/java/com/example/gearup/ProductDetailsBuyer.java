@@ -3,20 +3,21 @@ package com.example.gearup;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.bumptech.glide.Glide;
 
 public class ProductDetailsBuyer extends AppCompatActivity {
     private TextView productName, productPrice, productDescription;
-    private ImageView productImage;
     private Button addToCartButton, checkoutButton;
-    private EditText productQuantity; // Change from TextView to EditText
+    private EditText productQuantity; // EditText for quantity
+    private ViewPager2 viewPager; // ViewPager2 for image slider
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -27,10 +28,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productName = findViewById(R.id.tv_product_name);
         productPrice = findViewById(R.id.tv_product_price);
         productDescription = findViewById(R.id.tv_product_description);
-        productImage = findViewById(R.id.iv_product_image);
         addToCartButton = findViewById(R.id.btn_add_to_cart);
         checkoutButton = findViewById(R.id.btn_checkout);
         productQuantity = findViewById(R.id.et_product_quantity); // Initialize the EditText
+        viewPager = findViewById(R.id.viewPager); // Initialize ViewPager2
 
         // Get product from intent
         Product product = getIntent().getParcelableExtra("PRODUCT");
@@ -39,23 +40,15 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             productName.setText(product.getName());
             productPrice.setText(String.format("₱%.2f", product.getPrice()));
             productDescription.setText(product.getDescription());
-            Glide.with(this).load(product.getImageUrl()).into(productImage);
+
+            // Load images into ViewPager2
+            ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
+            viewPager.setAdapter(imageSliderAdapter);
         }
 
         // Set up button click listeners
-        addToCartButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addToCart(product);
-            }
-        });
-
-        checkoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkout();
-            }
-        });
+        addToCartButton.setOnClickListener(v -> addToCart(product));
+        checkoutButton.setOnClickListener(v -> checkout());
     }
 
     private void addToCart(Product product) {
@@ -84,7 +77,6 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
 
     private void checkout() {
         // Navigate to checkout logic

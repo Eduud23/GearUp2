@@ -44,9 +44,15 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
                 holder.productDescription[i].setText(product.getDescription());
 
                 // Load product image
-                Glide.with(holder.itemView.getContext())
-                        .load(product.getImageUrl())
-                        .into(holder.productImage[i]);
+                List<String> imageUrls = product.getImageUrls(); // Get the list of image URLs
+                if (imageUrls != null && !imageUrls.isEmpty()) {
+                    String imageUri = imageUrls.get(0); // Load the first image
+                    Glide.with(holder.itemView.getContext())
+                            .load(imageUri)
+                            .into(holder.productImage[i]);
+                } else {
+                    holder.productImage[i].setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
+                }
 
                 // Load seller profile image
                 String profileImageUrl = product.getSellerProfileImageUrl();

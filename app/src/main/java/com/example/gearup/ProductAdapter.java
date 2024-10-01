@@ -42,10 +42,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
         holder.productDescription.setText(product.getDescription());
 
-        // Load product image
-        Glide.with(holder.itemView.getContext())
-                .load(product.getImageUrl())
-                .into(holder.productImage);
+        // Load the first product image from the list of URLs
+        List<String> imageUrls = product.getImageUrls(); // Assuming this method exists in your Product class
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrls.get(0)) // Load the first image URL
+                    .into(holder.productImage);
+        } else {
+            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
+        }
 
         // Load seller profile image
         String profileImageUrl = product.getSellerProfileImageUrl();
@@ -60,7 +65,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         // Set click listener for each item
         holder.itemView.setOnClickListener(v -> onProductClickListener.onProductClick(position));
     }
-
 
     @Override
     public int getItemCount() {

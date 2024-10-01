@@ -37,9 +37,16 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.tvProductQuantity.setText("Quantity: " + cartItem.getQuantity());
 
         // Load product image using Glide
-        Glide.with(holder.itemView.getContext())
-                .load(product.getImageUrl())
-                .into(holder.ivProductImage);
+        // Assuming you want to load the first image in the list
+        List<String> imageUrls = product.getImageUrls();
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(imageUrls.get(0)) // Load the first image
+                    .into(holder.ivProductImage);
+        } else {
+            // Optionally set a placeholder or a default image
+            holder.ivProductImage.setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
+        }
     }
 
     @Override

@@ -37,15 +37,19 @@ public class InventoryAdapter extends RecyclerView.Adapter<InventoryAdapter.Inve
         Product product = productList.get(position);
         holder.productName.setText(product.getName());
         holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
-        // Remove category if not present in Product class
         holder.productCategory.setVisibility(View.GONE); // Hide or remove category reference
 
-        String imageUri = product.getImageUrl();
-        Log.d("InventoryAdapter", "Loading image: " + imageUri);
-
-        Glide.with(context)
-                .load(imageUri)
-                .into(holder.productImage);
+        List<String> imageUrls = product.getImageUrls();
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            String imageUri = imageUrls.get(0); // Load the first image
+            Log.d("InventoryAdapter", "Loading image: " + imageUri);
+            Glide.with(context)
+                    .load(imageUri)
+                    .into(holder.productImage);
+        } else {
+            // Optionally set a placeholder or a default image
+            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
+        }
     }
 
     @Override
