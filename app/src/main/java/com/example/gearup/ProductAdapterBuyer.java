@@ -34,64 +34,82 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        // Bind data for two products
-        for (int i = 0; i < 2; i++) {
-            int index = position * 2 + i;
-            if (index < products.size()) {
-                Product product = products.get(index);
-                holder.productName[i].setText(product.getName());
-                holder.productPrice[i].setText(String.format("₱%.2f", product.getPrice()));
-                holder.productDescription[i].setText(product.getDescription());
+        // Bind first product
+        int firstProductIndex = position * 2;
+        if (firstProductIndex < products.size()) {
+            Product firstProduct = products.get(firstProductIndex);
+            holder.productName[0].setText(firstProduct.getName());
+            holder.productPrice[0].setText(String.format("₱%.2f", firstProduct.getPrice()));
+            holder.productDescription[0].setText(firstProduct.getDescription());
 
-                // Load product image
-                List<String> imageUrls = product.getImageUrls(); // Get the list of image URLs
-                if (imageUrls != null && !imageUrls.isEmpty()) {
-                    String imageUri = imageUrls.get(0); // Load the first image
-                    Glide.with(holder.itemView.getContext())
-                            .load(imageUri)
-                            .into(holder.productImage[i]);
-                } else {
-                    holder.productImage[i].setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
-                }
-
-                // Load seller profile image
-                String profileImageUrl = product.getSellerProfileImageUrl();
-                if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                    Glide.with(holder.itemView.getContext())
-                            .load(profileImageUrl)
-                            .into(holder.sellerProfileImage[i]);
-                } else {
-                    holder.sellerProfileImage[i].setImageResource(R.drawable.ic_launcher_foreground); // Default image
-                }
-
-                // Show product details
-                holder.productImage[i].setVisibility(View.VISIBLE);
-                holder.productName[i].setVisibility(View.VISIBLE);
-                holder.productPrice[i].setVisibility(View.VISIBLE);
-                holder.productDescription[i].setVisibility(View.VISIBLE);
+            // Load product image
+            List<String> imageUrls = firstProduct.getImageUrls();
+            if (imageUrls != null && !imageUrls.isEmpty()) {
+                String imageUri = imageUrls.get(0);
+                Glide.with(holder.itemView.getContext())
+                        .load(imageUri)
+                        .into(holder.productImage[0]);
             } else {
-                // Hide second product if there's no data
-                holder.productImage[i].setVisibility(View.GONE);
-                holder.productName[i].setVisibility(View.GONE);
-                holder.productPrice[i].setVisibility(View.GONE);
-                holder.productDescription[i].setVisibility(View.GONE);
+                holder.productImage[0].setImageResource(R.drawable.ic_launcher_foreground);
             }
+
+            // Load seller profile image
+            String profileImageUrl = firstProduct.getSellerProfileImageUrl();
+            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(profileImageUrl)
+                        .into(holder.sellerProfileImage[0]);
+            } else {
+                holder.sellerProfileImage[0].setImageResource(R.drawable.ic_launcher_foreground);
+            }
+
+            // Set click listener for the first product
+            holder.productImage[0].setOnClickListener(v -> listener.onProductClick(firstProductIndex, "Some additional data"));
         }
 
-        // Set click listeners for each item
-        holder.itemView.setOnClickListener(v -> {
-            if (position * 2 < products.size()) {
-                listener.onProductClick(position * 2);
+        // Bind second product if exists
+        int secondProductIndex = firstProductIndex + 1;
+        if (secondProductIndex < products.size()) {
+            Product secondProduct = products.get(secondProductIndex);
+            holder.productName[1].setText(secondProduct.getName());
+            holder.productPrice[1].setText(String.format("₱%.2f", secondProduct.getPrice()));
+            holder.productDescription[1].setText(secondProduct.getDescription());
+
+            // Load product image
+            List<String> imageUrls = secondProduct.getImageUrls();
+            if (imageUrls != null && !imageUrls.isEmpty()) {
+                String imageUri = imageUrls.get(0);
+                Glide.with(holder.itemView.getContext())
+                        .load(imageUri)
+                        .into(holder.productImage[1]);
+            } else {
+                holder.productImage[1].setImageResource(R.drawable.ic_launcher_foreground);
             }
-            if (position * 2 + 1 < products.size()) {
-                listener.onProductClick(position * 2 + 1);
+
+            // Load seller profile image
+            String profileImageUrl = secondProduct.getSellerProfileImageUrl();
+            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(profileImageUrl)
+                        .into(holder.sellerProfileImage[1]);
+            } else {
+                holder.sellerProfileImage[1].setImageResource(R.drawable.ic_launcher_foreground);
             }
-        });
+
+            // Set click listener for the second product
+            holder.productImage[1].setOnClickListener(v -> listener.onProductClick(secondProductIndex, "Some additional data"));
+        } else {
+            // Hide the second product view if there isn't one
+            holder.productImage[1].setVisibility(View.GONE);
+            holder.productName[1].setVisibility(View.GONE);
+            holder.productPrice[1].setVisibility(View.GONE);
+            holder.productDescription[1].setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return (products.size() + 1) / 2; // Two products per item
+        return (products.size() + 1) / 2; // Two products per row
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -119,6 +137,6 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
     }
 
     public interface OnProductClickListener {
-        void onProductClick(int position);
+        void onProductClick(int position, String additionalData);
     }
 }

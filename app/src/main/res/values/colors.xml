@@ -11,4 +11,6 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorBackground">#FFFFFF</color>
     <color name="colorText">#000000</color>
+    <color name="transparent">#00000000</color>
+
 </resources>

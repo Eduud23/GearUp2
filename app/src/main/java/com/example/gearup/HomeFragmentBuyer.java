@@ -150,7 +150,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     }
 
     @Override
-    public void onProductClick(int position) {
+    public void onProductClick(int position, String additionalData) {
         Product clickedProduct;
 
         if (position < centralComponentsList.size()) {

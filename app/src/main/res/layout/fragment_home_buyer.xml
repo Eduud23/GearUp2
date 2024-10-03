@@ -73,7 +73,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager_central_components"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/viewpager_background"/>
 
             <TextView
                 android:id="@+id/label_body"
@@ -86,7 +87,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager_body"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/viewpager_background"/>
 
             <TextView
                 android:id="@+id/label_connectors"
@@ -99,7 +101,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager_connectors"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/viewpager_background"/>
 
             <TextView
                 android:id="@+id/label_peripherals"
@@ -112,7 +115,8 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager_peripherals"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/viewpager_background"/>
 
         </LinearLayout>
     </ScrollView>
