@@ -11,18 +11,23 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuyer.ProductViewHolder> {
-    private final List<Product> products;
+    private List<Product> allProducts; // Full list of products
+    private List<Product> displayedProducts; // Currently displayed products
     private final OnProductClickListener listener;
+    private final String category;
 
-    public ProductAdapterBuyer(List<Product> products, OnProductClickListener listener) {
-        if (products == null || listener == null) {
+    public ProductAdapterBuyer(List<Product> products, String category, OnProductClickListener listener) {
+        if (products == null || listener == null || category == null) {
             throw new IllegalArgumentException("Arguments cannot be null");
         }
-        this.products = products;
+        this.allProducts = new ArrayList<>(products); // Initialize full list
+        this.displayedProducts = new ArrayList<>(products); // Start with all products displayed
         this.listener = listener;
+        this.category = category;
     }
 
     @NonNull
@@ -36,8 +41,8 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         // Bind first product
         int firstProductIndex = position * 2;
-        if (firstProductIndex < products.size()) {
-            Product firstProduct = products.get(firstProductIndex);
+        if (firstProductIndex < displayedProducts.size()) {
+            Product firstProduct = displayedProducts.get(firstProductIndex);
             holder.productName[0].setText(firstProduct.getName());
             holder.productPrice[0].setText(String.format("₱%.2f", firstProduct.getPrice()));
             holder.productDescription[0].setText(firstProduct.getDescription());
@@ -64,13 +69,13 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             }
 
             // Set click listener for the first product
-            holder.productImage[0].setOnClickListener(v -> listener.onProductClick(firstProductIndex, "Some additional data"));
+            holder.productImage[0].setOnClickListener(v -> listener.onProductClick(firstProductIndex, category));
         }
 
         // Bind second product if exists
         int secondProductIndex = firstProductIndex + 1;
-        if (secondProductIndex < products.size()) {
-            Product secondProduct = products.get(secondProductIndex);
+        if (secondProductIndex < displayedProducts.size()) {
+            Product secondProduct = displayedProducts.get(secondProductIndex);
             holder.productName[1].setText(secondProduct.getName());
             holder.productPrice[1].setText(String.format("₱%.2f", secondProduct.getPrice()));
             holder.productDescription[1].setText(secondProduct.getDescription());
@@ -97,7 +102,7 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             }
 
             // Set click listener for the second product
-            holder.productImage[1].setOnClickListener(v -> listener.onProductClick(secondProductIndex, "Some additional data"));
+            holder.productImage[1].setOnClickListener(v -> listener.onProductClick(secondProductIndex, category));
         } else {
             // Hide the second product view if there isn't one
             holder.productImage[1].setVisibility(View.GONE);
@@ -109,7 +114,19 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
 
     @Override
     public int getItemCount() {
-        return (products.size() + 1) / 2; // Two products per row
+        return (displayedProducts.size() + 1) / 2; // Two products per row
+    }
+
+    public void updateProductList(List<Product> newProducts) {
+        this.displayedProducts.clear();
+        this.displayedProducts.addAll(newProducts);
+        notifyDataSetChanged(); // Refresh the adapter with new product list
+    }
+
+    public void resetProductList() {
+        this.displayedProducts.clear();
+        this.displayedProducts.addAll(allProducts); // Restore to full list
+        notifyDataSetChanged(); // Refresh the adapter with full product list
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -137,6 +154,6 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
     }
 
     public interface OnProductClickListener {
-        void onProductClick(int position, String additionalData);
+        void onProductClick(int position, String category);
     }
 }

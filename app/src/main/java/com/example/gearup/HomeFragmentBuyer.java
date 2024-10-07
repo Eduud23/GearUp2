@@ -3,10 +3,13 @@ package com.example.gearup;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -31,6 +34,8 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     private List<Product> connectorsList = new ArrayList<>();
     private List<Product> peripheralsList = new ArrayList<>();
 
+    private EditText searchBar;
+
     @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
@@ -41,6 +46,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         viewPagerBody = view.findViewById(R.id.viewPager_body);
         viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
         viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
+        searchBar = view.findViewById(R.id.search_bar);
 
         ImageView iconCart = view.findViewById(R.id.icon_cart);
         iconCart.setOnClickListener(v -> {
@@ -50,6 +56,23 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
 
         db = FirebaseFirestore.getInstance();
         loadProducts();
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.toString().trim().isEmpty()) {
+                    loadProducts(); // Refresh the product lists when search bar is empty
+                } else {
+                    filterProducts(s.toString().trim());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         return view;
     }
@@ -107,23 +130,60 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     }
 
     private void setAdapters() {
-        adapterCentralComponents = new ProductAdapterBuyer(centralComponentsList, this);
+        adapterCentralComponents = new ProductAdapterBuyer(new ArrayList<>(centralComponentsList), "Central Components", this);
         viewPagerCentralComponents.setAdapter(adapterCentralComponents);
         viewPagerCentralComponents.setOffscreenPageLimit(1);
 
-        adapterBody = new ProductAdapterBuyer(bodyList, this);
+        adapterBody = new ProductAdapterBuyer(new ArrayList<>(bodyList), "Body", this);
         viewPagerBody.setAdapter(adapterBody);
         viewPagerBody.setOffscreenPageLimit(1);
 
-        adapterConnectors = new ProductAdapterBuyer(connectorsList, this);
+        adapterConnectors = new ProductAdapterBuyer(new ArrayList<>(connectorsList), "Connectors", this);
         viewPagerConnectors.setAdapter(adapterConnectors);
         viewPagerConnectors.setOffscreenPageLimit(1);
 
-        adapterPeripherals = new ProductAdapterBuyer(peripheralsList, this);
+        adapterPeripherals = new ProductAdapterBuyer(new ArrayList<>(peripheralsList), "Peripherals", this);
         viewPagerPeripherals.setAdapter(adapterPeripherals);
         viewPagerPeripherals.setOffscreenPageLimit(1);
 
         Log.d("HomeFragmentBuyer", "Total products loaded: " + (centralComponentsList.size() + bodyList.size() + connectorsList.size() + peripheralsList.size()));
+    }
+
+    private void filterProducts(String query) {
+        List<Product> filteredCentralComponents = new ArrayList<>();
+        List<Product> filteredBody = new ArrayList<>();
+        List<Product> filteredConnectors = new ArrayList<>();
+        List<Product> filteredPeripherals = new ArrayList<>();
+
+        for (Product product : centralComponentsList) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredCentralComponents.add(product);
+            }
+        }
+
+        for (Product product : bodyList) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredBody.add(product);
+            }
+        }
+
+        for (Product product : connectorsList) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredConnectors.add(product);
+            }
+        }
+
+        for (Product product : peripheralsList) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredPeripherals.add(product);
+            }
+        }
+
+        // Update adapters with filtered lists
+        adapterCentralComponents.updateProductList(filteredCentralComponents);
+        adapterBody.updateProductList(filteredBody);
+        adapterConnectors.updateProductList(filteredConnectors);
+        adapterPeripherals.updateProductList(filteredPeripherals);
     }
 
     private void loadSellerProfile(Product product) {
@@ -150,17 +210,17 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     }
 
     @Override
-    public void onProductClick(int position, String additionalData) {
+    public void onProductClick(int position, String category) {
         Product clickedProduct;
 
-        if (position < centralComponentsList.size()) {
+        if (category.equals("Central Components")) {
             clickedProduct = centralComponentsList.get(position);
-        } else if (position < centralComponentsList.size() + bodyList.size()) {
-            clickedProduct = bodyList.get(position - centralComponentsList.size());
-        } else if (position < centralComponentsList.size() + bodyList.size() + connectorsList.size()) {
-            clickedProduct = connectorsList.get(position - (centralComponentsList.size() + bodyList.size()));
-        } else {
-            clickedProduct = peripheralsList.get(position - (centralComponentsList.size() + bodyList.size() + connectorsList.size()));
+        } else if (category.equals("Body")) {
+            clickedProduct = bodyList.get(position);
+        } else if (category.equals("Connectors")) {
+            clickedProduct = connectorsList.get(position);
+        } else { // Peripherals
+            clickedProduct = peripheralsList.get(position);
         }
 
         // Start ProductDetailsActivity

@@ -11,13 +11,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
-
 public class ProductDetailsBuyer extends AppCompatActivity {
-    private TextView productName, productPrice, productDescription;
+    private TextView productName, productPrice, productDescription, availableQuantityText; // New TextView for available quantity
     private Button addToCartButton, checkoutButton;
     private EditText productQuantity; // EditText for quantity
     private ViewPager2 viewPager; // ViewPager2 for image slider
+    private int maxQuantity; // Max quantity allowed by seller
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -28,6 +27,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productName = findViewById(R.id.tv_product_name);
         productPrice = findViewById(R.id.tv_product_price);
         productDescription = findViewById(R.id.tv_product_description);
+        availableQuantityText = findViewById(R.id.tv_available_quantity); // Initialize new TextView
         addToCartButton = findViewById(R.id.btn_add_to_cart);
         checkoutButton = findViewById(R.id.btn_checkout);
         productQuantity = findViewById(R.id.et_product_quantity); // Initialize the EditText
@@ -40,6 +40,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             productName.setText(product.getName());
             productPrice.setText(String.format("₱%.2f", product.getPrice()));
             productDescription.setText(product.getDescription());
+            maxQuantity = product.getQuantity(); // Set max quantity
+
+            // Display available quantity
+            availableQuantityText.setText("Available Quantity: " + maxQuantity);
 
             // Load images into ViewPager2
             ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
@@ -56,6 +60,12 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             String quantityText = productQuantity.getText().toString();
             int quantity = quantityText.isEmpty() ? 1 : Integer.parseInt(quantityText); // Default to 1 if empty
 
+            // Validate quantity
+            if (quantity < 1 || quantity > maxQuantity) {
+                Toast.makeText(this, "Please enter a quantity between 1 and " + maxQuantity, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             // Check if the product is already in the cart
             boolean alreadyInCart = false;
             for (CartItem item : Cart.getInstance().getItems()) {
@@ -67,7 +77,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             }
 
             if (!alreadyInCart) {
-                Cart.getInstance().addToCart(product, quantity); // Add as new item
+                Cart.getInstance().addToCart(product, quantity);
             }
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();

@@ -33,9 +33,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"/>
 
+    <TextView
+        android:id="@+id/tv_available_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"
+        android:textColor="@android:color/holo_blue_dark"/>
+
     <EditText
         android:id="@+id/et_product_quantity"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter Quantity"
         android:inputType="number"
