@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
@@ -21,6 +23,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.paymentsheet.PaymentSheet;
 import com.stripe.android.paymentsheet.PaymentSheetResult;
@@ -32,10 +39,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ProductDetailsBuyer extends AppCompatActivity {
-    private TextView productName, productPrice, productDescription, availableQuantityText;
+    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName;
     private Button addToCartButton, checkoutButton;
     private EditText productQuantity;
     private ViewPager2 viewPager;
+    private ImageView sellerProfileImage;
     private int maxQuantity;
 
     // Stripe variables
@@ -45,6 +53,8 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     private String EphericalKey;
     private String ClientSecret;
     private PaymentSheet paymentSheet;
+
+    private FirebaseFirestore db;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -57,10 +67,14 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productPrice = findViewById(R.id.tv_product_price);
         productDescription = findViewById(R.id.tv_product_description);
         availableQuantityText = findViewById(R.id.tv_available_quantity);
+        sellerName = findViewById(R.id.tv_seller_name);
+        sellerProfileImage = findViewById(R.id.iv_seller_profile);
         addToCartButton = findViewById(R.id.btn_add_to_cart);
         checkoutButton = findViewById(R.id.btn_checkout);
         productQuantity = findViewById(R.id.et_product_quantity);
         viewPager = findViewById(R.id.viewPager);
+
+        db = FirebaseFirestore.getInstance();
 
         // Initialize Stripe
         PaymentConfiguration.init(this, PublishableKey);
@@ -81,11 +95,42 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             // Load images into ViewPager2
             ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
             viewPager.setAdapter(imageSliderAdapter);
+
+            // Retrieve seller info from Firestore
+            getSellerInfo(product.getSellerId());
         }
 
         // Set up button click listeners
         addToCartButton.setOnClickListener(v -> addToCart(product));
         checkoutButton.setOnClickListener(v -> paymentFlow());
+    }
+
+    private void getSellerInfo(String sellerId) {
+        db.collection("sellers").document(sellerId)
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String sellerNameStr = documentSnapshot.getString("shopName");
+                            String sellerProfileImageUrl = documentSnapshot.getString("profile_image_url");
+
+                            sellerName.setText(sellerNameStr);
+                            Glide.with(ProductDetailsBuyer.this)
+                                    .load(sellerProfileImageUrl)
+                                    .placeholder(R.drawable.ic_launcher_background) // Placeholder image
+                                    .into(sellerProfileImage);
+                        } else {
+                            Toast.makeText(ProductDetailsBuyer.this, "Seller not found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(ProductDetailsBuyer.this, "Error getting seller info", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void addToCart(Product product) {
@@ -225,7 +270,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 Map<String, String> params = new HashMap<>();
                 params.put("customer", CustomerId);
                 params.put("amount", "10000"); // Example amount
-                params.put("currency", "USD");
+                params.put("currency", "PHP");
                 params.put("automatic_payment_methods[enabled]", "true");
                 return params;
             }
