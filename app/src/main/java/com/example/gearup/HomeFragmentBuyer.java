@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,36 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             startActivity(intent);
         });
 
+        // Click listeners for See All buttons
+        TextView textSeeAllCentral = view.findViewById(R.id.text_see_all_central);
+        TextView textSeeAllBody = view.findViewById(R.id.text_see_all_body);
+        TextView textSeeAllConnectors = view.findViewById(R.id.text_see_all_connectors);
+        TextView textSeeAllPeripherals = view.findViewById(R.id.text_see_all_peripherals);
+
+
+        textSeeAllConnectors.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), ConnectorsActivity.class);
+            startActivity(intent);
+        });
+
+        textSeeAllCentral.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), CentralComponentsActivity.class);
+            startActivity(intent);
+        });
+
+        textSeeAllBody.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), BodyActivity.class);
+            startActivity(intent);
+        });
+        textSeeAllPeripherals.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), PeripheralsActivity.class);
+            startActivity(intent);
+        });
+
+
+
+
+
         db = FirebaseFirestore.getInstance();
         loadProducts();
 
@@ -64,7 +95,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.toString().trim().isEmpty()) {
-                    loadProducts(); // Refresh the product lists when search bar is empty
+                    loadProducts();
                 } else {
                     filterProducts(s.toString().trim());
                 }
@@ -107,7 +138,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         String category = product.getCategory();
         if (category == null) {
             Log.e("HomeFragmentBuyer", "Product category is null for product: " + product.getName());
-            return; // Early exit if category is null
+            return;
         }
 
         switch (category) {
@@ -179,7 +210,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             }
         }
 
-        // Update adapters with filtered lists
         adapterCentralComponents.updateProductList(filteredCentralComponents);
         adapterBody.updateProductList(filteredBody);
         adapterConnectors.updateProductList(filteredConnectors);
@@ -223,7 +253,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             clickedProduct = peripheralsList.get(position);
         }
 
-        // Start ProductDetailsActivity
         Intent intent = new Intent(getContext(), ProductDetailsBuyer.class);
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);

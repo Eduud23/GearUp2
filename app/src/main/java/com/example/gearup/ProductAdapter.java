@@ -43,13 +43,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productDescription.setText(product.getDescription());
 
         // Load the first product image from the list of URLs
-        List<String> imageUrls = product.getImageUrls(); // Assuming this method exists in your Product class
+        List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrls.get(0)) // Load the first image URL
+                    .load(imageUrls.get(0))
                     .into(holder.productImage);
         } else {
-            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
+            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Placeholder image
         }
 
         // Load seller profile image
@@ -87,5 +87,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     public interface OnProductClickListener {
         void onProductClick(int position);
+    }
+
+    // New method to update the product list
+    public void updateProducts(List<Product> newProducts) {
+        products.clear();
+        products.addAll(newProducts);
+        notifyDataSetChanged();
     }
 }

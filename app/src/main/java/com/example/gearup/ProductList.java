@@ -26,7 +26,7 @@ public class ProductList extends AppCompatActivity {
     private List<Product> products = new ArrayList<>();
     private FirebaseFirestore db;
     private FirebaseUser user;
-    private static final int PRODUCT_DETAILS_REQUEST_CODE = 1;
+    static final int PRODUCT_DETAILS_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

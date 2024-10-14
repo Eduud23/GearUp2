@@ -12,15 +12,13 @@ public class Product implements Parcelable {
     private List<String> imageUrls; // Change this to List<String>
     private String category;
     private String sellerId;
-    private String sellerProfileImageUrl; // Field for seller profile image URL
+    private String sellerProfileImageUrl;
     private int quantity;
 
-    // No-argument constructor for Firebase Firestore
     public Product() {
-        // Default constructor required for calls to DataSnapshot.getValue(Product.class)
+        // Default constructor
     }
 
-    // Updated constructor for multiple images
     public Product(String id, String name, double price, String description, List<String> imageUrls, String category, String sellerId, int quantity) {
         this.id = id;
         this.name = name;

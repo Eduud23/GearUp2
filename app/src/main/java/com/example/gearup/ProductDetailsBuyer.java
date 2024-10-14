@@ -113,7 +113,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             String sellerNameStr = documentSnapshot.getString("shopName");
-                            String sellerProfileImageUrl = documentSnapshot.getString("profile_image_url");
+                            String sellerProfileImageUrl = documentSnapshot.getString("profileImageUrl");
 
                             sellerName.setText(sellerNameStr);
                             Glide.with(ProductDetailsBuyer.this)
@@ -268,9 +268,9 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("customer", CustomerId);
-                params.put("amount", "10000"); // Example amount
-                params.put("currency", "PHP");
+                params.put("customer", customerId);
+                params.put("amount", "1000"); // Replace with actual amount
+                params.put("currency", "usd");
                 params.put("automatic_payment_methods[enabled]", "true");
                 return params;
             }
@@ -281,12 +281,14 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     }
 
     private void paymentFlowPresent() {
-        paymentSheet.presentWithPaymentIntent(ClientSecret, new PaymentSheet.Configuration("Learn with Arvind", new PaymentSheet.CustomerConfiguration(CustomerId, EphericalKey)));
+        paymentSheet.presentWithPaymentIntent(ClientSecret, new PaymentSheet.Configuration("GearUp", new PaymentSheet.CustomerConfiguration(CustomerId, EphericalKey)));
     }
 
     private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
         if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
-            Toast.makeText(this, "Payment Success", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
         }
     }
 }
