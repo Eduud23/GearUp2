@@ -15,11 +15,15 @@ public class Product implements Parcelable {
     private String sellerProfileImageUrl;
     private int quantity;
 
+    // New fields for brand and year model
+    private String brand; // Added brand field
+    private String yearModel; // Added year model field
+
     public Product() {
         // Default constructor
     }
 
-    public Product(String id, String name, double price, String description, List<String> imageUrls, String category, String sellerId, int quantity) {
+    public Product(String id, String name, double price, String description, List<String> imageUrls, String category, String sellerId, int quantity, String brand, String yearModel) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -29,6 +33,8 @@ public class Product implements Parcelable {
         this.sellerId = sellerId;
         this.sellerProfileImageUrl = ""; // Default value if not provided
         this.quantity = quantity;
+        this.brand = brand; // Set brand
+        this.yearModel = yearModel; // Set year model
     }
 
     // Parcelable implementation
@@ -42,6 +48,10 @@ public class Product implements Parcelable {
         sellerId = in.readString();
         sellerProfileImageUrl = in.readString();
         quantity = in.readInt();
+
+        // Read brand and year model from Parcel
+        brand = in.readString(); // Read brand
+        yearModel = in.readString(); // Read year model
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -67,6 +77,10 @@ public class Product implements Parcelable {
         dest.writeString(sellerId);
         dest.writeString(sellerProfileImageUrl);
         dest.writeInt(quantity);
+
+        // Write brand and year model to Parcel
+        dest.writeString(brand); // Write brand
+        dest.writeString(yearModel); // Write year model
     }
 
     @Override
@@ -154,5 +168,22 @@ public class Product implements Parcelable {
         } else {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
+    }
+
+    // New getters and setters for brand and year model
+    public String getBrand() {
+        return brand; // Getter for brand
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand; // Setter for brand
+    }
+
+    public String getYearModel() {
+        return yearModel; // Getter for year model
+    }
+
+    public void setYearModel(String yearModel) {
+        this.yearModel = yearModel; // Setter for year model
     }
 }

@@ -10,8 +10,6 @@
     android:layout_margin="4dp"
     android:elevation="4dp">
 
-
-
     <ImageView
         android:id="@+id/iv_product_image"
         android:layout_width="match_parent"
@@ -47,6 +45,26 @@
         android:layout_marginTop="8dp"
         android:text="Product Name" />
 
+    <!-- Brand -->
+    <TextView
+        android:id="@+id/tv_product_brand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="4dp"
+        android:text="Brand" />
+
+    <!-- Year Model -->
+    <TextView
+        android:id="@+id/tv_product_year_model"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="4dp"
+        android:text="Year Model" />
+
     <!-- Product Price -->
     <TextView
         android:id="@+id/tv_product_price"
@@ -67,8 +85,5 @@
         android:text="Product Description"
         android:maxLines="2"
         android:ellipsize="end" />
-
-
-
 
 </LinearLayout>

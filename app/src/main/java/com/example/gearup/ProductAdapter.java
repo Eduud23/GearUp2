@@ -42,6 +42,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
         holder.productDescription.setText(product.getDescription());
 
+        // Bind brand and year model
+        holder.productBrand.setText(product.getBrand());
+        holder.productYearModel.setText(product.getYearModel());
+
         // Load the first product image from the list of URLs
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
@@ -72,7 +76,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productPrice, productDescription;
+        TextView productName, productPrice, productDescription, productBrand, productYearModel;
         ImageView productImage, sellerProfileImage;
 
         public ProductViewHolder(@NonNull View itemView) {
@@ -80,6 +84,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             productName = itemView.findViewById(R.id.tv_product_name);
             productPrice = itemView.findViewById(R.id.tv_product_price);
             productDescription = itemView.findViewById(R.id.tv_product_description);
+            productBrand = itemView.findViewById(R.id.tv_product_brand); // New TextView for brand
+            productYearModel = itemView.findViewById(R.id.tv_product_year_model); // New TextView for year model
             productImage = itemView.findViewById(R.id.iv_product_image);
             sellerProfileImage = itemView.findViewById(R.id.civ_seller_profile_image);
         }

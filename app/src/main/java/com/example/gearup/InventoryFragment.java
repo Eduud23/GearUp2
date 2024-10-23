@@ -170,6 +170,8 @@ public class InventoryFragment extends Fragment {
         EditText productPrice = dialogView.findViewById(R.id.et_product_price);
         EditText productDescription = dialogView.findViewById(R.id.et_product_description);
         EditText productQuantity = dialogView.findViewById(R.id.et_product_quantity);
+        EditText productBrand = dialogView.findViewById(R.id.et_product_brand);
+        EditText productYearModel = dialogView.findViewById(R.id.et_product_year_model);
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
 
         // Populate the spinner with categories
@@ -182,10 +184,7 @@ public class InventoryFragment extends Fragment {
         ImageView productImage1 = dialogView.findViewById(R.id.iv_product_image1);
         ImageView productImage2 = dialogView.findViewById(R.id.iv_product_image2);
         ImageView productImage3 = dialogView.findViewById(R.id.iv_product_image3);
-
-        Button chooseImageButton1 = dialogView.findViewById(R.id.btn_choose_image1);
-        Button chooseImageButton2 = dialogView.findViewById(R.id.btn_choose_image2);
-        Button chooseImageButton3 = dialogView.findViewById(R.id.btn_choose_image3);
+        Button chooseImageButton = dialogView.findViewById(R.id.btn_choose_image);
 
         // Reset selected image URIs for new product
         selectedImageUris.clear();
@@ -193,10 +192,8 @@ public class InventoryFragment extends Fragment {
             selectedImageUris.add(null);
         }
 
-        // Set up image selection buttons
-        chooseImageButton1.setOnClickListener(v -> openFileChooser(0, productImage1));
-        chooseImageButton2.setOnClickListener(v -> openFileChooser(1, productImage2));
-        chooseImageButton3.setOnClickListener(v -> openFileChooser(2, productImage3));
+        // Set up single image selection button
+        chooseImageButton.setOnClickListener(v -> openFileChooser());
 
         // Add product button listener
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
@@ -206,10 +203,12 @@ public class InventoryFragment extends Fragment {
             String priceString = productPrice.getText().toString().trim();
             String description = productDescription.getText().toString().trim();
             String quantityString = productQuantity.getText().toString().trim();
+            String brand = productBrand.getText().toString().trim();
+            String yearModel = productYearModel.getText().toString().trim();
             String category = categorySpinner.getSelectedItem() != null ? categorySpinner.getSelectedItem().toString() : "";
 
             // Validate input fields
-            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUris.size() < 3) {
+            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUris.size() < 3 || brand.isEmpty() || yearModel.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill out all fields and choose 3 images", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -222,7 +221,7 @@ public class InventoryFragment extends Fragment {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null) {
                     String userId = user.getUid();
-                    uploadProductImages(userId, name, price, description, quantity, category, selectedImageUris);
+                    uploadProductImages(userId, name, price, description, quantity, category, brand, yearModel, selectedImageUris);
                 } else {
                     Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
                 }
@@ -236,22 +235,33 @@ public class InventoryFragment extends Fragment {
         alertDialog.show();
     }
 
-
-    private void openFileChooser(int index, ImageView productImage) {
+    private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST + index);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Allow multiple selection
+        startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGE_REQUEST);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            Uri selectedImageUri = data.getData();
-            int index = requestCode - PICK_IMAGE_REQUEST;
-            if (index >= 0 && index < 3) {
-                selectedImageUris.set(index, selectedImageUri);
-                ImageView productImage = alertDialog.findViewById(getImageViewId(index));
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            if (data.getClipData() != null) {
+                int count = Math.min(data.getClipData().getItemCount(), 3); // Limit to 3 images
+                for (int i = 0; i < count; i++) {
+                    Uri selectedImageUri = data.getClipData().getItemAt(i).getUri();
+                    selectedImageUris.set(i, selectedImageUri);
+                    ImageView productImage = alertDialog.findViewById(getImageViewId(i));
+                    if (productImage != null) {
+                        productImage.setVisibility(View.VISIBLE);
+                        Glide.with(this).load(selectedImageUri).into(productImage);
+                    }
+                }
+            } else if (data.getData() != null) {
+                // Handle single image selection if multiple not allowed
+                Uri selectedImageUri = data.getData();
+                selectedImageUris.set(0, selectedImageUri);
+                ImageView productImage = alertDialog.findViewById(R.id.iv_product_image1);
                 if (productImage != null) {
                     productImage.setVisibility(View.VISIBLE);
                     Glide.with(this).load(selectedImageUri).into(productImage);
@@ -269,27 +279,29 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, List<Uri> selectedImageUris) {
+    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris) {
         List<String> imageUrls = new ArrayList<>();
         StorageReference storageRef = storage.getReference().child("products/" + userId);
 
         for (int i = 0; i < selectedImageUris.size(); i++) {
             Uri imageUri = selectedImageUris.get(i);
-            StorageReference imageRef = storageRef.child(System.currentTimeMillis() + "_" + i + ".jpg");
+            if (imageUri != null) {
+                StorageReference imageRef = storageRef.child(System.currentTimeMillis() + "_" + i + ".jpg");
 
-            imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
-                imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                    imageUrls.add(uri.toString());
-                    if (imageUrls.size() == selectedImageUris.size()) {
-                        saveProductToFirestore(userId, name, price, description, quantity, category, imageUrls);
-                    }
-                });
-            }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
+                imageRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+                    imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        imageUrls.add(uri.toString());
+                        if (imageUrls.size() == selectedImageUris.size()) {
+                            saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls);
+                        }
+                    });
+                }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
+            }
         }
     }
 
-    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, List<String> imageUrls) {
-        Product product = new Product("", name, price, description, imageUrls, category, userId, quantity);
+    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<String> imageUrls) {
+        Product product = new Product("", name, price, description, imageUrls, category, userId, quantity, brand, yearModel);
 
         db.collection("users").document(userId)
                 .collection("products").add(product)

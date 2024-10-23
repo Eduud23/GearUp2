@@ -23,7 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProductDetailsBuyer extends AppCompatActivity {
-    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName;
+    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel;
     private Button addToCartButton, checkoutButton;
     private EditText productQuantity;
     private ViewPager2 viewPager;
@@ -51,6 +51,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productQuantity = findViewById(R.id.et_product_quantity);
         viewPager = findViewById(R.id.viewPager);
 
+        // New fields
+        productBrand = findViewById(R.id.tv_product_brand);
+        productYearModel = findViewById(R.id.tv_product_year_model);
+
         db = FirebaseFirestore.getInstance();
 
         // Get product from intent
@@ -62,6 +66,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             productDescription.setText(product.getDescription());
             maxQuantity = product.getQuantity();
             availableQuantityText.setText("Available Quantity: " + maxQuantity);
+
+            // Set brand and year model
+            productBrand.setText(product.getBrand());
+            productYearModel.setText(product.getYearModel());
 
             // Load images into ViewPager2
             ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
@@ -137,8 +145,8 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
 
-            Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
-            startActivity(intent);
+          //  Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
+           // startActivity(intent);
         }
     }
 }

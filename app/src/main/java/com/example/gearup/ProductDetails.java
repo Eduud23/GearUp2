@@ -14,7 +14,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 public class ProductDetails extends AppCompatActivity {
 
-    private EditText etProductName, etProductPrice, etProductDescription, etProductQuantity;
+    private EditText etProductName, etProductPrice, etProductDescription, etProductQuantity, etProductBrand, etProductYearModel;
     private Button btnSave, btnDelete;
     private Product product;
     private int position;
@@ -29,6 +29,8 @@ public class ProductDetails extends AppCompatActivity {
         etProductPrice = findViewById(R.id.et_product_price);
         etProductDescription = findViewById(R.id.et_product_description);
         etProductQuantity = findViewById(R.id.et_product_quantity);
+        etProductBrand = findViewById(R.id.et_product_brand);
+        etProductYearModel = findViewById(R.id.et_product_year_model);
         btnSave = findViewById(R.id.btnSave);
         btnDelete = findViewById(R.id.btn_delete);
 
@@ -41,7 +43,9 @@ public class ProductDetails extends AppCompatActivity {
             etProductName.setText(product.getName());
             etProductPrice.setText(String.valueOf(product.getPrice()));
             etProductDescription.setText(product.getDescription());
-            etProductQuantity.setText(String.valueOf(product.getQuantity())); // Assuming getQuantity() exists
+            etProductQuantity.setText(String.valueOf(product.getQuantity()));
+            etProductBrand.setText(product.getBrand()); // Assuming getBrand() exists
+            etProductYearModel.setText(product.getYearModel()); // Assuming getYearModel() exists
 
             // Load images into ViewPager2
             ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
@@ -53,14 +57,18 @@ public class ProductDetails extends AppCompatActivity {
             String priceString = etProductPrice.getText().toString();
             String description = etProductDescription.getText().toString();
             String quantityString = etProductQuantity.getText().toString();
+            String brand = etProductBrand.getText().toString();
+            String yearModel = etProductYearModel.getText().toString();
 
-            if (!name.isEmpty() && !priceString.isEmpty() && !quantityString.isEmpty()) {
+            if (!name.isEmpty() && !priceString.isEmpty() && !quantityString.isEmpty() && !brand.isEmpty() && !yearModel.isEmpty()) {
                 double price = Double.parseDouble(priceString);
-                int quantity = Integer.parseInt(quantityString); // Parse quantity
+                int quantity = Integer.parseInt(quantityString);
                 product.setName(name);
                 product.setPrice(price);
                 product.setDescription(description);
-                product.setQuantity(quantity); // Assuming setQuantity() exists
+                product.setQuantity(quantity);
+                product.setBrand(brand); // Assuming setBrand() exists
+                product.setYearModel(yearModel); // Assuming setYearModel() exists
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("UPDATED_PRODUCT", product);

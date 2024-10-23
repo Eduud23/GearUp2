@@ -35,7 +35,7 @@ public class ProductList extends AppCompatActivity {
 
         recyclerViewProducts = findViewById(R.id.recyclerView_products);
         // Change the layout manager to GridLayoutManager with 3 columns
-        recyclerViewProducts.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerViewProducts.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();

@@ -29,8 +29,40 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Product Price"
+        android:text="Brand"
         android:layout_below="@id/et_product_name"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_product_brand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Product Brand"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/et_product_name"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Year Model"
+        android:layout_below="@id/et_product_brand"
+        android:layout_marginBottom="4dp" />
+
+    <EditText
+        android:id="@+id/et_product_year_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Year Model"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/et_product_brand"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Price"
+        android:layout_below="@id/et_product_year_model"
         android:layout_marginBottom="4dp" />
 
     <EditText
@@ -39,7 +71,7 @@
         android:layout_height="wrap_content"
         android:hint="Enter Product Price"
         android:layout_marginTop="10dp"
-        android:layout_below="@id/et_product_name"
+        android:layout_below="@id/et_product_year_model"
         android:layout_marginBottom="8dp" />
 
     <TextView

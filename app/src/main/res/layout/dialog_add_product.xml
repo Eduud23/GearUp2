@@ -21,6 +21,23 @@
         android:padding="12dp" />
 
     <EditText
+        android:id="@+id/et_product_brand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Brand"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/et_product_year_model"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Year Model"
+        android:inputType="number"
+        android:background="@drawable/edit_text_background"
+        android:padding="12dp" />
+
+    <EditText
         android:id="@+id/et_product_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,6 +79,13 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp" />
 
+    <Button
+        android:id="@+id/btn_choose_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Images"
+        android:layout_marginBottom="8dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,68 +93,29 @@
         android:gravity="center"
         android:layout_marginBottom="16dp">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
+        <ImageView
+            android:id="@+id/iv_product_image1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
 
-            <Button
-                android:id="@+id/btn_choose_image1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Choose Image 1" />
+        <ImageView
+            android:id="@+id/iv_product_image2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
 
-            <ImageView
-                android:id="@+id/iv_product_image1"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btn_choose_image2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Choose Image 2" />
-
-            <ImageView
-                android:id="@+id/iv_product_image2"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btn_choose_image3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Choose Image 3" />
-
-            <ImageView
-                android:id="@+id/iv_product_image3"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:layout_marginTop="8dp" />
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/iv_product_image3"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <Button
