@@ -145,8 +145,8 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
 
-          //  Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
-           // startActivity(intent);
+            //  Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
+            // startActivity(intent);
         }
     }
 }

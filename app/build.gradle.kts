@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.swiperefreshlayout)
     implementation(libs.cardview)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
