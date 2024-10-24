@@ -83,7 +83,9 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         // Set up button click listeners
         addToCartButton.setOnClickListener(v -> addToCart(product));
         checkoutButton.setOnClickListener(v -> {
-            // Handle checkout action
+            Intent intent = new Intent(ProductDetailsBuyer.this, DeliveryInfoActivity.class);
+            intent.putExtra("PRODUCT", product);  // Pass product info if needed
+            startActivity(intent);
         });
 
         // Set up click listeners for product name and seller profile image
@@ -144,9 +146,6 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             }
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
-
-            //  Intent intent = new Intent(ProductDetailsBuyer.this, CartActivity.class);
-            // startActivity(intent);
         }
     }
 }
