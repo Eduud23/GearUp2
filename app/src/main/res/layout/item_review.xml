@@ -2,20 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <RatingBar
-        android:id="@+id/rating_bar"
+    <TextView
+        android:id="@+id/tv_reviewer_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="1.0"
-        android:isIndicator="true" />
+        android:textStyle="bold"/>
 
     <TextView
         android:id="@+id/tv_review_text"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp" />
+        android:layout_height="wrap_content"/>
 </LinearLayout>

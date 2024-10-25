@@ -9,29 +9,30 @@ public class Product implements Parcelable {
     private String name;
     private double price;
     private String description;
-    private List<String> imageUrls; // Change this to List<String>
+    private List<String> imageUrls; // List of image URLs
     private String category;
     private String sellerId;
     private String sellerProfileImageUrl;
     private int quantity;
 
     // New fields for brand and year model
-    private String brand; // Added brand field
-    private String yearModel; // Added year model field
+    private String brand; // Brand field
+    private String yearModel; // Year model field
 
     public Product() {
         // Default constructor
     }
 
-    public Product(String id, String name, double price, String description, List<String> imageUrls, String category, String sellerId, int quantity, String brand, String yearModel) {
+    public Product(String id, String name, double price, String description, List<String> imageUrls,
+                   String category, String sellerId, int quantity, String brand, String yearModel) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.description = description;
-        this.imageUrls = imageUrls; // Set the list of image URLs
+        this.imageUrls = imageUrls;
         this.category = category;
         this.sellerId = sellerId;
-        this.sellerProfileImageUrl = ""; // Default value if not provided
+        this.sellerProfileImageUrl = ""; // Default value
         this.quantity = quantity;
         this.brand = brand; // Set brand
         this.yearModel = yearModel; // Set year model
@@ -43,13 +44,11 @@ public class Product implements Parcelable {
         name = in.readString();
         price = in.readDouble();
         description = in.readString();
-        imageUrls = in.createStringArrayList(); // Read the list of image URLs
+        imageUrls = in.createStringArrayList();
         category = in.readString();
         sellerId = in.readString();
         sellerProfileImageUrl = in.readString();
         quantity = in.readInt();
-
-        // Read brand and year model from Parcel
         brand = in.readString(); // Read brand
         yearModel = in.readString(); // Read year model
     }
@@ -72,13 +71,11 @@ public class Product implements Parcelable {
         dest.writeString(name);
         dest.writeDouble(price);
         dest.writeString(description);
-        dest.writeStringList(imageUrls); // Write the list of image URLs
+        dest.writeStringList(imageUrls);
         dest.writeString(category);
         dest.writeString(sellerId);
         dest.writeString(sellerProfileImageUrl);
         dest.writeInt(quantity);
-
-        // Write brand and year model to Parcel
         dest.writeString(brand); // Write brand
         dest.writeString(yearModel); // Write year model
     }
@@ -121,12 +118,12 @@ public class Product implements Parcelable {
         this.description = description;
     }
 
-    public List<String> getImageUrls() { // New getter for image URLs
-        return imageUrls;
+    public List<String> getImageUrls() {
+        return imageUrls; // Getter for image URLs
     }
 
-    public void setImageUrls(List<String> imageUrls) { // New setter for image URLs
-        this.imageUrls = imageUrls;
+    public void setImageUrls(List<String> imageUrls) {
+        this.imageUrls = imageUrls; // Setter for image URLs
     }
 
     public String getCategory() {
@@ -161,7 +158,7 @@ public class Product implements Parcelable {
         this.quantity = quantity;
     }
 
-    // New method to adjust quantity
+    // Method to adjust quantity
     public void adjustQuantity(int amount) {
         if (this.quantity + amount >= 0) {
             this.quantity += amount;
@@ -170,7 +167,7 @@ public class Product implements Parcelable {
         }
     }
 
-    // New getters and setters for brand and year model
+    // Getters and setters for brand and year model
     public String getBrand() {
         return brand; // Getter for brand
     }

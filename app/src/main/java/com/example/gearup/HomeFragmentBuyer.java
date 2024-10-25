@@ -121,9 +121,10 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
+                                product.setId(document.getId()); // Set the Firestore document ID
                                 categorizeProduct(product);
                                 loadSellerProfile(product);
-                                Log.d("HomeFragmentBuyer", "Loaded product: " + product.getName());
+                                Log.d("HomeFragmentBuyer", "Loaded product: " + product.getName() + " with ID: " + product.getId());
                             }
                         }
 
@@ -133,6 +134,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                     }
                 });
     }
+
 
     private void categorizeProduct(Product product) {
         String category = product.getCategory();
@@ -257,4 +259,5 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }
+
 }
