@@ -114,8 +114,17 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         checkoutButton.setOnClickListener(v -> {
             Intent intent = new Intent(ProductDetailsBuyer.this, DeliveryInfoActivity.class);
             intent.putExtra("PRODUCT", product);
+            intent.putExtra("PRODUCT_PRICE", product.getPrice()); // Pass product price
+            intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString())); // Pass quantity
+
+            // Pass additional product details
+            intent.putExtra("PRODUCT_NAME", product.getName());
+            intent.putExtra("PRODUCT_BRAND", product.getBrand());
+            intent.putExtra("PRODUCT_YEAR_MODEL", product.getYearModel());
+
             startActivity(intent);
         });
+
 
         // Set up click listeners for product name and seller profile image
         productName.setOnClickListener(v -> openSellerShop());
@@ -215,7 +224,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         }
 
         Review review = new Review(reviewText, currentUserId); // Use the current user's ID
-        db.collection("products")
+        db.collection("productsreview")
                 .document(productId)
                 .collection("reviews")
                 .add(review)
@@ -229,7 +238,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     }
 
     private void loadReviews(String productId) {
-        db.collection("products")
+        db.collection("productsreview")
                 .document(productId)
                 .collection("reviews")
                 .get()

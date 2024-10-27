@@ -45,20 +45,11 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
-        android:id="@+id/btn_confirm"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Confirm Order"
-        app:layout_constraintTop_toBottomOf="@id/et_zip_code"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <Button
         android:id="@+id/btn_payment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Proceed to Payment"
-        app:layout_constraintTop_toBottomOf="@id/btn_confirm"
+        app:layout_constraintTop_toBottomOf="@id/et_zip_code"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
