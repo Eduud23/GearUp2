@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DeliveryInfoActivity extends AppCompatActivity {
@@ -43,6 +44,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
     private EditText etName, etDeliveryAddress, etContactNumber, etZipCode;
 
     private Product product; // Holds product info
+    private String productImageUrl; // Holds the first product image URL
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +70,15 @@ public class DeliveryInfoActivity extends AppCompatActivity {
 
         // Retrieve product from Intent
         product = getIntent().getParcelableExtra("PRODUCT");
-        if (product == null) {
+
+        if (product == null || product.getImageUrls() == null || product.getImageUrls().isEmpty()) {
             Toast.makeText(this, "Invalid product data", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
+
+        // Get the first image URL
+        productImageUrl = product.getImageUrls().get(0);
 
         // Initialize Stripe
         PaymentConfiguration.init(this, publishableKey);
@@ -193,7 +199,8 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                 product.getBrand(),
                 product.getYearModel(), // Use getYearModel() for the year and model
                 product.getDescription(),
-                getIntent().getIntExtra("PRODUCT_QUANTITY", 1) // Get quantity from Intent
+                getIntent().getIntExtra("PRODUCT_QUANTITY", 1), // Get quantity from Intent
+                productImageUrl // Pass the first product image URL
         );
         db.collection("orders")
                 .document(orderId)

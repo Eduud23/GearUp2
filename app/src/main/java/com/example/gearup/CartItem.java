@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class CartItem implements Parcelable {
+    private String documentId; // Add this field for Firestore document ID
     private Product product;
     private int quantity;
 
@@ -17,6 +18,7 @@ public class CartItem implements Parcelable {
     }
 
     protected CartItem(Parcel in) {
+        documentId = in.readString(); // Read document ID from Parcel
         product = in.readParcelable(Product.class.getClassLoader());
         quantity = in.readInt();
     }
@@ -32,6 +34,15 @@ public class CartItem implements Parcelable {
             return new CartItem[size];
         }
     };
+
+    // Getter and setter for documentId
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
 
     public Product getProduct() {
         return product;
@@ -52,6 +63,7 @@ public class CartItem implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(documentId); // Write document ID to Parcel
         dest.writeParcelable(product, flags);
         dest.writeInt(quantity);
     }

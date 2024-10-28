@@ -13,9 +13,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -83,21 +83,8 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         product = getIntent().getParcelableExtra("PRODUCT");
 
         if (product != null && product.getId() != null) {
-            // Log Product ID to debug
             Log.d("ProductDetailsBuyer", "Product ID: " + product.getId());
-
-            // Set product details
-            productName.setText(product.getName());
-            productPrice.setText(String.format("₱%.2f", product.getPrice()));
-            productDescription.setText(product.getDescription());
-            maxQuantity = product.getQuantity();
-            availableQuantityText.setText("Available Quantity: " + maxQuantity);
-            productBrand.setText(product.getBrand());
-            productYearModel.setText(product.getYearModel());
-
-            // Load images into ViewPager2
-            ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
-            viewPager.setAdapter(imageSliderAdapter);
+            setProductDetails();
 
             // Retrieve seller info from Firestore
             sellerId = product.getSellerId();
@@ -111,50 +98,46 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
         // Set up button click listeners
         addToCartButton.setOnClickListener(v -> addToCart(product));
-        checkoutButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ProductDetailsBuyer.this, DeliveryInfoActivity.class);
-            intent.putExtra("PRODUCT", product);
-            intent.putExtra("PRODUCT_PRICE", product.getPrice()); // Pass product price
-            intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString())); // Pass quantity
+        checkoutButton.setOnClickListener(v -> checkout());
 
-            // Pass additional product details
-            intent.putExtra("PRODUCT_NAME", product.getName());
-            intent.putExtra("PRODUCT_BRAND", product.getBrand());
-            intent.putExtra("PRODUCT_YEAR_MODEL", product.getYearModel());
-
-            startActivity(intent);
-        });
-
-
-        // Set up click listeners for product name and seller profile image
         productName.setOnClickListener(v -> openSellerShop());
         sellerProfileImage.setOnClickListener(v -> openSellerShop());
 
-        // Set up the add review button
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
         // Setup RecyclerView
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    private void setProductDetails() {
+        productName.setText(product.getName());
+        productPrice.setText(String.format("₱%.2f", product.getPrice()));
+        productDescription.setText(product.getDescription());
+        maxQuantity = product.getQuantity();
+        availableQuantityText.setText("Available Quantity: " + maxQuantity);
+        productBrand.setText(product.getBrand());
+        productYearModel.setText(product.getYearModel());
+
+        // Load images into ViewPager2
+        ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
+        viewPager.setAdapter(imageSliderAdapter);
+    }
+
     private void getSellerInfo(String sellerId) {
         db.collection("sellers").document(sellerId)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            String sellerNameStr = documentSnapshot.getString("shopName");
-                            String sellerProfileImageUrl = documentSnapshot.getString("profileImageUrl");
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String sellerNameStr = documentSnapshot.getString("shopName");
+                        String sellerProfileImageUrl = documentSnapshot.getString("profileImageUrl");
 
-                            sellerName.setText(sellerNameStr);
-                            Glide.with(ProductDetailsBuyer.this)
-                                    .load(sellerProfileImageUrl)
-                                    .placeholder(R.drawable.ic_launcher_background)
-                                    .into(sellerProfileImage);
-                        } else {
-                            Toast.makeText(ProductDetailsBuyer.this, "Seller not found", Toast.LENGTH_SHORT).show();
-                        }
+                        sellerName.setText(sellerNameStr);
+                        Glide.with(ProductDetailsBuyer.this)
+                                .load(sellerProfileImageUrl)
+                                .placeholder(R.drawable.ic_launcher_background)
+                                .into(sellerProfileImage);
+                    } else {
+                        Toast.makeText(ProductDetailsBuyer.this, "Seller not found", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> Toast.makeText(ProductDetailsBuyer.this, "Error getting seller info", Toast.LENGTH_SHORT).show());
@@ -176,21 +159,74 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 return;
             }
 
-            boolean alreadyInCart = false;
+            CartItem existingItem = null; // Declare a variable to hold the existing cart item
             for (CartItem item : Cart.getInstance().getItems()) {
                 if (item.getProduct().getId().equals(product.getId())) {
-                    item.setQuantity(item.getQuantity() + quantity);
-                    alreadyInCart = true;
+                    existingItem = item; // Store the existing item if found
                     break;
                 }
             }
 
-            if (!alreadyInCart) {
+            if (existingItem != null) {
+                existingItem.setQuantity(existingItem.getQuantity() + quantity); // Update the quantity
+                updateCartItemInFirestore(product, existingItem.getQuantity()); // Update Firestore with the new quantity
+            } else {
                 Cart.getInstance().addToCart(product, quantity);
+                saveCartItemToFirestore(product, quantity); // Add the new item to Firestore
             }
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void saveCartItemToFirestore(Product product, int quantity) {
+        CartItem cartItem = new CartItem(product, quantity);
+        db.collection("carts").add(cartItem)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("ProductDetailsBuyer", "Cart item added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void updateCartItemInFirestore(Product product, int quantity) {
+        String existingCartItemId = getExistingCartItemId(product.getId());
+        if (existingCartItemId != null) {
+            db.collection("carts").document(existingCartItemId)
+                    .update("quantity", quantity)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("ProductDetailsBuyer", "Cart item updated successfully");
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to update cart item", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private String getExistingCartItemId(String productId) {
+        for (CartItem item : Cart.getInstance().getItems()) {
+            if (item.getProduct().getId().equals(productId)) {
+                return item.getDocumentId();
+            }
+        }
+        return null;
+    }
+
+    private void checkout() {
+        Intent intent = new Intent(ProductDetailsBuyer.this, DeliveryInfoActivity.class);
+        intent.putExtra("PRODUCT", product);
+        intent.putExtra("PRODUCT_PRICE", product.getPrice());
+        intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString()));
+        intent.putExtra("PRODUCT_NAME", product.getName());
+        intent.putExtra("PRODUCT_BRAND", product.getBrand());
+        intent.putExtra("PRODUCT_YEAR_MODEL", product.getYearModel());
+
+        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
+            intent.putExtra("PRODUCT_IMAGE", product.getImageUrls().get(0));
+        }
+
+        startActivity(intent);
     }
 
     private void showReviewDialog() {
@@ -223,14 +259,14 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             return;
         }
 
-        Review review = new Review(reviewText, currentUserId); // Use the current user's ID
+        Review review = new Review(reviewText, currentUserId);
         db.collection("productsreview")
                 .document(productId)
                 .collection("reviews")
                 .add(review)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
-                    loadReviews(productId); // Refresh the reviews list
+                    loadReviews(productId);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show();
@@ -248,7 +284,6 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                         Review review = document.toObject(Review.class);
                         reviews.add(review);
                     }
-                    // Now set the reviews to your RecyclerView adapter
                     ReviewAdapter reviewsAdapter = new ReviewAdapter(reviews);
                     rvReviews.setAdapter(reviewsAdapter);
                 })

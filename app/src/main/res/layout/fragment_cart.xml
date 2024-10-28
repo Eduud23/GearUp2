@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Top Section for Add to Cart and Ordered Products -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <!-- Add to Cart Label -->
+        <TextView
+            android:id="@+id/tv_add_to_cart"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Add to Cart"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1" />
+
+        <!-- Ordered Products Label -->
+        <TextView
+            android:id="@+id/tv_ordered_products"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Ordered Products"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:gravity="end" />
+    </LinearLayout>
+
+    <!-- RecyclerView for Add to Cart -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_cart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp" />
+
+        <!-- RecyclerView for Ordered Products -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_purchased"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>

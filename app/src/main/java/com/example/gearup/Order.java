@@ -6,23 +6,24 @@ public class Order {
     private double price;
     private String productName;
     private String productBrand;
-    private String productYearModel; // Combined year and model
+    private String productYearModel;
     private String productDescription;
-    private int productQuantity;
+    private int quantity;
+    private String productImageUrl; // Holds the product image URL
 
     // Constructor
-    public Order(String orderId, String userId, double price,
-                 String productName, String productBrand,
-                 String productYearModel, // Updated to reflect combined year and model
-                 String productDescription, int productQuantity) {
+    public Order(String orderId, String userId, double price, String productName,
+                 String productBrand, String productYearModel, String productDescription,
+                 int quantity, String productImageUrl) {
         this.orderId = orderId;
         this.userId = userId;
         this.price = price;
         this.productName = productName;
         this.productBrand = productBrand;
-        this.productYearModel = productYearModel; // Updated
+        this.productYearModel = productYearModel;
         this.productDescription = productDescription;
-        this.productQuantity = productQuantity;
+        this.quantity = quantity;
+        this.productImageUrl = productImageUrl; // Initialize the image URL
     }
 
     // Getters
@@ -47,15 +48,19 @@ public class Order {
     }
 
     public String getProductYearModel() {
-        return productYearModel; // Updated to reflect combined year and model
+        return productYearModel;
     }
 
     public String getProductDescription() {
         return productDescription;
     }
 
-    public int getProductQuantity() {
-        return productQuantity;
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getProductImageUrl() {
+        return productImageUrl; // Getter for product image URL
     }
 
     // Setters
@@ -79,7 +84,7 @@ public class Order {
         this.productBrand = productBrand;
     }
 
-    public void setProductYearModel(String productYearModel) { // Updated
+    public void setProductYearModel(String productYearModel) {
         this.productYearModel = productYearModel;
     }
 
@@ -87,22 +92,11 @@ public class Order {
         this.productDescription = productDescription;
     }
 
-    public void setProductQuantity(int productQuantity) {
-        this.productQuantity = productQuantity;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    // Optional toString method for easy debugging
-    @Override
-    public String toString() {
-        return "Order{" +
-                "orderId='" + orderId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", price=" + price +
-                ", productName='" + productName + '\'' +
-                ", productBrand='" + productBrand + '\'' +
-                ", productYearModel='" + productYearModel + '\'' + // Updated
-                ", productDescription='" + productDescription + '\'' +
-                ", productQuantity=" + productQuantity +
-                '}';
+    public void setProductImageUrl(String productImageUrl) {
+        this.productImageUrl = productImageUrl; // Setter for product image URL
     }
 }
