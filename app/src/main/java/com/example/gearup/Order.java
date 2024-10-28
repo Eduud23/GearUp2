@@ -2,101 +2,77 @@ package com.example.gearup;
 
 public class Order {
     private String orderId;
-    private String userId;
-    private double price;
+    private String userId; // User ID for the current user
+    private double productPrice;
     private String productName;
     private String productBrand;
     private String productYearModel;
     private String productDescription;
-    private int quantity;
-    private String productImageUrl; // Holds the product image URL
+    private int productQuantity;
+    private String productImageUrl;
 
-    // Constructor
-    public Order(String orderId, String userId, double price, String productName,
+    // New fields for delivery info
+    private String userName;
+    private String deliveryAddress;
+    private String contactNumber;
+    private String zipCode;
+
+    public Order(String orderId, String userId, double productPrice, String productName,
                  String productBrand, String productYearModel, String productDescription,
-                 int quantity, String productImageUrl) {
+                 int productQuantity, String productImageUrl, String userName,
+                 String deliveryAddress, String contactNumber, String zipCode) {
         this.orderId = orderId;
         this.userId = userId;
-        this.price = price;
+        this.productPrice = productPrice;
         this.productName = productName;
         this.productBrand = productBrand;
         this.productYearModel = productYearModel;
         this.productDescription = productDescription;
-        this.quantity = quantity;
-        this.productImageUrl = productImageUrl; // Initialize the image URL
+        this.productQuantity = productQuantity;
+        this.productImageUrl = productImageUrl;
+        this.userName = userName;
+        this.deliveryAddress = deliveryAddress;
+        this.contactNumber = contactNumber;
+        this.zipCode = zipCode;
     }
 
-    // Getters
-    public String getOrderId() {
-        return orderId;
-    }
+    // Getters and setters for all fields...
+    public String getOrderId() { return orderId; }
+    public void setOrderId(String orderId) { this.orderId = orderId; }
 
-    public String getUserId() {
-        return userId;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    public double getPrice() {
-        return price;
-    }
+    public double getProductPrice() { return productPrice; }
+    public void setProductPrice(double productPrice) { this.productPrice = productPrice; }
 
-    public String getProductName() {
-        return productName;
-    }
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
 
-    public String getProductBrand() {
-        return productBrand;
-    }
+    public String getProductBrand() { return productBrand; }
+    public void setProductBrand(String productBrand) { this.productBrand = productBrand; }
 
-    public String getProductYearModel() {
-        return productYearModel;
-    }
+    public String getProductYearModel() { return productYearModel; }
+    public void setProductYearModel(String productYearModel) { this.productYearModel = productYearModel; }
 
-    public String getProductDescription() {
-        return productDescription;
-    }
+    public String getProductDescription() { return productDescription; }
+    public void setProductDescription(String productDescription) { this.productDescription = productDescription; }
 
-    public int getQuantity() {
-        return quantity;
-    }
+    public int getProductQuantity() { return productQuantity; }
+    public void setProductQuantity(int productQuantity) { this.productQuantity = productQuantity; }
 
-    public String getProductImageUrl() {
-        return productImageUrl; // Getter for product image URL
-    }
+    public String getProductImageUrl() { return productImageUrl; }
+    public void setProductImageUrl(String productImageUrl) { this.productImageUrl = productImageUrl; }
 
-    // Setters
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
-    }
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    public String getDeliveryAddress() { return deliveryAddress; }
+    public void setDeliveryAddress(String deliveryAddress) { this.deliveryAddress = deliveryAddress; }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
-
-    public void setProductBrand(String productBrand) {
-        this.productBrand = productBrand;
-    }
-
-    public void setProductYearModel(String productYearModel) {
-        this.productYearModel = productYearModel;
-    }
-
-    public void setProductDescription(String productDescription) {
-        this.productDescription = productDescription;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public void setProductImageUrl(String productImageUrl) {
-        this.productImageUrl = productImageUrl; // Setter for product image URL
-    }
+    public String getZipCode() { return zipCode; }
+    public void setZipCode(String zipCode) { this.zipCode = zipCode; }
 }

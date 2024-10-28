@@ -69,10 +69,11 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Get the current user's ID
+        // Get the current user's ID and role
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
+            checkUserRole(currentUserId);
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
@@ -107,6 +108,31 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
         // Setup RecyclerView
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void checkUserRole(String userId) {
+        db.collection("buyers").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Current user is a buyer
+                        Log.d("ProductDetailsBuyer", "User is a buyer");
+                    } else {
+                        // Check if the user is a seller
+                        db.collection("sellers").document(userId).get()
+                                .addOnSuccessListener(doc -> {
+                                    if (doc.exists()) {
+                                        // Current user is a seller
+                                        Log.d("ProductDetailsBuyer", "User is a seller");
+                                    } else {
+                                        Toast.makeText(this, "User role not found", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to check user role", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void setProductDetails() {
@@ -159,20 +185,20 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 return;
             }
 
-            CartItem existingItem = null; // Declare a variable to hold the existing cart item
+            CartItem existingItem = null;
             for (CartItem item : Cart.getInstance().getItems()) {
                 if (item.getProduct().getId().equals(product.getId())) {
-                    existingItem = item; // Store the existing item if found
+                    existingItem = item;
                     break;
                 }
             }
 
             if (existingItem != null) {
-                existingItem.setQuantity(existingItem.getQuantity() + quantity); // Update the quantity
-                updateCartItemInFirestore(product, existingItem.getQuantity()); // Update Firestore with the new quantity
+                existingItem.setQuantity(existingItem.getQuantity() + quantity);
+                updateCartItemInFirestore(product, existingItem.getQuantity());
             } else {
                 Cart.getInstance().addToCart(product, quantity);
-                saveCartItemToFirestore(product, quantity); // Add the new item to Firestore
+                saveCartItemToFirestore(product, quantity);
             }
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
@@ -181,7 +207,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
     private void saveCartItemToFirestore(Product product, int quantity) {
         CartItem cartItem = new CartItem(product, quantity);
-        db.collection("carts").add(cartItem)
+        db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)
                 .addOnSuccessListener(documentReference -> {
                     Log.d("ProductDetailsBuyer", "Cart item added with ID: " + documentReference.getId());
                 })
@@ -193,7 +219,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     private void updateCartItemInFirestore(Product product, int quantity) {
         String existingCartItemId = getExistingCartItemId(product.getId());
         if (existingCartItemId != null) {
-            db.collection("carts").document(existingCartItemId)
+            db.collection("buyers").document(currentUserId).collection("cartItems").document(existingCartItemId)
                     .update("quantity", quantity)
                     .addOnSuccessListener(aVoid -> {
                         Log.d("ProductDetailsBuyer", "Cart item updated successfully");

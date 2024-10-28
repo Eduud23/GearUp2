@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -31,6 +33,7 @@ public class CartFragment extends Fragment {
     private List<CartItem> cartItems; // List for cart items
     private ListenerRegistration purchasedListenerRegistration;
     private ListenerRegistration cartListenerRegistration; // Listener for cart items
+    private String currentUserId;
 
     @Nullable
     @Override
@@ -53,14 +56,20 @@ public class CartFragment extends Fragment {
         recyclerViewPurchased.setAdapter(purchasedAdapter);
         recyclerViewCart.setAdapter(cartAdapter);
 
-        fetchPurchasedItems();
-        fetchCartItems(); // Fetch cart items
+        // Get the current user's ID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+            fetchPurchasedItems();
+            fetchCartItems(); // Fetch cart items for the current user
+        }
 
         return view;
     }
 
     private void fetchPurchasedItems() {
         purchasedListenerRegistration = db.collection("orders")
+                .whereEqualTo("userId", currentUserId) // Filter orders by the current user
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -79,7 +88,10 @@ public class CartFragment extends Fragment {
     }
 
     private void fetchCartItems() {
-        cartListenerRegistration = db.collection("carts") // Assuming your cart items are stored in a "cart" collection
+        // Query the cart items collection for the current user
+        cartListenerRegistration = db.collection("buyers") // Assuming cart items are under buyers collection
+                .document(currentUserId)
+                .collection("cartItems") // Assuming cart items are in a subcollection
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

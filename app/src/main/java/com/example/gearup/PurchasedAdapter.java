@@ -31,8 +31,8 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderItem orderItem = purchasedItems.get(position);
         holder.tvProductName.setText(orderItem.getProductName());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getPrice()));
-        holder.tvProductQuantity.setText("Quantity: " + orderItem.getQuantity());
+        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice())); // Updated to use productPrice
+        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity()); // Updated to use productQuantity
 
         // Load the product image using Glide
         Glide.with(holder.itemView.getContext())

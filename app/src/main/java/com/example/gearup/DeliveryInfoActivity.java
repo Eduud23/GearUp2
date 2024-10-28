@@ -19,6 +19,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.paymentsheet.PaymentSheet;
 import com.stripe.android.paymentsheet.PaymentSheetResult;
@@ -191,17 +192,29 @@ public class DeliveryInfoActivity extends AppCompatActivity {
 
     private void storeOrder(double productPrice) {
         String orderId = db.collection("orders").document().getId(); // Generate a new ID
+
+        // Get user input
+        String userName = etName.getText().toString();
+        String deliveryAddress = etDeliveryAddress.getText().toString();
+        String contactNumber = etContactNumber.getText().toString();
+        String zipCode = etZipCode.getText().toString();
+
         Order order = new Order(
                 orderId,
                 currentUserId,
                 productPrice,
                 product.getName(),
                 product.getBrand(),
-                product.getYearModel(), // Use getYearModel() for the year and model
+                product.getYearModel(),
                 product.getDescription(),
-                getIntent().getIntExtra("PRODUCT_QUANTITY", 1), // Get quantity from Intent
-                productImageUrl // Pass the first product image URL
+                getIntent().getIntExtra("PRODUCT_QUANTITY", 1),
+                productImageUrl,
+                userName,
+                deliveryAddress,
+                contactNumber,
+                zipCode
         );
+
         db.collection("orders")
                 .document(orderId)
                 .set(order)
@@ -219,5 +232,21 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void fetchUserOrders() {
+        db.collection("orders")
+                .whereEqualTo("userId", currentUserId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Order order = document.toObject(Order.class);
+                            // Handle the retrieved order...
+                        }
+                    } else {
+                        Log.e("DeliveryInfoActivity", "Error fetching orders", task.getException());
+                    }
+                });
     }
 }

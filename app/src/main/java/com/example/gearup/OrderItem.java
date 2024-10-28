@@ -5,24 +5,24 @@ import android.os.Parcelable;
 
 public class OrderItem implements Parcelable {
     private String productName;
-    private double price; // Changed from productPrice to price
-    private int quantity;
+    private double productPrice; // Changed to productPrice
+    private int productQuantity;  // Changed to productQuantity
     private String productImageUrl;
 
     // Required empty constructor for Firestore
     public OrderItem() {}
 
-    public OrderItem(String productName, double price, int quantity, String productImageUrl) {
+    public OrderItem(String productName, double productPrice, int productQuantity, String productImageUrl) {
         this.productName = productName;
-        this.price = price; // Update constructor to use price
-        this.quantity = quantity;
+        this.productPrice = productPrice; // Update constructor to use productPrice
+        this.productQuantity = productQuantity; // Update constructor to use productQuantity
         this.productImageUrl = productImageUrl;
     }
 
     protected OrderItem(Parcel in) {
         productName = in.readString();
-        price = in.readDouble(); // Update to read price
-        quantity = in.readInt();
+        productPrice = in.readDouble(); // Update to read productPrice
+        productQuantity = in.readInt();  // Update to read productQuantity
         productImageUrl = in.readString();
     }
 
@@ -42,12 +42,12 @@ public class OrderItem implements Parcelable {
         return productName;
     }
 
-    public double getPrice() { // Updated getter
-        return price;
+    public double getProductPrice() { // Updated getter for productPrice
+        return productPrice;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getProductQuantity() { // Updated getter for productQuantity
+        return productQuantity;
     }
 
     public String getProductImageUrl() {
@@ -62,8 +62,8 @@ public class OrderItem implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(productName);
-        dest.writeDouble(price); // Update to write price
-        dest.writeInt(quantity);
+        dest.writeDouble(productPrice); // Update to write productPrice
+        dest.writeInt(productQuantity);   // Update to write productQuantity
         dest.writeString(productImageUrl);
     }
 }
