@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,19 +27,24 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.tensorflow.lite.Interpreter;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InventoryFragment extends Fragment {
-
     private RecyclerView recyclerViewCategories;
     private CategoryAdapter categoryAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -47,11 +54,16 @@ public class InventoryFragment extends Fragment {
     private Map<String, List<Product>> categorizedProducts = new HashMap<>();
     private Map<String, String> categoryImages = new HashMap<>();
     private Map<String, Integer> categoryCounts = new HashMap<>();
-    private List<Uri> selectedImageUris = new ArrayList<>();
+    private List<Uri> selectedImageUris = new ArrayList<>(3); // Initialize for up to 3 images
     private AlertDialog alertDialog;
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+
+    // TensorFlow Lite model
+    private Interpreter tflite;
+    private Map<String, Integer> productNameMap = new HashMap<>();
+    private Map<String, Integer> brandMap = new HashMap<>();
 
     @Nullable
     @Override
@@ -62,18 +74,36 @@ public class InventoryFragment extends Fragment {
         recyclerViewCategories.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
 
         initializeCategories();
+        initializeModel(); // Load the model
 
         swipeRefreshLayout.setOnRefreshListener(this::refreshProductList);
-
         Button addProductButton = view.findViewById(R.id.btn_add_product);
         addProductButton.setOnClickListener(v -> showAddProductDialog());
 
         return view;
+    }
+
+    private void initializeModel() {
+        try {
+            tflite = new Interpreter(loadModelFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error loading model.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private MappedByteBuffer loadModelFile() throws IOException {
+        // Load your model from the assets folder
+        AssetFileDescriptor fileDescriptor = getContext().getAssets().openFd("model.tflite");
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startOffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
     private void initializeCategories() {
@@ -166,12 +196,17 @@ public class InventoryFragment extends Fragment {
         builder.setView(dialogView);
 
         // Initialize dialog views
-        EditText productName = dialogView.findViewById(R.id.et_product_name);
-        EditText productPrice = dialogView.findViewById(R.id.et_product_price);
-        EditText productDescription = dialogView.findViewById(R.id.et_product_description);
-        EditText productQuantity = dialogView.findViewById(R.id.et_product_quantity);
-        EditText productBrand = dialogView.findViewById(R.id.et_product_brand);
-        EditText productYearModel = dialogView.findViewById(R.id.et_product_year_model);
+        EditText productNameInput = dialogView.findViewById(R.id.et_product_name);
+        EditText brandInput = dialogView.findViewById(R.id.et_product_brand);
+        EditText yearModelInput = dialogView.findViewById(R.id.et_product_year_model);
+        EditText descriptionInput = dialogView.findViewById(R.id.et_product_description); // Description input
+        TextView predictedPriceText = dialogView.findViewById(R.id.et_product_price);
+        Button predictButton = dialogView.findViewById(R.id.btn_predict_price);
+        Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
+        Button selectImageButton = dialogView.findViewById(R.id.btn_choose_image);
+        ImageView productImage1 = dialogView.findViewById(R.id.iv_product_image1);
+        ImageView productImage2 = dialogView.findViewById(R.id.iv_product_image2);
+        ImageView productImage3 = dialogView.findViewById(R.id.iv_product_image3);
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
 
         // Populate the spinner with categories
@@ -181,53 +216,60 @@ public class InventoryFragment extends Fragment {
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(categoryAdapter);
 
-        ImageView productImage1 = dialogView.findViewById(R.id.iv_product_image1);
-        ImageView productImage2 = dialogView.findViewById(R.id.iv_product_image2);
-        ImageView productImage3 = dialogView.findViewById(R.id.iv_product_image3);
-        Button chooseImageButton = dialogView.findViewById(R.id.btn_choose_image);
+        // Image selection button listener
+        selectImageButton.setOnClickListener(v -> openImageChooser());
 
-        // Reset selected image URIs for new product
-        selectedImageUris.clear();
-        for (int i = 0; i < 3; i++) {
-            selectedImageUris.add(null);
-        }
+        // Predict price button listener
+        // Predict price button listener
+        predictButton.setOnClickListener(v -> {
+            String productName = productNameInput.getText().toString().trim();
+            String brand = brandInput.getText().toString().trim();
+            String yearModelString = yearModelInput.getText().toString().trim();
 
-        // Set up single image selection button
-        chooseImageButton.setOnClickListener(v -> openFileChooser());
-
-        // Add product button listener
-        Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
-        addProductButton.setOnClickListener(v -> {
-            // Get input values
-            String name = productName.getText().toString().trim();
-            String priceString = productPrice.getText().toString().trim();
-            String description = productDescription.getText().toString().trim();
-            String quantityString = productQuantity.getText().toString().trim();
-            String brand = productBrand.getText().toString().trim();
-            String yearModel = productYearModel.getText().toString().trim();
-            String category = categorySpinner.getSelectedItem() != null ? categorySpinner.getSelectedItem().toString() : "";
-
-            // Validate input fields
-            if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty() || selectedImageUris.size() < 3 || brand.isEmpty() || yearModel.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill out all fields and choose 3 images", Toast.LENGTH_SHORT).show();
+            if (productName.isEmpty() || brand.isEmpty() || yearModelString.isEmpty()) {
+                Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             try {
-                double price = Double.parseDouble(priceString);
-                int quantity = Integer.parseInt(quantityString);
+                float[] input = new float[3]; // Adjust size according to your model
+                input[0] = productNameMap.getOrDefault(productName, -1); // -1 for unknown
+                input[1] = brandMap.getOrDefault(brand, -1); // -1 for unknown
+                input[2] = Float.parseFloat(yearModelString);
 
-                // Get current user
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    String userId = user.getUid();
-                    uploadProductImages(userId, name, price, description, quantity, category, brand, yearModel, selectedImageUris);
-                } else {
-                    Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
-                }
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Invalid price or quantity", Toast.LENGTH_SHORT).show();
+                float[][] output = new float[1][1];
+                tflite.run(input, output);
+
+                // Format the predicted price to two decimal places
+                DecimalFormat df = new DecimalFormat("#.00");
+                String formattedPrice = "₱" + df.format(output[0][0]);
+                predictedPriceText.setText(formattedPrice);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), "Error in prediction.", Toast.LENGTH_SHORT).show();
             }
+        });
+
+
+        // Add product button listener
+        addProductButton.setOnClickListener(v -> {
+            // Get input values
+            String name = productNameInput.getText().toString().trim();
+            String priceString = predictedPriceText.getText().toString().replace("₱", "");
+            double price = priceString.isEmpty() ? 0 : Double.parseDouble(priceString);
+            String brand = brandInput.getText().toString().trim();
+            String yearModel = yearModelInput.getText().toString().trim();
+            String category = categorySpinner.getSelectedItem().toString();
+            String description = descriptionInput.getText().toString().trim(); // Get the description input
+
+            if (name.isEmpty() || brand.isEmpty() || yearModel.isEmpty()) {
+                Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Upload images and save the product
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            uploadProductImages(userId, name, price, description, 1, category, brand, yearModel, selectedImageUris);
         });
 
         // Create and show the dialog
@@ -235,22 +277,24 @@ public class InventoryFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void openFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+    private void openImageChooser() {
+        Intent intent = new Intent();
         intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Allow multiple selection
-        startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGE_REQUEST);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Pictures"), PICK_IMAGE_REQUEST);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && data != null) {
+            selectedImageUris.clear(); // Clear previous selections
             if (data.getClipData() != null) {
                 int count = Math.min(data.getClipData().getItemCount(), 3); // Limit to 3 images
                 for (int i = 0; i < count; i++) {
                     Uri selectedImageUri = data.getClipData().getItemAt(i).getUri();
-                    selectedImageUris.set(i, selectedImageUri);
+                    selectedImageUris.add(selectedImageUri);
                     ImageView productImage = alertDialog.findViewById(getImageViewId(i));
                     if (productImage != null) {
                         productImage.setVisibility(View.VISIBLE);
@@ -258,9 +302,9 @@ public class InventoryFragment extends Fragment {
                     }
                 }
             } else if (data.getData() != null) {
-                // Handle single image selection if multiple not allowed
+                // Handle single image selection
                 Uri selectedImageUri = data.getData();
-                selectedImageUris.set(0, selectedImageUri);
+                selectedImageUris.add(selectedImageUri);
                 ImageView productImage = alertDialog.findViewById(R.id.iv_product_image1);
                 if (productImage != null) {
                     productImage.setVisibility(View.VISIBLE);
@@ -301,28 +345,29 @@ public class InventoryFragment extends Fragment {
     }
 
     private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<String> imageUrls) {
-        Product product = new Product("", name, price, description, imageUrls, category, userId, quantity, brand, yearModel);
+        Product newProduct = new Product(
+                null, // id can be null initially
+                name,
+                price,
+                description, // Store the description
+                imageUrls,
+                category,
+                userId,
+                quantity,
+                brand,
+                yearModel
+        );
 
         db.collection("users").document(userId)
-                .collection("products").add(product)
+                .collection("products")
+                .add(newProduct)
                 .addOnSuccessListener(documentReference -> {
-                    if (categorizedProducts.containsKey(category)) {
-                        categorizedProducts.get(category).add(product);
-
-                        // Safely update category count
-                        Integer currentCount = categoryCounts.get(category);
-                        if (currentCount == null) {
-                            currentCount = 0; // Initialize if null
-                        }
-                        categoryCounts.put(category, currentCount + 1);
-
-                        Toast.makeText(requireContext(), "Product added", Toast.LENGTH_SHORT).show();
-                        categoryAdapter.notifyDataSetChanged();
-                    } else {
-                        Log.e("InventoryFragment", "Category not found: " + category);
-                    }
+                    Toast.makeText(getContext(), "Product added successfully", Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
+                    refreshProductList(); // Refresh the product list
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to add product", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error adding product", Toast.LENGTH_SHORT).show();
+                });
     }
 }

@@ -56,6 +56,9 @@ dependencies {
     implementation ("com.stripe:stripe-android:17.2.0")
     implementation ("com.android.volley:volley:1.2.1")
 
+    implementation ("org.tensorflow:tensorflow-lite:2.10.0")
+    implementation ("org.tensorflow:tensorflow-lite-gpu:2.12.0")
+
 
 
 

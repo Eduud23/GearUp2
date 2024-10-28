@@ -41,10 +41,11 @@
         android:id="@+id/et_product_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Product Price"
+        android:hint="Predicted Price"
         android:inputType="numberDecimal"
         android:background="@drawable/edit_text_background"
-        android:padding="12dp" />
+        android:padding="12dp"
+         /> <!-- Make it non-editable -->
 
     <EditText
         android:id="@+id/et_product_description"
@@ -117,6 +118,13 @@
             android:clickable="true"
             android:focusable="true" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_predict_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Predict Price"
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/btn_add_product"
