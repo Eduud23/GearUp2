@@ -41,7 +41,7 @@
         android:id="@+id/et_product_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Predicted Price"
+        android:hint="Price"
         android:inputType="numberDecimal"
         android:background="@drawable/edit_text_background"
         android:padding="12dp"

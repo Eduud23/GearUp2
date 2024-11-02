@@ -3,6 +3,8 @@
     <string name="show_password">Hide</string>
     <string name="hide_password">Show</string>
     <string name="seller_profile_image_desc">Seller Profile Image</string>
+    <string name="tab_add_to_cart">Add to Cart</string>
+    <string name="tab_ordered_products">Ordered Products</string>
 
     <string-array name="category_array">
         <item>Central Components</item>

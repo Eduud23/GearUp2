@@ -23,41 +23,40 @@ import com.google.firebase.firestore.ListenerRegistration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CartFragment extends Fragment {
-    private RecyclerView recyclerViewCart;
-    private CartAdapter cartAdapter;
+public class OrderedProductsFragment extends Fragment {
+    private RecyclerView recyclerViewOrdered;
+    private PurchasedAdapter purchasedAdapter;
     private FirebaseFirestore db;
-    private List<CartItem> cartItems;
-    private ListenerRegistration cartListenerRegistration;
+    private List<OrderItem> orderedItems;
+    private ListenerRegistration orderedListenerRegistration;
     private String currentUserId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_cart, container, false);
-        recyclerViewCart = view.findViewById(R.id.recyclerView_cart);
-        recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
+        View view = inflater.inflate(R.layout.fragment_ordered_products, container, false);
+        recyclerViewOrdered = view.findViewById(R.id.recyclerView_ordered);
+        recyclerViewOrdered.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
-        cartItems = new ArrayList<>();
-        cartAdapter = new CartAdapter(cartItems);
-        recyclerViewCart.setAdapter(cartAdapter);
+        orderedItems = new ArrayList<>();
+        purchasedAdapter = new PurchasedAdapter(orderedItems);
+        recyclerViewOrdered.setAdapter(purchasedAdapter);
 
         // Get the current user's ID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
-            fetchCartItems();
+            fetchOrderedItems();
         }
 
         return view;
     }
 
-    private void fetchCartItems() {
-        cartListenerRegistration = db.collection("buyers")
-                .document(currentUserId)
-                .collection("cartItems")
+    private void fetchOrderedItems() {
+        orderedListenerRegistration = db.collection("orders")
+                .whereEqualTo("userId", currentUserId)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -65,12 +64,12 @@ public class CartFragment extends Fragment {
                             return; // Handle the error
                         }
 
-                        cartItems.clear();
+                        orderedItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
-                            CartItem cartItem = doc.toObject(CartItem.class);
-                            cartItems.add(cartItem);
+                            OrderItem orderItem = doc.toObject(OrderItem.class);
+                            orderedItems.add(orderItem);
                         }
-                        cartAdapter.notifyDataSetChanged();
+                        purchasedAdapter.notifyDataSetChanged();
                     }
                 });
     }
@@ -78,8 +77,8 @@ public class CartFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (cartListenerRegistration != null) {
-            cartListenerRegistration.remove();
+        if (orderedListenerRegistration != null) {
+            orderedListenerRegistration.remove();
         }
     }
 }

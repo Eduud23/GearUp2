@@ -67,9 +67,6 @@
             android:name=".CategoryActivity"
             android:exported="false" />
         <activity
-            android:name=".SeeAllProductsActivity"
-            android:exported="false" />
-        <activity
             android:name=".HomePage"
             android:exported="true">
             <intent-filter>

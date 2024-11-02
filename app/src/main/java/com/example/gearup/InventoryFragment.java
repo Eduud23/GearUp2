@@ -2,7 +2,6 @@ package com.example.gearup;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,23 +24,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.datatransport.ProductData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.tensorflow.lite.Interpreter;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class InventoryFragment extends Fragment {
     private RecyclerView recyclerViewCategories;
@@ -60,10 +59,8 @@ public class InventoryFragment extends Fragment {
     private FirebaseFirestore db;
     private FirebaseStorage storage;
 
-    // TensorFlow Lite model
-    private Interpreter tflite;
-    private Map<String, Integer> productNameMap = new HashMap<>();
-    private Map<String, Integer> brandMap = new HashMap<>();
+    // Retrofit for price prediction and product addition
+    private PriceApi priceApi;
 
     @Nullable
     @Override
@@ -77,33 +74,19 @@ public class InventoryFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
 
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:5001/") // Update with your API base URL
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        priceApi = retrofit.create(PriceApi.class);
+
         initializeCategories();
-        initializeModel(); // Load the model
 
         swipeRefreshLayout.setOnRefreshListener(this::refreshProductList);
         Button addProductButton = view.findViewById(R.id.btn_add_product);
         addProductButton.setOnClickListener(v -> showAddProductDialog());
 
         return view;
-    }
-
-    private void initializeModel() {
-        try {
-            tflite = new Interpreter(loadModelFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Error loading model.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private MappedByteBuffer loadModelFile() throws IOException {
-        // Load your model from the assets folder
-        AssetFileDescriptor fileDescriptor = getContext().getAssets().openFd("model.tflite");
-        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        long startOffset = fileDescriptor.getStartOffset();
-        long declaredLength = fileDescriptor.getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
     private void initializeCategories() {
@@ -199,14 +182,13 @@ public class InventoryFragment extends Fragment {
         EditText productNameInput = dialogView.findViewById(R.id.et_product_name);
         EditText brandInput = dialogView.findViewById(R.id.et_product_brand);
         EditText yearModelInput = dialogView.findViewById(R.id.et_product_year_model);
-        EditText descriptionInput = dialogView.findViewById(R.id.et_product_description); // Description input
-        TextView predictedPriceText = dialogView.findViewById(R.id.et_product_price);
-        Button predictButton = dialogView.findViewById(R.id.btn_predict_price);
+        EditText descriptionInput = dialogView.findViewById(R.id.et_product_description);
+        EditText predictedPriceText = dialogView.findViewById(R.id.et_product_price);
+        predictedPriceText.setEnabled(true); // Make it non-editable
+
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
         Button selectImageButton = dialogView.findViewById(R.id.btn_choose_image);
-        ImageView productImage1 = dialogView.findViewById(R.id.iv_product_image1);
-        ImageView productImage2 = dialogView.findViewById(R.id.iv_product_image2);
-        ImageView productImage3 = dialogView.findViewById(R.id.iv_product_image3);
+        Button predictPriceButton = dialogView.findViewById(R.id.btn_predict_price);
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
 
         // Populate the spinner with categories
@@ -220,56 +202,72 @@ public class InventoryFragment extends Fragment {
         selectImageButton.setOnClickListener(v -> openImageChooser());
 
         // Predict price button listener
-        // Predict price button listener
-        predictButton.setOnClickListener(v -> {
-            String productName = productNameInput.getText().toString().trim();
-            String brand = brandInput.getText().toString().trim();
-            String yearModelString = yearModelInput.getText().toString().trim();
+        predictPriceButton.setOnClickListener(v -> {
+            String productName = productNameInput.getText().toString();
+            String brand = brandInput.getText().toString();
+            String yearModelString = yearModelInput.getText().toString();
 
-            if (productName.isEmpty() || brand.isEmpty() || yearModelString.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
+            // Validate year model input
+            if (yearModelString.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter the year model.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            int yearModel;
             try {
-                float[] input = new float[3]; // Adjust size according to your model
-                input[0] = productNameMap.getOrDefault(productName, -1); // -1 for unknown
-                input[1] = brandMap.getOrDefault(brand, -1); // -1 for unknown
-                input[2] = Float.parseFloat(yearModelString);
-
-                float[][] output = new float[1][1];
-                tflite.run(input, output);
-
-                // Format the predicted price to two decimal places
-                DecimalFormat df = new DecimalFormat("#.00");
-                String formattedPrice = "₱" + df.format(output[0][0]);
-                predictedPriceText.setText(formattedPrice);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(), "Error in prediction.", Toast.LENGTH_SHORT).show();
+                yearModel = Integer.parseInt(yearModelString);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
 
+            // Create PriceRequest and call the API
+            PriceRequest request = new PriceRequest(productName, brand, yearModel);
+            priceApi.predictPrice(request).enqueue(new Callback<PriceResponse>() {
+                @Override
+                public void onResponse(Call<PriceResponse> call, Response<PriceResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        double predictedPrice = response.body().getPredictedPrice();
+                        predictedPriceText.setText("₱" + String.format("%.2f", predictedPrice));
+                    } else {
+                        Toast.makeText(getContext(), "Prediction failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PriceResponse> call, Throwable t) {
+                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
 
         // Add product button listener
         addProductButton.setOnClickListener(v -> {
-            // Get input values
             String name = productNameInput.getText().toString().trim();
             String priceString = predictedPriceText.getText().toString().replace("₱", "");
             double price = priceString.isEmpty() ? 0 : Double.parseDouble(priceString);
             String brand = brandInput.getText().toString().trim();
-            String yearModel = yearModelInput.getText().toString().trim();
+            String yearModelString = yearModelInput.getText().toString().trim(); // Keep this as a String
             String category = categorySpinner.getSelectedItem().toString();
-            String description = descriptionInput.getText().toString().trim(); // Get the description input
+            String description = descriptionInput.getText().toString().trim();
 
-            if (name.isEmpty() || brand.isEmpty() || yearModel.isEmpty()) {
+            if (name.isEmpty() || brand.isEmpty() || yearModelString.isEmpty() || description.isEmpty()) {
                 Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validate year model again
+            int yearModel;
+            try {
+                yearModel = Integer.parseInt(yearModelString);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Upload images and save the product
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            uploadProductImages(userId, name, price, description, 1, category, brand, yearModel, selectedImageUris);
+            uploadProductImages(userId, name, price, description, 1, category, brand, String.valueOf(yearModel), selectedImageUris);
         });
 
         // Create and show the dialog
@@ -365,9 +363,34 @@ public class InventoryFragment extends Fragment {
                     Toast.makeText(getContext(), "Product added successfully", Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
                     refreshProductList(); // Refresh the product list
+
+                    // Now save the product data to CSV
+                    saveProductDataToCSV(name, brand, yearModel, price);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error adding product", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    private void saveProductDataToCSV(String name, String brand, String yearModel, double price) {
+        ConcreteProductData productData = new ConcreteProductData(name, brand, yearModel, price);
+
+        priceApi.addProduct(productData).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Product data saved to CSV", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "Failed to save product data to CSV", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
 }
