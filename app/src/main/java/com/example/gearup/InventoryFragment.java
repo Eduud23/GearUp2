@@ -73,11 +73,20 @@ public class InventoryFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        String baseUrl;
+
+        if (DeviceUtils.isEmulator()) {
+            baseUrl = "http://10.0.2.2:5001/"; // This points to localhost from the emulator
+        } else {
+            // Use the physical device's IP address
+            baseUrl = "http://192.168.254.155:5001/"; // Update with your API base URL
+        }
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.2.2:5001/") // Update with your API base URL
+                .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         priceApi = retrofit.create(PriceApi.class);
 
         initializeCategories();
