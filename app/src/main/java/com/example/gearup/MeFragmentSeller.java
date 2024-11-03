@@ -50,6 +50,14 @@ public class MeFragmentSeller extends Fragment {
         Button uploadButton = view.findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(v -> openImageChooser());
 
+        // Set up manage order button
+        Button manageOrderButton = view.findViewById(R.id.manageOrderButton);
+        manageOrderButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ManageOrderActivity.class);
+            startActivity(intent);
+        });
+
+        // Set up logout button
         view.findViewById(R.id.logoutbutton).setOnClickListener(v -> {
             Toast.makeText(getContext(), "Logout button clicked", Toast.LENGTH_SHORT).show();
             logoutUser();

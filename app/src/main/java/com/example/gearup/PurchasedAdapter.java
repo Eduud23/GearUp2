@@ -31,13 +31,16 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderItem orderItem = purchasedItems.get(position);
         holder.tvProductName.setText(orderItem.getProductName());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice())); // Updated to use productPrice
-        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity()); // Updated to use productQuantity
+        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice()));
+        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
 
         // Load the product image using Glide
         Glide.with(holder.itemView.getContext())
                 .load(orderItem.getProductImageUrl())
                 .into(holder.ivProductImage);
+
+        // Set the order status
+        holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());
     }
 
     @Override
@@ -46,7 +49,7 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductName, tvProductPrice, tvProductQuantity;
+        TextView tvProductName, tvProductPrice, tvProductQuantity, tvOrderStatus; // Added order status
         ImageView ivProductImage;
 
         ViewHolder(@NonNull View itemView) {
@@ -54,6 +57,7 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
             tvProductName = itemView.findViewById(R.id.tv_product_name);
             tvProductPrice = itemView.findViewById(R.id.tv_product_price);
             tvProductQuantity = itemView.findViewById(R.id.tv_product_quantity);
+            tvOrderStatus = itemView.findViewById(R.id.tv_order_status); // Initialize the order status TextView
             ivProductImage = itemView.findViewById(R.id.iv_product_image);
         }
     }
