@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -60,8 +61,18 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         TextView textSeeAllBody = view.findViewById(R.id.text_see_all_body);
         TextView textSeeAllConnectors = view.findViewById(R.id.text_see_all_connectors);
         TextView textSeeAllPeripherals = view.findViewById(R.id.text_see_all_peripherals);
+        TextView textShops = view.findViewById(R.id.text_shops);  // Assuming you have a TextView for Shops
 
+        // Set click listener for Shops button
+        textShops.setOnClickListener(v -> {
+            // Navigate to the ShopsFragment
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new ShopsFragment());  // Assuming R.id.fragment_container is your FrameLayout container
+            transaction.addToBackStack(null); // Optional, allows user to go back to the HomeFragment
+            transaction.commit();
+        });
 
+        // Click listeners for See All buttons
         textSeeAllConnectors.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), ConnectorsActivity.class);
             startActivity(intent);
@@ -80,10 +91,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             Intent intent = new Intent(getContext(), PeripheralsActivity.class);
             startActivity(intent);
         });
-
-
-
-
 
         db = FirebaseFirestore.getInstance();
         loadProducts();
@@ -134,7 +141,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                     }
                 });
     }
-
 
     private void categorizeProduct(Product product) {
         String category = product.getCategory();
@@ -259,5 +265,4 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }
-
 }

@@ -286,7 +286,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         }
 
         Review review = new Review(reviewText, currentUserId);
-        db.collection("productsreview")
+        db.collection("products")  // Correct path to reviews collection
                 .document(productId)
                 .collection("reviews")
                 .add(review)
@@ -300,7 +300,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     }
 
     private void loadReviews(String productId) {
-        db.collection("productsreview")
+        db.collection("products")
                 .document(productId)
                 .collection("reviews")
                 .get()

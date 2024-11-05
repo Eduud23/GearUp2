@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
-import com.google.android.datatransport.ProductData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,6 +41,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class InventoryFragment extends Fragment {
     private RecyclerView recyclerViewCategories;
@@ -82,9 +83,15 @@ public class InventoryFragment extends Fragment {
             baseUrl = "http://192.168.254.155:5001/"; // Update with your API base URL
         }
 
+        // Setup Gson with lenient parsing
+        Gson gson = new GsonBuilder()
+                .setLenient() // Allow lenient parsing
+                .create();
+
+        // Create Retrofit instance
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson)) // Use the customized Gson instance
                 .build();
 
         priceApi = retrofit.create(PriceApi.class);
@@ -248,6 +255,7 @@ public class InventoryFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
+
         });
 
         // Add product button listener
@@ -400,6 +408,4 @@ public class InventoryFragment extends Fragment {
             }
         });
     }
-
-
 }

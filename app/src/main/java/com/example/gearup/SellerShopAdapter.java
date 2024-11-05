@@ -32,6 +32,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product product = productList.get(position);
+
+        // Set product name, price, and description
         holder.productNameTextView.setText(product.getName());
         holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
         holder.productDescriptionTextView.setText(product.getDescription());
@@ -40,14 +42,14 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrls.get(0))
+                    .load(imageUrls.get(0))  // Load the first image
                     .into(holder.productImageView);
         } else {
-            holder.productImageView.setImageResource(R.drawable.ic_launcher_foreground); // Fallback image
+            holder.productImageView.setImageResource(R.drawable.ic_launcher_foreground);  // Fallback image
         }
 
-        // Set click listener for the product
-        holder.itemView.setOnClickListener(v -> listener.onProductClick(position, "All Products"));
+        // Set click listener to pass the product data
+        holder.itemView.setOnClickListener(v -> listener.onProductClick(position, product));
     }
 
     @Override
@@ -72,6 +74,6 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
 
     // Listener interface for handling product clicks
     public interface OnProductClickListener {
-        void onProductClick(int position, String category);
+        void onProductClick(int position, Product product);  // Pass the Product object to the listener
     }
 }
