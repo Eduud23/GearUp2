@@ -19,10 +19,10 @@ public class Product implements Parcelable {
     private String brand; // Brand field
     private String yearModel; // Year model field
 
-    public Product() {
-        // Default constructor
-    }
+    // Default constructor
+    public Product() {}
 
+    // Constructor with all parameters
     public Product(String id, String name, double price, String description, List<String> imageUrls,
                    String category, String sellerId, int quantity, String brand, String yearModel) {
         this.id = id;
@@ -49,8 +49,8 @@ public class Product implements Parcelable {
         sellerId = in.readString();
         sellerProfileImageUrl = in.readString();
         quantity = in.readInt();
-        brand = in.readString(); // Read brand
-        yearModel = in.readString(); // Read year model
+        brand = in.readString();
+        yearModel = in.readString();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -76,8 +76,8 @@ public class Product implements Parcelable {
         dest.writeString(sellerId);
         dest.writeString(sellerProfileImageUrl);
         dest.writeInt(quantity);
-        dest.writeString(brand); // Write brand
-        dest.writeString(yearModel); // Write year model
+        dest.writeString(brand);
+        dest.writeString(yearModel);
     }
 
     @Override
@@ -119,11 +119,11 @@ public class Product implements Parcelable {
     }
 
     public List<String> getImageUrls() {
-        return imageUrls; // Getter for image URLs
+        return imageUrls;
     }
 
     public void setImageUrls(List<String> imageUrls) {
-        this.imageUrls = imageUrls; // Setter for image URLs
+        this.imageUrls = imageUrls;
     }
 
     public String getCategory() {
@@ -158,7 +158,7 @@ public class Product implements Parcelable {
         this.quantity = quantity;
     }
 
-    // Method to adjust quantity
+    // Adjust the quantity
     public void adjustQuantity(int amount) {
         if (this.quantity + amount >= 0) {
             this.quantity += amount;
@@ -167,20 +167,20 @@ public class Product implements Parcelable {
         }
     }
 
-    // Getters and setters for brand and year model
+    // Getter and setter for brand and year model
     public String getBrand() {
-        return brand; // Getter for brand
+        return brand;
     }
 
     public void setBrand(String brand) {
-        this.brand = brand; // Setter for brand
+        this.brand = brand;
     }
 
     public String getYearModel() {
-        return yearModel; // Getter for year model
+        return yearModel;
     }
 
     public void setYearModel(String yearModel) {
-        this.yearModel = yearModel; // Setter for year model
+        this.yearModel = yearModel;
     }
 }

@@ -13,9 +13,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -106,7 +106,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
-        // Setup RecyclerView
+        // Setup RecyclerView for reviews
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
     }
 
@@ -144,9 +144,15 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         productBrand.setText(product.getBrand());
         productYearModel.setText(product.getYearModel());
 
-        // Load images into ViewPager2
-        ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
-        viewPager.setAdapter(imageSliderAdapter);
+        // Load images into ViewPager2 (check for empty image URLs)
+        List<String> imageUrls = product.getImageUrls();
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(imageUrls);
+            viewPager.setAdapter(imageSliderAdapter);
+        } else {
+            // Handle case where product has no images
+            Toast.makeText(this, "No images available for this product", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void getSellerInfo(String sellerId) {
@@ -286,7 +292,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         }
 
         Review review = new Review(reviewText, currentUserId);
-        db.collection("products")  // Correct path to reviews collection
+        db.collection("productsreview")  // Correct path to reviews collection
                 .document(productId)
                 .collection("reviews")
                 .add(review)
@@ -300,9 +306,15 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     }
 
     private void loadReviews(String productId) {
-        db.collection("products")
-                .document(productId)
-                .collection("reviews")
+        if (productId == null || productId.isEmpty()) {
+            Toast.makeText(ProductDetailsBuyer.this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Correct path to load reviews for the specific product
+        db.collection("productsreview")
+                .document(productId)  // This points to the product document
+                .collection("reviews")  // This points to the reviews collection within the product document
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Review> reviews = new ArrayList<>();
@@ -310,6 +322,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                         Review review = document.toObject(Review.class);
                         reviews.add(review);
                     }
+                    // Set the RecyclerView adapter to display the reviews
                     ReviewAdapter reviewsAdapter = new ReviewAdapter(reviews);
                     rvReviews.setAdapter(reviewsAdapter);
                 })
@@ -317,4 +330,5 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                     Toast.makeText(ProductDetailsBuyer.this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

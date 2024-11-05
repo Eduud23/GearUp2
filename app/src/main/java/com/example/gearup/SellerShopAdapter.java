@@ -17,6 +17,7 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
     private List<Product> productList;
     private final OnProductClickListener listener;
 
+    // Constructor for the adapter, takes the product list and click listener
     public SellerShopAdapter(List<Product> productList, OnProductClickListener listener) {
         this.productList = productList;
         this.listener = listener;
@@ -25,31 +26,36 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate the product item layout
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product_seller, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // Get the product at the current position
         Product product = productList.get(position);
 
-        // Set product name, price, and description
-        holder.productNameTextView.setText(product.getName());
-        holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
-        holder.productDescriptionTextView.setText(product.getDescription());
+        if (product != null) {
+            // Set product name, price, and description
+            holder.productNameTextView.setText(product.getName());
+            holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
+            holder.productDescriptionTextView.setText(product.getDescription());
 
-        // Load the product image using Glide
-        List<String> imageUrls = product.getImageUrls();
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(imageUrls.get(0))  // Load the first image
-                    .into(holder.productImageView);
-        } else {
-            holder.productImageView.setImageResource(R.drawable.ic_launcher_foreground);  // Fallback image
+            // Load the product image using Glide (First image from the list or fallback image)
+            List<String> imageUrls = product.getImageUrls();
+            if (imageUrls != null && !imageUrls.isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(imageUrls.get(0))  // Load the first image in the list
+                        .into(holder.productImageView);
+            } else {
+                // Fallback image if no URL is available
+                holder.productImageView.setImageResource(R.drawable.ic_launcher_foreground);
+            }
+
+            // Set the click listener for the item, passing the full Product object
+            holder.itemView.setOnClickListener(v -> listener.onProductClick(product));
         }
-
-        // Set click listener to pass the product data
-        holder.itemView.setOnClickListener(v -> listener.onProductClick(position, product));
     }
 
     @Override
@@ -57,6 +63,7 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         return productList.size();
     }
 
+    // ViewHolder for the product items
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView productImageView;
         TextView productNameTextView;
@@ -65,6 +72,7 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
 
         public ViewHolder(View itemView) {
             super(itemView);
+            // Initialize the views from the layout
             productImageView = itemView.findViewById(R.id.iv_product_image);
             productNameTextView = itemView.findViewById(R.id.tv_product_name);
             productPriceTextView = itemView.findViewById(R.id.tv_product_price);
@@ -74,6 +82,6 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
 
     // Listener interface for handling product clicks
     public interface OnProductClickListener {
-        void onProductClick(int position, Product product);  // Pass the Product object to the listener
+        void onProductClick(Product product);  // Expect Product object
     }
 }
