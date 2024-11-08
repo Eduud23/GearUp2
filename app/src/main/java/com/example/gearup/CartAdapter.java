@@ -14,10 +14,18 @@ import com.bumptech.glide.Glide;
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
-    private List<CartItem> cartItems;
 
-    public CartAdapter(List<CartItem> cartItems) {
+    private List<CartItem> cartItems;
+    private OnItemClickListener listener;
+
+    // Interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(CartItem cartItem);
+    }
+
+    public CartAdapter(List<CartItem> cartItems, OnItemClickListener listener) {
         this.cartItems = cartItems;
+        this.listener = listener;
     }
 
     @NonNull
@@ -37,7 +45,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         holder.tvProductQuantity.setText("Quantity: " + cartItem.getQuantity());
 
         // Load product image using Glide
-        // Assuming you want to load the first image in the list
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
             Glide.with(holder.itemView.getContext())
@@ -47,6 +54,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             // Optionally set a placeholder or a default image
             holder.ivProductImage.setImageResource(R.drawable.ic_launcher_foreground); // Use a placeholder image
         }
+
+        // Set the click listener for the item
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(cartItem));
     }
 
     @Override
