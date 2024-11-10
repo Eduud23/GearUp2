@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -41,13 +43,11 @@ public class CartFragment extends Fragment {
         recyclerViewCart = view.findViewById(R.id.recyclerView_cart);
         recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         cartItems = new ArrayList<>();
         cartAdapter = new CartAdapter(cartItems, cartItem -> showItemDetailsDialog(cartItem));
         recyclerViewCart.setAdapter(cartAdapter);
 
-        // Get the current user's ID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
@@ -113,7 +113,6 @@ public class CartFragment extends Fragment {
         // Set up the Exit button (dismiss the dialog)
         btnExit.setOnClickListener(v -> dialog.dismiss());
 
-        // Set up the Delete button
         btnDelete.setOnClickListener(v -> {
             // Delete the item from Firestore using the document ID
             db.collection("buyers")
@@ -121,13 +120,18 @@ public class CartFragment extends Fragment {
                     .collection("cartItems")
                     .document(cartItem.getDocumentId()) // Use getDocumentId() here
                     .delete()
-                    .addOnSuccessListener(aVoid -> dialog.dismiss())
+                    .addOnSuccessListener(aVoid -> {
+                        // On success, dismiss the dialog and notify the user
+                        dialog.dismiss();
+                        Toast.makeText(getContext(), "Item deleted from cart", Toast.LENGTH_SHORT).show();
+                    })
                     .addOnFailureListener(e -> {
-                        // Handle failure (e.g., show an error message)
+                        // Handle failure (show an error message)
+                        Toast.makeText(getContext(), "Failed to delete item. Please try again.", Toast.LENGTH_SHORT).show();
                     });
         });
 
-        // Set up the Buy Now button
+
         btnBuyNow.setOnClickListener(v -> {
             dialog.dismiss();
             // Handle "Buy Now" action (e.g., navigate to the checkout screen)

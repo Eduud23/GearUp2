@@ -79,13 +79,11 @@ public class InventoryFragment extends Fragment {
         if (DeviceUtils.isEmulator()) {
             baseUrl = "http://10.0.2.2:5001/"; // This points to localhost from the emulator
         } else {
-            // Use the physical device's IP address
             baseUrl = "http://192.168.254.155:5001/"; // Update with your API base URL
         }
 
-        // Setup Gson with lenient parsing
         Gson gson = new GsonBuilder()
-                .setLenient() // Allow lenient parsing
+                .setLenient()
                 .create();
 
         // Create Retrofit instance

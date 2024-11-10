@@ -4,20 +4,18 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.List;
 
 public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.ViewHolder> {
-    private final List<OrderItem> orderItems;
-    private final Context context;
+    private List<OrderItem> orderItems;
+    private Context context;
 
+    // Constructor
     public ManageOrderAdapter(List<OrderItem> orderItems, Context context) {
         this.orderItems = orderItems;
         this.context = context;
@@ -26,51 +24,50 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_manage_order, parent, false);
-        return new ViewHolder(view);
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_manage_order, parent, false);  // Inflate the layout
+        return new ViewHolder(itemView);  // Return the ViewHolder
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        // Get the order item for the current position
         OrderItem orderItem = orderItems.get(position);
-        holder.tvProductName.setText(orderItem.getProductName());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice()));
-        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
+
+        // Set the data into the views
+        holder.tvOrderProductName.setText(orderItem.getProductName());
+        holder.tvOrderProductPrice.setText("₱" + orderItem.getProductPrice());
+        holder.tvOrderProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
         holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());
 
-        holder.btnApprove.setOnClickListener(v -> updateOrderStatus(orderItem, "Approved"));
-        holder.btnReady.setOnClickListener(v -> updateOrderStatus(orderItem, "Ready for Delivery"));
+        // Set click listener to show order details when clicked
+        holder.itemView.setOnClickListener(v -> {
+            // Assuming ManageOrderActivity has a method to show order details
+            ((ManageOrderActivity) context).showOrderDetailsDialog(orderItem);
+        });
     }
 
     @Override
     public int getItemCount() {
-        return orderItems.size();
+        return orderItems.size();  // Return the size of the order items list
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductName, tvProductPrice, tvProductQuantity, tvOrderStatus;
-        Button btnApprove, btnReady;
+    // ViewHolder class for binding views
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        // Declare TextViews
+        TextView tvOrderProductName;
+        TextView tvOrderProductPrice;
+        TextView tvOrderProductQuantity;
+        TextView tvOrderStatus;
 
-        ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvProductName = itemView.findViewById(R.id.tv_order_product_name);
-            tvProductPrice = itemView.findViewById(R.id.tv_order_product_price);
-            tvProductQuantity = itemView.findViewById(R.id.tv_order_product_quantity);
-            tvOrderStatus = itemView.findViewById(R.id.tv_order_status);
-            btnApprove = itemView.findViewById(R.id.btn_approve);
-            btnReady = itemView.findViewById(R.id.btn_ready);
-        }
-    }
 
-    private void updateOrderStatus(OrderItem orderItem, String newStatus) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("orders").document(orderItem.getDocumentId()) // Make sure to store the document ID in OrderItem
-                .update("orderStatus", newStatus)
-                .addOnSuccessListener(aVoid -> {
-                    // Optionally notify user of success
-                })
-                .addOnFailureListener(e -> {
-                    // Optionally notify user of failure
-                });
+            // Bind the views
+            tvOrderProductName = itemView.findViewById(R.id.tv_order_product_name); // Make sure IDs match
+            tvOrderProductPrice = itemView.findViewById(R.id.tv_order_product_price); // Make sure IDs match
+            tvOrderProductQuantity = itemView.findViewById(R.id.tv_order_product_quantity); // Make sure IDs match
+            tvOrderStatus = itemView.findViewById(R.id.tv_order_status); // Make sure IDs match
+        }
     }
 }

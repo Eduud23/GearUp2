@@ -2,8 +2,11 @@ package com.example.gearup;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -41,6 +44,8 @@ public class DeliveryInfoActivity extends AppCompatActivity {
     private String currentUserId;
 
     private EditText etName, etDeliveryAddress, etContactNumber, etZipCode;
+    private RadioGroup radioGroupShipping;
+    private RadioButton rbPickUp, rbDelivery;
 
     private Product product; // Holds product info
     private String productImageUrl; // Holds the first product image URL
@@ -55,6 +60,10 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         etContactNumber = findViewById(R.id.et_contact_number);
         etZipCode = findViewById(R.id.et_zip_code);
         payButton = findViewById(R.id.btn_payment);
+        radioGroupShipping = findViewById(R.id.radio_group_shipping);
+        rbPickUp = findViewById(R.id.rb_pickup);
+        rbDelivery = findViewById(R.id.rb_delivery);
+
         db = FirebaseFirestore.getInstance();
 
         // Get the current user's ID
@@ -92,6 +101,24 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         // Ensure the button is enabled
         payButton.setEnabled(true);
         Log.d("DeliveryInfoActivity", "Button is enabled: " + payButton.isEnabled());
+
+        // Set up radio group listener
+        radioGroupShipping.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.rb_pickup) {
+                // If Pick-Up is selected, disable the Delivery Address input field
+                etDeliveryAddress.setEnabled(false);
+            } else if (checkedId == R.id.rb_delivery) {
+                // If Delivery is selected, enable the Delivery Address input field
+                etDeliveryAddress.setEnabled(true);
+            }
+        });
+
+        // Initialize the Delivery Address field based on the initial state of the radio button
+        if (rbPickUp.isChecked()) {
+            etDeliveryAddress.setEnabled(false); // If Pick-Up is selected by default, disable the Delivery Address
+        } else {
+            etDeliveryAddress.setEnabled(true); // If Delivery is selected, enable the Delivery Address
+        }
     }
 
     private void paymentFlow(double productPrice) {
@@ -160,7 +187,6 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                         JSONObject object = new JSONObject(response);
                         clientSecret = object.getString("client_secret");
                         presentPaymentSheet();
-                        storeOrder(productPrice); // Store order after creating payment intent
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -188,12 +214,25 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         requestQueue.add(request);
     }
 
-    private void storeOrder(double productPrice) {
+    private void presentPaymentSheet() {
+        paymentSheet.presentWithPaymentIntent(clientSecret, new PaymentSheet.Configuration("Your Company Name"));
+    }
+
+    private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
+        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
+            Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
+            storeOrder();  // Store the order after payment is successful
+        } else {
+            Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void storeOrder() {
         String orderId = db.collection("orders").document().getId(); // Generate a new ID
 
         // Get user input
         String userName = etName.getText().toString();
-        String deliveryAddress = etDeliveryAddress.getText().toString();
+        String deliveryAddress = rbPickUp.isChecked() ? null : etDeliveryAddress.getText().toString();  // If Pick-Up is selected, deliveryAddress is null
         String contactNumber = etContactNumber.getText().toString();
         String zipCode = etZipCode.getText().toString();
 
@@ -201,7 +240,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         Order order = new Order(
                 orderId,
                 currentUserId,
-                productPrice,
+                product.getPrice(),
                 product.getName(),
                 product.getBrand(),
                 product.getYearModel(),
@@ -222,17 +261,5 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                 .set(order)
                 .addOnSuccessListener(aVoid -> Log.d("DeliveryInfoActivity", "Order stored successfully"))
                 .addOnFailureListener(e -> Log.e("DeliveryInfoActivity", "Error storing order", e));
-    }
-
-    private void presentPaymentSheet() {
-        paymentSheet.presentWithPaymentIntent(clientSecret, new PaymentSheet.Configuration("Your Company Name"));
-    }
-
-    private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
-        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
-            Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
-        }
     }
 }
