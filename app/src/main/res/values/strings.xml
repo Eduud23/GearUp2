@@ -12,6 +12,11 @@
         <item>Connectors</item>
         <item>Body</item>
     </string-array>
+    <string-array name="order_status_array">
+        <item>Pending</item>
+        <item>Approved</item>
+        <item>Shipping/Ready to Pickup</item>
+    </string-array>
     <string name="category_image">Category Image</string>
     <string name="product_image_desc">Product Image</string>
     <!-- TODO: Remove or change this placeholder text -->

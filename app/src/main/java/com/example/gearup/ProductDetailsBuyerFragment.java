@@ -1,21 +1,22 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -29,7 +30,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDetailsBuyer extends AppCompatActivity {
+public class ProductDetailsBuyerFragment extends Fragment {
+
     private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel;
     private Button addToCartButton, checkoutButton, addReviewButton;
     private EditText productQuantity;
@@ -44,28 +46,27 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     private FirebaseFirestore db;
 
     @SuppressLint("MissingInflatedId")
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_product_details_buyer);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_product_details_buyer, container, false);
 
         // Initialize views
-        productName = findViewById(R.id.tv_product_name);
-        productPrice = findViewById(R.id.tv_product_price);
-        productDescription = findViewById(R.id.tv_product_description);
-        availableQuantityText = findViewById(R.id.tv_available_quantity);
-        sellerName = findViewById(R.id.tv_seller_name);
-        sellerProfileImage = findViewById(R.id.iv_seller_profile);
-        addToCartButton = findViewById(R.id.btn_add_to_cart);
-        checkoutButton = findViewById(R.id.btn_checkout);
-        productQuantity = findViewById(R.id.et_product_quantity);
-        viewPager = findViewById(R.id.viewPager);
-        addReviewButton = findViewById(R.id.btn_add_review);
-        rvReviews = findViewById(R.id.rv_reviews);
+        productName = rootView.findViewById(R.id.tv_product_name);
+        productPrice = rootView.findViewById(R.id.tv_product_price);
+        productDescription = rootView.findViewById(R.id.tv_product_description);
+        availableQuantityText = rootView.findViewById(R.id.tv_available_quantity);
+        sellerName = rootView.findViewById(R.id.tv_seller_name);
+        sellerProfileImage = rootView.findViewById(R.id.iv_seller_profile);
+        addToCartButton = rootView.findViewById(R.id.btn_add_to_cart);
+        checkoutButton = rootView.findViewById(R.id.btn_checkout);
+        productQuantity = rootView.findViewById(R.id.et_product_quantity);
+        viewPager = rootView.findViewById(R.id.viewPager);
+        addReviewButton = rootView.findViewById(R.id.btn_add_review);
+        rvReviews = rootView.findViewById(R.id.rv_reviews);
 
-        productBrand = findViewById(R.id.tv_product_brand);
-        productYearModel = findViewById(R.id.tv_product_year_model);
+        productBrand = rootView.findViewById(R.id.tv_product_brand);
+        productYearModel = rootView.findViewById(R.id.tv_product_year_model);
 
         db = FirebaseFirestore.getInstance();
 
@@ -75,16 +76,16 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             currentUserId = currentUser.getUid();
             checkUserRole(currentUserId);
         } else {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
-        // Get product from intent
-        product = getIntent().getParcelableExtra("PRODUCT");
+        // Get product from the activity (via bundle or arguments)
+        if (getArguments() != null) {
+            product = getArguments().getParcelable("PRODUCT");
+        }
 
         if (product != null && product.getId() != null) {
-            Log.d("ProductDetailsBuyer", "Product ID: " + product.getId());
             setProductDetails();
 
             // Retrieve seller info from Firestore
@@ -92,9 +93,8 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             getSellerInfo(sellerId);
             loadReviews(product.getId());
         } else {
-            Toast.makeText(this, "Invalid product data", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+            Toast.makeText(getContext(), "Invalid product data", Toast.LENGTH_SHORT).show();
+            return null;
         }
 
         // Set up button click listeners
@@ -107,7 +107,9 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
         // Setup RecyclerView for reviews
-        rvReviews.setLayoutManager(new LinearLayoutManager(this));
+        rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        return rootView;
     }
 
     private void checkUserRole(String userId) {
@@ -115,23 +117,20 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Current user is a buyer
-                        Log.d("ProductDetailsBuyer", "User is a buyer");
                     } else {
                         // Check if the user is a seller
                         db.collection("sellers").document(userId).get()
                                 .addOnSuccessListener(doc -> {
                                     if (doc.exists()) {
                                         // Current user is a seller
-                                        Log.d("ProductDetailsBuyer", "User is a seller");
                                     } else {
-                                        Toast.makeText(this, "User role not found", Toast.LENGTH_SHORT).show();
-                                        finish();
+                                        Toast.makeText(getContext(), "User role not found", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to check user role", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to check user role", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -151,7 +150,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             viewPager.setAdapter(imageSliderAdapter);
         } else {
             // Handle case where product has no images
-            Toast.makeText(this, "No images available for this product", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No images available for this product", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -164,19 +163,19 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                         String sellerProfileImageUrl = documentSnapshot.getString("profileImageUrl");
 
                         sellerName.setText(sellerNameStr);
-                        Glide.with(ProductDetailsBuyer.this)
+                        Glide.with(getContext())
                                 .load(sellerProfileImageUrl)
                                 .placeholder(R.drawable.ic_launcher_background)
                                 .into(sellerProfileImage);
                     } else {
-                        Toast.makeText(ProductDetailsBuyer.this, "Seller not found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Seller not found", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(ProductDetailsBuyer.this, "Error getting seller info", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error getting seller info", Toast.LENGTH_SHORT).show());
     }
 
     private void openSellerShop() {
-        Intent intent = new Intent(ProductDetailsBuyer.this, SellerShopActivity.class);
+        Intent intent = new Intent(getContext(), SellerShopActivity.class);
         intent.putExtra("SELLER_ID", sellerId);
         startActivity(intent);
     }
@@ -187,7 +186,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             int quantity = quantityText.isEmpty() ? 1 : Integer.parseInt(quantityText);
 
             if (quantity < 1 || quantity > maxQuantity) {
-                Toast.makeText(this, "Please enter a quantity between 1 and " + maxQuantity, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter a quantity between 1 and " + maxQuantity, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -207,7 +206,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 saveCartItemToFirestore(product, quantity);
             }
 
-            Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Added to cart", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -215,10 +214,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         CartItem cartItem = new CartItem(product, quantity);
         db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)
                 .addOnSuccessListener(documentReference -> {
-                    Log.d("ProductDetailsBuyer", "Cart item added with ID: " + documentReference.getId());
+                    // Handle success
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to add to cart", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -228,10 +227,10 @@ public class ProductDetailsBuyer extends AppCompatActivity {
             db.collection("buyers").document(currentUserId).collection("cartItems").document(existingCartItemId)
                     .update("quantity", quantity)
                     .addOnSuccessListener(aVoid -> {
-                        Log.d("ProductDetailsBuyer", "Cart item updated successfully");
+                        // Handle success
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to update cart item", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Failed to update cart item", Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -246,7 +245,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
     }
 
     private void checkout() {
-        Intent intent = new Intent(ProductDetailsBuyer.this, DeliveryInfoActivity.class);
+        Intent intent = new Intent(getContext(), DeliveryInfoActivity.class);
         intent.putExtra("PRODUCT", product);
         intent.putExtra("PRODUCT_PRICE", product.getPrice());
         intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString()));
@@ -266,7 +265,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
         EditText editTextReview = dialogView.findViewById(R.id.editTextReview);
         Button buttonSubmitReview = dialogView.findViewById(R.id.buttonSubmitReview);
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
                 .setTitle("Add a Review")
                 .setCancelable(true)
@@ -278,7 +277,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 submitReview(reviewText, product.getId());
                 dialog.dismiss();
             } else {
-                Toast.makeText(ProductDetailsBuyer.this, "Please enter a review", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter a review", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -287,7 +286,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
 
     private void submitReview(String reviewText, String productId) {
         if (productId == null || productId.isEmpty()) {
-            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid product ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -297,21 +296,20 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                 .collection("reviews")
                 .add(review)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Review submitted successfully", Toast.LENGTH_SHORT).show();
                     loadReviews(productId);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to submit review", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void loadReviews(String productId) {
         if (productId == null || productId.isEmpty()) {
-            Toast.makeText(ProductDetailsBuyer.this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid product ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Correct path to load reviews for the specific product
         db.collection("productsreview")
                 .document(productId)  // This points to the product document
                 .collection("reviews")  // This points to the reviews collection within the product document
@@ -327,8 +325,7 @@ public class ProductDetailsBuyer extends AppCompatActivity {
                     rvReviews.setAdapter(reviewsAdapter);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(ProductDetailsBuyer.this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to load reviews", Toast.LENGTH_SHORT).show();
                 });
     }
-
 }

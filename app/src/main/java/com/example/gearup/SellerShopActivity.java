@@ -171,7 +171,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     public void onProductClick(Product product) {
         // Handle product click: open ProductDetailsBuyer activity
         if (product != null) {
-            Intent intent = new Intent(SellerShopActivity.this, ProductDetailsBuyer.class);
+            Intent intent = new Intent(SellerShopActivity.this, ProductDetailsBuyerFragment.class);
             intent.putExtra("PRODUCT", product);  // Pass the selected product to the next activity
             startActivity(intent);  // Start the ProductDetailsBuyer activity
         }

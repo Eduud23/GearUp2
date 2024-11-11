@@ -40,9 +40,6 @@
             android:name=".CartActivity"
             android:exported="false" />
         <activity
-            android:name=".ProductDetailsBuyer"
-            android:exported="false" />
-        <activity
             android:name=".HomePageBuyer"
             android:exported="false" />
         <activity

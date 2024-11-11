@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -240,6 +241,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     public void onProductClick(int position, String category) {
         Product clickedProduct;
 
+        // Determine which list the clicked product belongs to
         if (category.equals("Central Components")) {
             clickedProduct = centralComponentsList.get(position);
         } else if (category.equals("Body")) {
@@ -250,8 +252,18 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             clickedProduct = peripheralsList.get(position);
         }
 
-        Intent intent = new Intent(getContext(), ProductDetailsBuyer.class);
-        intent.putExtra("PRODUCT", clickedProduct);
-        startActivity(intent);
+        // Create a new instance of ProductDetailsBuyerFragment
+        ProductDetailsBuyerFragment productDetailsFragment = new ProductDetailsBuyerFragment();
+
+        // Pass the clicked product to the fragment using arguments
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("PRODUCT", clickedProduct);  // Assuming the Product class implements Parcelable
+        productDetailsFragment.setArguments(bundle);
+
+        // Begin the fragment transaction to replace the current fragment
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, productDetailsFragment);  // Replace with your container ID
+        transaction.addToBackStack(null);  // Add to the back stack so the user can navigate back
+        transaction.commit();
     }
 }

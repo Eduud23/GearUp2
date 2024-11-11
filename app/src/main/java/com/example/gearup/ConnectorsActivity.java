@@ -64,7 +64,7 @@ public class ConnectorsActivity extends AppCompatActivity implements SeeAllProdu
     @Override
     public void onProductClick(int position, String category) {
         Product clickedProduct = productsList.get(position);
-        Intent intent = new Intent(this, ProductDetailsBuyer.class);
+        Intent intent = new Intent(this, ProductDetailsBuyerFragment.class);
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }

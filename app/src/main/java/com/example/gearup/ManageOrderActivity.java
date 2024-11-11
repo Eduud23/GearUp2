@@ -5,7 +5,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +36,8 @@ public class ManageOrderActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private ListenerRegistration orderListenerRegistration;
     private String currentUserId;
+    private Spinner spinnerOrderStatus;
+    private String selectedOrderStatus = "Pending"; // Default status
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,23 +55,49 @@ public class ManageOrderActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
-            fetchOrders();
+            fetchOrders(selectedOrderStatus); // Fetch orders for the default status
         } else {
             Log.e("ManageOrder", "User not logged in.");
             finish();
         }
+
+        // Set up the spinner
+        spinnerOrderStatus = findViewById(R.id.spinner_order_status);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.order_status_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrderStatus.setAdapter(adapter);
+
+        // Listen for changes in the spinner selection
+        spinnerOrderStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                selectedOrderStatus = parentView.getItemAtPosition(position).toString();
+                fetchOrders(selectedOrderStatus); // Fetch orders based on selected status
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing
+            }
+        });
     }
 
-    private void fetchOrders() {
+    private void fetchOrders(String status) {
+        // Clear the existing list
+        orderItems.clear();
+
+        // Fetch orders from Firestore based on the selected status
         orderListenerRegistration = db.collection("orders")
-                .whereEqualTo("sellerId", currentUserId) // Fetch orders for products sold by the current seller
+                .whereEqualTo("sellerId", currentUserId)
+                .whereEqualTo("orderStatus", status) // Filter by order status
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.e("ManageOrder", "Error fetching orders", error);
                         return;
                     }
 
-                    orderItems.clear();
                     for (QueryDocumentSnapshot doc : value) {
                         OrderItem orderItem = doc.toObject(OrderItem.class);
                         orderItem.setDocumentId(doc.getId()); // Set the document ID
@@ -84,7 +115,6 @@ public class ManageOrderActivity extends AppCompatActivity {
         }
     }
 
-    // Show the order details in a dialog
     public void showOrderDetailsDialog(final OrderItem orderItem) {
         // Inflate the dialog view
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_order_details, null);
