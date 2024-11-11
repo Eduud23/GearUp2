@@ -21,12 +21,15 @@ public class Order {
     private String orderStatus;
     private String sellerId;
 
-    // Updated constructor
+    // New field for shipping method (Pick-Up or Delivery)
+    private String shippingMethod; // "Pick-Up" or "Delivery"
+
+    // Updated constructor to include shippingMethod
     public Order(String orderId, String userId, double productPrice, String productName,
                  String productBrand, String productYearModel, String productDescription,
                  int productQuantity, String productImageUrl, String userName,
                  String deliveryAddress, String contactNumber, String zipCode,
-                 String orderStatus, String sellerId) {
+                 String orderStatus, String sellerId, String shippingMethod) {
         this.orderId = orderId;
         this.userId = userId;
         this.productPrice = productPrice;
@@ -42,6 +45,7 @@ public class Order {
         this.zipCode = zipCode;
         this.orderStatus = orderStatus; // Set the order status
         this.sellerId = sellerId; // Initialize sellerId
+        this.shippingMethod = shippingMethod; // Set the shipping method (Pick-Up or Delivery)
     }
 
     // Getters and Setters
@@ -163,5 +167,14 @@ public class Order {
 
     public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    // Getter and setter for shippingMethod
+    public String getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod;
     }
 }

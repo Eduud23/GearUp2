@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.OnProductClickListener {
+
     private FirebaseFirestore db;
     private ViewPager2 viewPagerCentralComponents, viewPagerBody, viewPagerConnectors, viewPagerPeripherals;
     private ProductAdapterBuyer adapterCentralComponents, adapterBody, adapterConnectors, adapterPeripherals;
@@ -35,15 +36,15 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     private List<Product> bodyList = new ArrayList<>();
     private List<Product> connectorsList = new ArrayList<>();
     private List<Product> peripheralsList = new ArrayList<>();
-
     private EditText searchBar;
 
     @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home_seller, container, false); // Changed to fragment_home_seller
+        View view = inflater.inflate(R.layout.fragment_home_seller, container, false); // Ensure correct layout
 
+        // Initialize views
         viewPagerCentralComponents = view.findViewById(R.id.viewPager_central_components);
         viewPagerBody = view.findViewById(R.id.viewPager_body);
         viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
@@ -85,6 +86,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         db = FirebaseFirestore.getInstance();
         loadProducts();
 
+        // Set text change listener for search bar to filter products
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -92,9 +94,9 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.toString().trim().isEmpty()) {
-                    loadProducts();
+                    loadProducts(); // Reload all products if the search is empty
                 } else {
-                    filterProducts(s.toString().trim());
+                    filterProducts(s.toString().trim()); // Filter based on search text
                 }
             }
 
@@ -115,6 +117,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                         connectorsList.clear();
                         peripheralsList.clear();
 
+                        // Iterate through the fetched products and categorize them
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
@@ -125,6 +128,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                             }
                         }
 
+                        // Once products are categorized, update the adapters
                         setAdapters();
                     } else {
                         Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
@@ -159,6 +163,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     }
 
     private void setAdapters() {
+        // Set up the adapters for the ViewPagers
         adapterCentralComponents = new ProductAdapterBuyer(new ArrayList<>(centralComponentsList), "Central Components", this);
         viewPagerCentralComponents.setAdapter(adapterCentralComponents);
         viewPagerCentralComponents.setOffscreenPageLimit(1);
@@ -208,6 +213,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             }
         }
 
+        // Update the adapters with the filtered products
         adapterCentralComponents.updateProductList(filteredCentralComponents);
         adapterBody.updateProductList(filteredBody);
         adapterConnectors.updateProductList(filteredConnectors);

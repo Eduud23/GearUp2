@@ -4,25 +4,29 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class OrderItem implements Parcelable {
-    private String documentId; // Add this field for the document ID
+    private String documentId; // Field for the document ID
     private String productName;
     private double productPrice;
     private int productQuantity;
     private String productImageUrl;
-    private String orderStatus; // Assuming you have an order status field
+    private String orderStatus; // Field for order status
+    private String shippingMethod; // Field for shipping method (Pick Up / Delivery)
 
-    // Required empty constructor for Firestore
+    // Default constructor for Firestore
     public OrderItem() {}
 
-    public OrderItem(String documentId, String productName, double productPrice, int productQuantity, String productImageUrl, String orderStatus) {
+    // Constructor with all fields, including shippingMethod
+    public OrderItem(String documentId, String productName, double productPrice, int productQuantity, String productImageUrl, String orderStatus, String shippingMethod) {
         this.documentId = documentId; // Initialize document ID
         this.productName = productName;
         this.productPrice = productPrice;
         this.productQuantity = productQuantity;
         this.productImageUrl = productImageUrl;
         this.orderStatus = orderStatus; // Initialize order status
+        this.shippingMethod = shippingMethod; // Initialize shipping method
     }
 
+    // Constructor to read from Parcel
     protected OrderItem(Parcel in) {
         documentId = in.readString(); // Read document ID from parcel
         productName = in.readString();
@@ -30,6 +34,7 @@ public class OrderItem implements Parcelable {
         productQuantity = in.readInt();
         productImageUrl = in.readString();
         orderStatus = in.readString(); // Read order status from parcel
+        shippingMethod = in.readString(); // Read shipping method from parcel
     }
 
     public static final Creator<OrderItem> CREATOR = new Creator<OrderItem>() {
@@ -77,9 +82,17 @@ public class OrderItem implements Parcelable {
         this.orderStatus = orderStatus; // Setter for order status
     }
 
+    public String getShippingMethod() {
+        return shippingMethod; // Getter for shipping method
+    }
+
+    public void setShippingMethod(String shippingMethod) {
+        this.shippingMethod = shippingMethod; // Setter for shipping method
+    }
+
     @Override
     public int describeContents() {
-        return 0;
+        return 0; // No special contents
     }
 
     @Override
@@ -90,5 +103,6 @@ public class OrderItem implements Parcelable {
         dest.writeInt(productQuantity);
         dest.writeString(productImageUrl);
         dest.writeString(orderStatus); // Write order status to parcel
+        dest.writeString(shippingMethod); // Write shipping method to parcel
     }
 }

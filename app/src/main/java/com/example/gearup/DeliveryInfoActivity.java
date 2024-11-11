@@ -95,7 +95,9 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         // Set up button click listener
         payButton.setOnClickListener(v -> {
             Log.d("DeliveryInfoActivity", "Pay button clicked");
-            paymentFlow(product.getPrice());
+            if (validateForm()) {
+                paymentFlow(product.getPrice());
+            }
         });
 
         // Ensure the button is enabled
@@ -119,6 +121,17 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         } else {
             etDeliveryAddress.setEnabled(true); // If Delivery is selected, enable the Delivery Address
         }
+    }
+
+    // Validate required fields before initiating payment
+    private boolean validateForm() {
+        // Validate if the required fields are filled
+        if (etName.getText().toString().isEmpty() || etContactNumber.getText().toString().isEmpty() ||
+                etZipCode.getText().toString().isEmpty() || (rbDelivery.isChecked() && etDeliveryAddress.getText().toString().isEmpty())) {
+            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     private void paymentFlow(double productPrice) {
@@ -235,6 +248,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         String deliveryAddress = rbPickUp.isChecked() ? null : etDeliveryAddress.getText().toString();  // If Pick-Up is selected, deliveryAddress is null
         String contactNumber = etContactNumber.getText().toString();
         String zipCode = etZipCode.getText().toString();
+        String shippingMethod = rbPickUp.isChecked() ? "Pick-Up" : "Delivery";  // Store the selected shipping method
 
         // Create the order with order status set to "Pending"
         Order order = new Order(
@@ -252,7 +266,8 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                 contactNumber,
                 zipCode,
                 "Pending", // Set order status to "Pending"
-                product.getSellerId() // Store the sellerId
+                product.getSellerId(), // Store the sellerId
+                shippingMethod // Store the selected shipping method
         );
 
         // Store the order in the 'orders' collection
