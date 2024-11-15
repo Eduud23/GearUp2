@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ChooseUser">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp">
+
+        <ImageView
+            android:id="@+id/gear"
+            android:layout_width="220dp"
+            android:layout_height="170dp"
+            android:src="@drawable/gear"
+            android:layout_centerHorizontal="true"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Your Role"
+            android:layout_below="@id/gear"
+            android:textSize="30sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"/>
+
+        <LinearLayout
+            android:id="@+id/buttonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/role"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/seller"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="70dp"
+                android:onClick="onButtonClicked"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="Seller"
+                android:background="@drawable/loginbtn_custom"
+                android:textSize="20sp"
+                />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buyer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="70dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:onClick="onButtonClicked"
+                android:background="@drawable/loginbtn_custom"
+                android:text="Buyer"
+                android:textSize="20sp"
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:layout_below="@id/buttonContainer"
+            android:textSize="15sp"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="25dp"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"/>
+
+
+    </RelativeLayout>
+</ScrollView>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="10dp"
+    android:padding="8dp">
+
+    <!-- Message bubble -->
+    <LinearLayout
+        android:id="@+id/message_bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/message_bubble_bg"
+        android:padding="12dp"
+        android:maxWidth="250dp">
+
+        <!-- Message text -->
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sample Message"
+            android:textSize="16sp"
+            android:textColor="#333"
+            android:maxWidth="230dp"/>
+    </LinearLayout>
+
+</LinearLayout>

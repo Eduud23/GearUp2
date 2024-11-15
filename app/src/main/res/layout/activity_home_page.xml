@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".HomePage">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:paddingBottom="20dp">
+
+        <ImageView
+            android:id="@+id/gear"
+            android:layout_width="0dp"
+            android:layout_height="350dp"
+            android:src="@drawable/gear"
+            android:scaleType="centerCrop"
+            app:layout_constraintWidth_percent="1.0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/titleText1"
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:text="Streamline your auto parts Experience"
+            android:textSize="24sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@+id/gear"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <TextView
+            android:id="@+id/titleText2"
+            android:layout_width="290dp"
+            android:layout_height="wrap_content"
+            android:text="Discover and manage automotive parts with ease, stay ahead of trends, optimize your inventory, and connect with trusted suppliers all in one place."
+            android:textSize="14sp"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            app:layout_constraintTop_toBottomOf="@+id/titleText1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn1"
+            android:layout_width="180dp"
+            android:layout_height="60dp"
+            android:background="@drawable/custom_button"
+            android:text="Login"
+            android:textAllCaps="false"
+            android:textColor="@color/white2"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@+id/titleText2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn2"
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginTop="50dp"
+            />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn2"
+            android:layout_width="180dp"
+            android:layout_height="60dp"
+            android:background="@drawable/custom_buttom_register"
+            android:text="Sign Up"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@+id/titleText2"
+            app:layout_constraintStart_toEndOf="@+id/btn1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            android:layout_marginTop="50dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

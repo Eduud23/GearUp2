@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">GearUp</string>
+    <string name="show_password">Hide</string>
+    <string name="hide_password">Show</string>
+    <string name="seller_profile_image_desc">Seller Profile Image</string>
+    <string name="tab_add_to_cart">Add to Cart</string>
+    <string name="tab_ordered_products">Ordered Products</string>
+
+    <string-array name="category_array">
+        <item>Central Components</item>
+        <item>Peripherals</item>
+        <item>Connectors</item>
+        <item>Body</item>
+    </string-array>
+    <string-array name="order_status_array">
+        <item>Pending</item>
+        <item>Approved</item>
+        <item>Shipping/Ready to Pickup</item>
+    </string-array>
+    <string name="category_image">Category Image</string>
+    <string name="product_image_desc">Product Image</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
