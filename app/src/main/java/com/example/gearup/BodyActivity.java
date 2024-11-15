@@ -64,7 +64,7 @@ public class BodyActivity extends AppCompatActivity implements SeeAllProductAdap
     @Override
     public void onProductClick(int position, String category) {
         Product clickedProduct = productsList.get(position);
-        Intent intent = new Intent(this,ProductDetailsBuyerFragment.class);
+        Intent intent = new Intent(this,ProductDetailsBuyerActivity.class);
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }

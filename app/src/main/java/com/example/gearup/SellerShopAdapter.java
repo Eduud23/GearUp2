@@ -27,7 +27,7 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate the product item layout
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product_seller, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_seller_shop, parent, false);
         return new ViewHolder(view);
     }
 

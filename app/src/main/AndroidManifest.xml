@@ -16,6 +16,24 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".MessageListBuyer"
+            android:exported="false" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MessageSeller"
+            android:exported="false" />
+        <activity
+            android:name=".MessageBuyer"
+            android:exported="false" />
+        <activity
+            android:name=".ProductDetailsBuyerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MessageActivity"
+            android:exported="false" />
+        <activity
             android:name=".ManageOrderActivity"
             android:exported="false" />
         <activity

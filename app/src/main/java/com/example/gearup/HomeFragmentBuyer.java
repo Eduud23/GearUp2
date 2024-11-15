@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -55,6 +56,21 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             Intent intent = new Intent(getContext(), CartActivity.class);
             startActivity(intent);
         });
+        ImageView iconMessage = view.findViewById(R.id.icon_message);
+        iconMessage.setOnClickListener(v -> {
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            String currentUserId = mAuth.getCurrentUser().getUid();
+
+            if (currentUserId != null) {
+                Intent intent = new Intent(getContext(), MessageBuyer.class);  // Open MessageBuyer activity
+                intent.putExtra("CURRENT_USER_ID", currentUserId);  // Pass the current user ID to MessageBuyer
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Please log in to access messages.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
         // Click listeners for See All buttons
         TextView textSeeAllCentral = view.findViewById(R.id.text_see_all_central);
@@ -262,18 +278,14 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             clickedProduct = peripheralsList.get(position);
         }
 
-        // Create a new instance of ProductDetailsBuyerFragment
-        ProductDetailsBuyerFragment productDetailsFragment = new ProductDetailsBuyerFragment();
+        // Start ProductDetailsBuyerActivity with the clicked product
+        Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
 
-        // Pass the clicked product to the fragment using arguments
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("PRODUCT", clickedProduct);  // Assuming the Product class implements Parcelable
-        productDetailsFragment.setArguments(bundle);
+        // Pass the clicked product to the activity
+        intent.putExtra("PRODUCT", clickedProduct);  // Assuming Product implements Parcelable
 
-        // Begin the fragment transaction to replace the current fragment
-        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, productDetailsFragment);  // Replace with your container ID
-        transaction.addToBackStack(null);  // Add to the back stack so the user can navigate back
-        transaction.commit();
+        // Start the activity
+        startActivity(intent);
     }
+
 }

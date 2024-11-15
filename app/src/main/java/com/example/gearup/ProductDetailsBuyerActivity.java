@@ -12,9 +12,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -30,7 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDetailsBuyerFragment extends Fragment {
+public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
     private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel;
     private Button addToCartButton, checkoutButton, addReviewButton;
@@ -46,27 +45,27 @@ public class ProductDetailsBuyerFragment extends Fragment {
     private FirebaseFirestore db;
 
     @SuppressLint("MissingInflatedId")
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_product_details_buyer, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_product_details_buyer);
 
         // Initialize views
-        productName = rootView.findViewById(R.id.tv_product_name);
-        productPrice = rootView.findViewById(R.id.tv_product_price);
-        productDescription = rootView.findViewById(R.id.tv_product_description);
-        availableQuantityText = rootView.findViewById(R.id.tv_available_quantity);
-        sellerName = rootView.findViewById(R.id.tv_seller_name);
-        sellerProfileImage = rootView.findViewById(R.id.iv_seller_profile);
-        addToCartButton = rootView.findViewById(R.id.btn_add_to_cart);
-        checkoutButton = rootView.findViewById(R.id.btn_checkout);
-        productQuantity = rootView.findViewById(R.id.et_product_quantity);
-        viewPager = rootView.findViewById(R.id.viewPager);
-        addReviewButton = rootView.findViewById(R.id.btn_add_review);
-        rvReviews = rootView.findViewById(R.id.rv_reviews);
+        productName = findViewById(R.id.tv_product_name);
+        productPrice = findViewById(R.id.tv_product_price);
+        productDescription = findViewById(R.id.tv_product_description);
+        availableQuantityText = findViewById(R.id.tv_available_quantity);
+        sellerName = findViewById(R.id.tv_seller_name);
+        sellerProfileImage = findViewById(R.id.iv_seller_profile);
+        addToCartButton = findViewById(R.id.btn_add_to_cart);
+        checkoutButton = findViewById(R.id.btn_checkout);
+        productQuantity = findViewById(R.id.et_product_quantity);
+        viewPager = findViewById(R.id.viewPager);
+        addReviewButton = findViewById(R.id.btn_add_review);
+        rvReviews = findViewById(R.id.rv_reviews);
 
-        productBrand = rootView.findViewById(R.id.tv_product_brand);
-        productYearModel = rootView.findViewById(R.id.tv_product_year_model);
+        productBrand = findViewById(R.id.tv_product_brand);
+        productYearModel = findViewById(R.id.tv_product_year_model);
 
         db = FirebaseFirestore.getInstance();
 
@@ -76,13 +75,13 @@ public class ProductDetailsBuyerFragment extends Fragment {
             currentUserId = currentUser.getUid();
             checkUserRole(currentUserId);
         } else {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
-            return null;
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
-        // Get product from the activity (via bundle or arguments)
-        if (getArguments() != null) {
-            product = getArguments().getParcelable("PRODUCT");
+        // Get product from the intent (via bundle or arguments)
+        if (getIntent() != null) {
+            product = getIntent().getParcelableExtra("PRODUCT");
         }
 
         if (product != null && product.getId() != null) {
@@ -93,8 +92,8 @@ public class ProductDetailsBuyerFragment extends Fragment {
             getSellerInfo(sellerId);
             loadReviews(product.getId());
         } else {
-            Toast.makeText(getContext(), "Invalid product data", Toast.LENGTH_SHORT).show();
-            return null;
+            Toast.makeText(this, "Invalid product data", Toast.LENGTH_SHORT).show();
+            finish();
         }
 
         // Set up button click listeners
@@ -107,9 +106,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
         // Setup RecyclerView for reviews
-        rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        return rootView;
+        rvReviews.setLayoutManager(new LinearLayoutManager(this));
     }
 
     private void checkUserRole(String userId) {
@@ -124,13 +121,13 @@ public class ProductDetailsBuyerFragment extends Fragment {
                                     if (doc.exists()) {
                                         // Current user is a seller
                                     } else {
-                                        Toast.makeText(getContext(), "User role not found", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(this, "User role not found", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to check user role", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to check user role", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -150,7 +147,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
             viewPager.setAdapter(imageSliderAdapter);
         } else {
             // Handle case where product has no images
-            Toast.makeText(getContext(), "No images available for this product", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No images available for this product", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -163,19 +160,19 @@ public class ProductDetailsBuyerFragment extends Fragment {
                         String sellerProfileImageUrl = documentSnapshot.getString("profileImageUrl");
 
                         sellerName.setText(sellerNameStr);
-                        Glide.with(getContext())
+                        Glide.with(this)
                                 .load(sellerProfileImageUrl)
                                 .placeholder(R.drawable.ic_launcher_background)
                                 .into(sellerProfileImage);
                     } else {
-                        Toast.makeText(getContext(), "Seller not found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Seller not found", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error getting seller info", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(this, "Error getting seller info", Toast.LENGTH_SHORT).show());
     }
 
     private void openSellerShop() {
-        Intent intent = new Intent(getContext(), SellerShopActivity.class);
+        Intent intent = new Intent(this, SellerShopActivity.class);
         intent.putExtra("SELLER_ID", sellerId);
         startActivity(intent);
     }
@@ -186,7 +183,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
             int quantity = quantityText.isEmpty() ? 1 : Integer.parseInt(quantityText);
 
             if (quantity < 1 || quantity > maxQuantity) {
-                Toast.makeText(getContext(), "Please enter a quantity between 1 and " + maxQuantity, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter a quantity between 1 and " + maxQuantity, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -206,7 +203,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
                 saveCartItemToFirestore(product, quantity);
             }
 
-            Toast.makeText(getContext(), "Added to cart", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -217,7 +214,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
                     // Handle success
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to add to cart", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -230,7 +227,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
                         // Handle success
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Failed to update cart item", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to update cart item", Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -245,7 +242,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
     }
 
     private void checkout() {
-        Intent intent = new Intent(getContext(), DeliveryInfoActivity.class);
+        Intent intent = new Intent(this, DeliveryInfoActivity.class);
         intent.putExtra("PRODUCT", product);
         intent.putExtra("PRODUCT_PRICE", product.getPrice());
         intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString()));
@@ -265,7 +262,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
         EditText editTextReview = dialogView.findViewById(R.id.editTextReview);
         Button buttonSubmitReview = dialogView.findViewById(R.id.buttonSubmitReview);
 
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setTitle("Add a Review")
                 .setCancelable(true)
@@ -277,7 +274,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
                 submitReview(reviewText, product.getId());
                 dialog.dismiss();
             } else {
-                Toast.makeText(getContext(), "Please enter a review", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter a review", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -286,7 +283,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
 
     private void submitReview(String reviewText, String productId) {
         if (productId == null || productId.isEmpty()) {
-            Toast.makeText(getContext(), "Invalid product ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -296,17 +293,17 @@ public class ProductDetailsBuyerFragment extends Fragment {
                 .collection("reviews")
                 .add(review)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(getContext(), "Review submitted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
                     loadReviews(productId);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to submit review", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void loadReviews(String productId) {
         if (productId == null || productId.isEmpty()) {
-            Toast.makeText(getContext(), "Invalid product ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -325,7 +322,7 @@ public class ProductDetailsBuyerFragment extends Fragment {
                     rvReviews.setAdapter(reviewsAdapter);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to load reviews", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
                 });
     }
 }
