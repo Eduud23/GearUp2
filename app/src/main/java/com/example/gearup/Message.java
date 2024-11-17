@@ -16,6 +16,8 @@ public class Message {
         this.timestamp = timestamp;
     }
 
+    // Getter and setter methods
+
     public String getSenderId() {
         return senderId;
     }
@@ -38,5 +40,10 @@ public class Message {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    // A helper method to determine if the current message is from the current user
+    public boolean isSentByCurrentUser(String currentUserId) {
+        return senderId.equals(currentUserId);
     }
 }

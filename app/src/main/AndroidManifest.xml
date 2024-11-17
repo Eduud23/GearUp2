@@ -16,6 +16,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ConversationSellerActivity"
+            android:exported="false" />
+        <activity
             android:name=".ConversationListActivity"
             android:exported="false" />
         <activity

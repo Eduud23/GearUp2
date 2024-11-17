@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -59,17 +60,20 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         });
         ImageView iconMessage = view.findViewById(R.id.icon_message);
         iconMessage.setOnClickListener(v -> {
-            FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            String currentUserId = mAuth.getCurrentUser().getUid();
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-            if (currentUserId != null) {
-                Intent intent = new Intent(getContext(), MessageSeller.class);
-                intent.putExtra("CURRENT_USER_ID", currentUserId);  // Add the current user ID to the intent
+            if (currentUser != null) {
+                String currentUserId = currentUser.getUid();
+
+                Intent intent = new Intent(getContext(), ConversationSellerActivity.class);
+                intent.putExtra("CURRENT_USER_ID", currentUserId);
                 startActivity(intent);
             } else {
-                Toast.makeText(getContext(), "Please log in to access messages.", Toast.LENGTH_SHORT).show();
+                // Handle case where user is not authenticated
+                Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
             }
         });
+
 
         // Click listeners for See All buttons
         TextView textSeeAllCentral = view.findViewById(R.id.text_see_all_central);

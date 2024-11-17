@@ -10,15 +10,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder> {
+public class ConversationSellerAdapter extends RecyclerView.Adapter<ConversationSellerAdapter.ConversationViewHolder> {
 
     private List<Conversation> conversations;
-    private String currentUserId; // Add currentUserId as a field
+    private String currentUserId;
 
-    // Constructor now accepts both conversations and currentUserId
-    public ConversationAdapter(List<Conversation> conversations, String currentUserId) {
+    public ConversationSellerAdapter(List<Conversation> conversations, String currentUserId) {
         this.conversations = conversations;
-        this.currentUserId = currentUserId; // Initialize the currentUserId
+        this.currentUserId = currentUserId;
     }
 
     @Override
@@ -33,8 +32,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         // Get the current conversation
         Conversation conversation = conversations.get(position);
 
-        // Set the shopName as the conversation name (for the seller)
-        holder.conversationNameTextView.setText(conversation.getShopName()); // Set shopName as the conversation name
+        // Set the buyer's full name as the conversation name (for the seller)
+        holder.conversationNameTextView.setText(conversation.getShopName());
 
         // Set the last message in the conversation
         holder.lastMessageTextView.setText(conversation.getLastMessage());
@@ -44,8 +43,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             // Prepare the Intent to navigate to the ChatActivity
             Intent intent = new Intent(v.getContext(), ChatActivity.class);
             intent.putExtra("CHATROOM_ID", conversation.getId()); // Pass the chatroom ID
-            intent.putExtra("SELLER_ID", getSellerId(conversation)); // Pass the seller's ID
-            intent.putExtra("CURRENT_USER_ID", currentUserId); // Pass the current user ID (passed from activity)
+            intent.putExtra("BUYER_ID", getBuyerId(conversation)); // Pass the buyer's ID
+            intent.putExtra("CURRENT_USER_ID", currentUserId); // Pass the current user ID (seller)
             v.getContext().startActivity(intent);
         });
     }
@@ -67,12 +66,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
-    // Helper method to get the seller's ID (from the conversation's participants list)
-    private String getSellerId(Conversation conversation) {
+    // Helper method to get the buyer's ID (from the conversation's participants list)
+    private String getBuyerId(Conversation conversation) {
         List<String> participants = conversation.getParticipants();
         for (String participant : participants) {
             if (!participant.equals(currentUserId)) { // Ensure we don't return the current user's ID
-                return participant; // The other participant is the seller
+                return participant; // The other participant is the buyer
             }
         }
         return null;

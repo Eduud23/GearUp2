@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+
     private List<Message> messages;
     private String currentUserId; // To distinguish sender from receiver
 
@@ -23,8 +24,17 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @NonNull
     @Override
     public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.chat_message_item, parent, false);
+        View view;
+        // Inflate different layouts based on message type (sender or receiver)
+        if (viewType == 1) {
+            // Layout for messages sent by the current user (sender)
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chat_message_sender_item, parent, false);
+        } else {
+            // Layout for messages received from the other user (receiver)
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.chat_message_receiver_item, parent, false);
+        }
         return new ChatViewHolder(view);
     }
 
@@ -32,21 +42,21 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Message message = messages.get(position);
         holder.messageTextView.setText(message.getContent());
-
-        if (message.getSenderId().equals(currentUserId)) {
-            // If message is from current user (sender)
-            holder.messageTextView.setBackgroundResource(R.drawable.message_sender_background);
-            holder.messageTextView.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.white));
-        } else {
-            // If message is from other user (receiver)
-            holder.messageTextView.setBackgroundResource(R.drawable.message_receiver_background);
-            holder.messageTextView.setTextColor(holder.itemView.getContext().getResources().getColor(android.R.color.black));
-        }
     }
 
     @Override
     public int getItemCount() {
         return messages.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        // Determine if the message is from the current user or another user
+        if (messages.get(position).getSenderId().equals(currentUserId)) {
+            return 1; // Sender's message
+        } else {
+            return 0; // Receiver's message
+        }
     }
 
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
