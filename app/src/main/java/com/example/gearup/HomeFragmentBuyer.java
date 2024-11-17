@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -55,6 +56,21 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         iconCart.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), CartActivity.class);
             startActivity(intent);
+        });
+        ImageView iconMessage = view.findViewById(R.id.icon_message);
+        iconMessage.setOnClickListener(v -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            if (currentUser != null) {
+                String currentUserId = currentUser.getUid();
+
+                Intent intent = new Intent(getContext(), ConversationListActivity.class);
+                intent.putExtra("CURRENT_USER_ID", currentUserId);
+                startActivity(intent);
+            } else {
+                // Handle case where user is not authenticated
+                Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+            }
         });
 
 

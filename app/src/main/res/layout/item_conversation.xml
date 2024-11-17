@@ -1,0 +1,24 @@
+<!-- res/layout/item_conversation.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_conversation_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Conversation Name"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_last_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last Message"
+        android:textSize="14sp"
+        android:textColor="#888" />
+
+</LinearLayout>
