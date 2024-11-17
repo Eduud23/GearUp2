@@ -112,4 +112,37 @@ public class ConversationSellerActivity extends AppCompatActivity {
                     Toast.makeText(ConversationSellerActivity.this, "Error fetching buyer data", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    // Assuming this method exists for sending a reply message from the seller's side
+    private void sendMessage(String messageText, String conversationId, String receiverId) {
+        if (!messageText.isEmpty() && receiverId != null) {
+            // Create a new Message object with senderId (currentUserId), receiverId, message content, and timestamp
+            Message message = new Message(currentUserId, receiverId, messageText, System.currentTimeMillis());
+
+            // Send the message to Firestore in the appropriate chatroom and messages collection
+            db.collection("chatrooms").document(conversationId)
+                    .collection("messages")
+                    .add(message)
+                    .addOnSuccessListener(documentReference -> {
+                        // Update the last message in the chatroom document
+                        updateLastMessageInChatroom(conversationId, messageText);
+                        Toast.makeText(ConversationSellerActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ConversationSellerActivity.this, "Error sending message", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    // Update the last message in the chatroom document after a reply
+    private void updateLastMessageInChatroom(String conversationId, String lastMessage) {
+        db.collection("chatrooms").document(conversationId)
+                .update("lastMessage", lastMessage, "timestamp", System.currentTimeMillis())
+                .addOnSuccessListener(aVoid -> {
+                    // Successfully updated the last message
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ConversationSellerActivity.this, "Error updating last message", Toast.LENGTH_SHORT).show();
+                });
+    }
 }

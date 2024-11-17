@@ -40,11 +40,18 @@ public class ConversationSellerAdapter extends RecyclerView.Adapter<Conversation
 
         // Set click listener for each conversation item
         holder.itemView.setOnClickListener(v -> {
+            // Get the buyerId and sellerId for the conversation
+            String buyerId = getBuyerId(conversation);
+            String sellerId = currentUserId; // The current user is the seller
+
             // Prepare the Intent to navigate to the ChatActivity
             Intent intent = new Intent(v.getContext(), ChatActivity.class);
             intent.putExtra("CHATROOM_ID", conversation.getId()); // Pass the chatroom ID
-            intent.putExtra("BUYER_ID", getBuyerId(conversation)); // Pass the buyer's ID
+            intent.putExtra("BUYER_ID", buyerId); // Pass the buyer's ID
+            intent.putExtra("SELLER_ID", sellerId); // Pass the seller's ID
             intent.putExtra("CURRENT_USER_ID", currentUserId); // Pass the current user ID (seller)
+
+            // Start the ChatActivity
             v.getContext().startActivity(intent);
         });
     }

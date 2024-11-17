@@ -13,7 +13,7 @@ import java.util.List;
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private List<Message> messages;
-    private String currentUserId; // To distinguish sender from receiver
+    private String currentUserId;
 
     // Constructor
     public ChatAdapter(List<Message> messages, String currentUserId) {

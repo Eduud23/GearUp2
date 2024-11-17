@@ -1,29 +1,40 @@
 package com.example.gearup;
 
 public class Message {
+
     private String senderId;
+    private String receiverId;
     private String content;
     private long timestamp;
 
-    // No-argument constructor is required for Firestore to deserialize the object
+    // No-argument constructor (required for Firestore deserialization)
     public Message() {
-        // Firestore requires a no-argument constructor
+        // Empty constructor
     }
 
-    public Message(String senderId, String content, long timestamp) {
+    // Constructor with parameters
+    public Message(String senderId, String receiverId, String content, long timestamp) {
         this.senderId = senderId;
+        this.receiverId = receiverId;
         this.content = content;
         this.timestamp = timestamp;
     }
 
-    // Getter and setter methods
-
+    // Getters and setters
     public String getSenderId() {
         return senderId;
     }
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 
     public String getContent() {
@@ -40,10 +51,5 @@ public class Message {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    // A helper method to determine if the current message is from the current user
-    public boolean isSentByCurrentUser(String currentUserId) {
-        return senderId.equals(currentUserId);
     }
 }

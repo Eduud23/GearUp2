@@ -4,15 +4,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +31,9 @@ public class ChatActivity extends AppCompatActivity {
     private String chatroomId;
     private String currentUserId;
     private String sellerId;
+    private String buyerId;
+
+    private TextView senderNameTextView; // Reference for the sender's name TextView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +46,14 @@ public class ChatActivity extends AppCompatActivity {
         // Get passed data from the Intent
         chatroomId = getIntent().getStringExtra("CHATROOM_ID");
         sellerId = getIntent().getStringExtra("SELLER_ID");
+        buyerId = getIntent().getStringExtra("BUYER_ID");
         currentUserId = getIntent().getStringExtra("CURRENT_USER_ID");
 
         // Initialize UI components
         messagesRecyclerView = findViewById(R.id.rv_messages);
         messageEditText = findViewById(R.id.et_message);
         sendButton = findViewById(R.id.btn_send);
+        senderNameTextView = findViewById(R.id.tv_sender_name); // Find the sender's name TextView
 
         // Set up RecyclerView for chat messages
         messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -64,14 +70,72 @@ public class ChatActivity extends AppCompatActivity {
             // Check if a chatroom already exists between these two participants
             checkAndCreateChatroom();
         }
+
+        // Dynamically load the name of the other participant (either buyer or seller)
+        loadOtherParticipantName();
     }
+
+    private void loadOtherParticipantName() {
+        if (currentUserId == null || sellerId == null) {
+            Toast.makeText(ChatActivity.this, "User or Seller ID is null", Toast.LENGTH_SHORT).show();
+            return; // Exit the method early if IDs are missing
+        }
+
+        // Determine the other participant's ID (if currentUserId is the seller, the other is the buyer, and vice versa)
+        String otherParticipantId = currentUserId.equals(sellerId) ? buyerId : sellerId;
+
+        if (otherParticipantId == null) {
+            Toast.makeText(ChatActivity.this, "Other participant ID is null", Toast.LENGTH_SHORT).show();
+            return; // Exit if there's no valid other participant ID
+        }
+
+        // Fetch the other participant's data based on their role (seller or buyer)
+        if (otherParticipantId.equals(sellerId)) {
+            // Fetch seller's shop name
+            db.collection("sellers").document(sellerId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String shopName = documentSnapshot.getString("shopName");
+                            senderNameTextView.setText(shopName != null ? shopName : "Shop");
+                        } else {
+                            senderNameTextView.setText("Shop"); // Default if no shop name found
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ChatActivity.this, "Error fetching seller's name", Toast.LENGTH_SHORT).show();
+                    });
+        } else if (otherParticipantId.equals(buyerId)) {
+            // Fetch buyer's first and last name
+            db.collection("buyers").document(otherParticipantId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String firstName = documentSnapshot.getString("firstName");
+                            String lastName = documentSnapshot.getString("lastName");
+                            senderNameTextView.setText(firstName + " " + lastName);
+                        } else {
+                            senderNameTextView.setText("Buyer"); // Default if buyer name is not found
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ChatActivity.this, "Error fetching buyer's name", Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+
 
     // Send message method
     private void sendMessage() {
         String messageText = messageEditText.getText().toString().trim();
 
         if (!messageText.isEmpty()) {
-            Message message = new Message(currentUserId, messageText, System.currentTimeMillis());
+            // Determine the receiverId dynamically
+            String receiverId = currentUserId.equals(sellerId) ? buyerId : sellerId;
+
+            // Create a new message with senderId, receiverId, content, and timestamp
+            Message message = new Message(currentUserId, receiverId, messageText, System.currentTimeMillis());
 
             if (chatroomId == null || chatroomId.isEmpty()) {
                 // If no chatroomId, create a new chatroom and send the message
@@ -102,13 +166,17 @@ public class ChatActivity extends AppCompatActivity {
                             // If the chatroom already exists, use the existing one
                             chatroomId = document.getId();
                             chatroomExists = true;
+
+                            // Fetch buyerId from the participants list
+                            buyerId = participants.get(0).equals(sellerId) ? participants.get(1) : participants.get(0);
+
                             break;
                         }
                     }
 
                     if (!chatroomExists) {
                         // If no existing chatroom is found, create a new chatroom
-                        createChatroomAndSendMessage(new Message(currentUserId, "", System.currentTimeMillis()));
+                        createChatroomAndSendMessage(new Message(currentUserId, sellerId, "", System.currentTimeMillis()));
                     } else {
                         // Load messages for the existing chatroom
                         loadMessages();
@@ -134,6 +202,7 @@ public class ChatActivity extends AppCompatActivity {
                 .add(chatroomData)
                 .addOnSuccessListener(documentReference -> {
                     chatroomId = documentReference.getId();
+                    buyerId = (currentUserId.equals(sellerId)) ? participants.get(0) : participants.get(1); // Ensure buyerId is set
                     sendMessageToFirestore(message);
                 })
                 .addOnFailureListener(e -> {
@@ -166,7 +235,7 @@ public class ChatActivity extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     messages.clear();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Message message = document.toObject(Message.class);
+                        Message message = document.toObject(Message.class);  // This should now work
                         messages.add(message);
                     }
                     chatAdapter.notifyDataSetChanged();
