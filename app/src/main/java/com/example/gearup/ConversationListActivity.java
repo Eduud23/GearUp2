@@ -1,6 +1,10 @@
 package com.example.gearup;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,11 +25,18 @@ public class ConversationListActivity extends AppCompatActivity {
     private List<Conversation> conversations = new ArrayList<>();
     private FirebaseFirestore db;
     private String currentUserId;
+    private EditText searchEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation_list);
+
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -47,6 +58,28 @@ public class ConversationListActivity extends AppCompatActivity {
         conversationAdapter = new ConversationAdapter(conversations, currentUserId);
         conversationRecyclerView.setAdapter(conversationAdapter);
 
+        // Search EditText
+        searchEditText = findViewById(R.id.et_search);
+
+        // Add a listener to handle search input
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+                // Do nothing here, or use it if necessary
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                String query = charSequence.toString();
+                filterConversations(query); // Filter based on the search query
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // Do nothing here, or use it if necessary
+            }
+        });
+
         // Load conversations for the current user
         loadConversations();
     }
@@ -64,10 +97,8 @@ public class ConversationListActivity extends AppCompatActivity {
                         String lastMessage = document.getString("lastMessage");
 
                         if (participants != null) {
-                            // Find the other participant (buyer or seller) and fetch details
                             String otherParticipantId = null;
                             for (String participant : participants) {
-                                // Add null check before comparing participant
                                 if (participant != null && !participant.equals(currentUserId)) {
                                     otherParticipantId = participant;
                                     break;
@@ -75,7 +106,6 @@ public class ConversationListActivity extends AppCompatActivity {
                             }
 
                             if (otherParticipantId != null) {
-                                // Check if the other participant is a seller or a buyer
                                 checkParticipantTypeAndUpdateConversation(otherParticipantId, conversationId, participants, lastMessage);
                             }
                         }
@@ -86,32 +116,28 @@ public class ConversationListActivity extends AppCompatActivity {
                 });
     }
 
-    // Check if the participant is a seller or a buyer
     private void checkParticipantTypeAndUpdateConversation(String otherParticipantId, String conversationId, List<String> participants, String lastMessage) {
-        // First, check if the participant is a seller
         db.collection("sellers").document(otherParticipantId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         String shopName = documentSnapshot.getString("shopName");
+                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+
                         if (shopName != null) {
-                            // Create the conversation for a seller
-                            Conversation conversation = new Conversation(conversationId, participants, lastMessage, shopName);
+                            Conversation conversation = new Conversation(conversationId, participants, lastMessage, shopName, profileImageUrl);
                             conversations.add(conversation);
                             conversationAdapter.notifyDataSetChanged();
                         }
                     } else {
-                        // If not a seller, check if the participant is a buyer
                         fetchBuyerDetailsAndUpdateConversation(otherParticipantId, conversationId, participants, lastMessage);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // If there's an error fetching seller data, try the buyer data
                     fetchBuyerDetailsAndUpdateConversation(otherParticipantId, conversationId, participants, lastMessage);
                 });
     }
 
-    // Fetch the buyer's first name and last name and update the conversation
     private void fetchBuyerDetailsAndUpdateConversation(String buyerId, String conversationId, List<String> participants, String lastMessage) {
         db.collection("buyers").document(buyerId)
                 .get()
@@ -119,23 +145,31 @@ public class ConversationListActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         String firstName = documentSnapshot.getString("firstName");
                         String lastName = documentSnapshot.getString("lastName");
+                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
 
                         if (firstName != null && lastName != null) {
-                            // Combine the first and last name of the buyer
                             String buyerFullName = firstName + " " + lastName;
-
-                            // Create the conversation for a buyer
-                            Conversation conversation = new Conversation(conversationId, participants, lastMessage, buyerFullName);
+                            Conversation conversation = new Conversation(conversationId, participants, lastMessage, buyerFullName, profileImageUrl);
                             conversations.add(conversation);
                             conversationAdapter.notifyDataSetChanged();
                         }
                     } else {
-                        // Handle the case where neither seller nor buyer data is found
                         Toast.makeText(ConversationListActivity.this, "Participant not found", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(ConversationListActivity.this, "Error fetching buyer data", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    // Filter conversations based on the search query
+    private void filterConversations(String query) {
+        List<Conversation> filteredConversations = new ArrayList<>();
+        for (Conversation conversation : conversations) {
+            if (conversation.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredConversations.add(conversation);
+            }
+        }
+        conversationAdapter.updateConversations(filteredConversations);
     }
 }

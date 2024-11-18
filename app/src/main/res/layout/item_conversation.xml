@@ -1,24 +1,54 @@
-<!-- res/layout/item_conversation.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_conversation_name"
-        android:layout_width="wrap_content"
+    <!-- Horizontal LinearLayout for Profile Image and Conversation Name -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Conversation Name"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/tv_last_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Last Message"
-        android:textSize="14sp"
-        android:textColor="#888" />
+        <!-- Profile Image -->
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="12dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/gear"
+            />
+
+        <!-- Vertical LinearLayout for Conversation Name and Last Message -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <!-- Conversation Name -->
+            <TextView
+                android:id="@+id/tv_conversation_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Conversation Name"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <!-- Last Message below the Conversation Name -->
+            <TextView
+                android:id="@+id/tv_last_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Message"
+                android:textSize="14sp"
+                android:textColor="#888" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

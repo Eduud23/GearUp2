@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -34,11 +36,18 @@ public class ChatActivity extends AppCompatActivity {
     private String buyerId;
 
     private TextView senderNameTextView; // Reference for the sender's name TextView
+    private ImageView profileImageView; // Reference for the profile image
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -54,6 +63,7 @@ public class ChatActivity extends AppCompatActivity {
         messageEditText = findViewById(R.id.et_message);
         sendButton = findViewById(R.id.btn_send);
         senderNameTextView = findViewById(R.id.tv_sender_name); // Find the sender's name TextView
+        profileImageView = findViewById(R.id.profile_image); // Find the profile image ImageView
 
         // Set up RecyclerView for chat messages
         messagesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -91,40 +101,68 @@ public class ChatActivity extends AppCompatActivity {
 
         // Fetch the other participant's data based on their role (seller or buyer)
         if (otherParticipantId.equals(sellerId)) {
-            // Fetch seller's shop name
+            // Fetch seller's data
             db.collection("sellers").document(sellerId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String shopName = documentSnapshot.getString("shopName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+
+                            // Set the seller's name
                             senderNameTextView.setText(shopName != null ? shopName : "Shop");
+
+                            // Load the profile image if available
+                            if (profileImageUrl != null) {
+                                Glide.with(ChatActivity.this)
+                                        .load(profileImageUrl)
+                                        .placeholder(R.drawable.gear) // Placeholder image
+                                        .into(profileImageView);
+                            } else {
+                                // Default image in case there's no profile image URL
+                                profileImageView.setImageResource(R.drawable.gear);
+                            }
                         } else {
                             senderNameTextView.setText("Shop"); // Default if no shop name found
+                            profileImageView.setImageResource(R.drawable.gear); // Default image
                         }
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(ChatActivity.this, "Error fetching seller's name", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChatActivity.this, "Error fetching seller's name and image", Toast.LENGTH_SHORT).show();
                     });
         } else if (otherParticipantId.equals(buyerId)) {
-            // Fetch buyer's first and last name
+            // Fetch buyer's data
             db.collection("buyers").document(otherParticipantId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
                             String firstName = documentSnapshot.getString("firstName");
                             String lastName = documentSnapshot.getString("lastName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+
+                            // Set the buyer's name
                             senderNameTextView.setText(firstName + " " + lastName);
+
+                            // Load the profile image if available
+                            if (profileImageUrl != null) {
+                                Glide.with(ChatActivity.this)
+                                        .load(profileImageUrl)
+                                        .placeholder(R.drawable.gear) // Placeholder image
+                                        .into(profileImageView);
+                            } else {
+                                // Default image in case there's no profile image URL
+                                profileImageView.setImageResource(R.drawable.gear);
+                            }
                         } else {
                             senderNameTextView.setText("Buyer"); // Default if buyer name is not found
+                            profileImageView.setImageResource(R.drawable.gear); // Default image
                         }
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(ChatActivity.this, "Error fetching buyer's name", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ChatActivity.this, "Error fetching buyer's name and image", Toast.LENGTH_SHORT).show();
                     });
         }
     }
-
-
 
     // Send message method
     private void sendMessage() {

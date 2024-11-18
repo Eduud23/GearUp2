@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -38,6 +41,22 @@ public class ConversationSellerAdapter extends RecyclerView.Adapter<Conversation
         // Set the last message in the conversation
         holder.lastMessageTextView.setText(conversation.getLastMessage());
 
+        // Load the buyer's profile image using Glide
+        String profileImageUrl = conversation.getProfileImageUrl();
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            // Load the profile image from the URL using Glide
+            Glide.with(holder.itemView.getContext())
+                    .load(profileImageUrl)
+                    .circleCrop() // Optional: makes the image circular
+                    .into(holder.profileImageView);
+        } else {
+            // Set a default profile image if no URL is provided
+            Glide.with(holder.itemView.getContext())
+                    .load(R.drawable.gear) // Placeholder or default image
+                    .circleCrop()
+                    .into(holder.profileImageView);
+        }
+
         // Set click listener for each conversation item
         holder.itemView.setOnClickListener(v -> {
             // Get the buyerId and sellerId for the conversation
@@ -65,11 +84,13 @@ public class ConversationSellerAdapter extends RecyclerView.Adapter<Conversation
 
         TextView conversationNameTextView;
         TextView lastMessageTextView;
+        ImageView profileImageView; // Added ImageView for the profile picture
 
         public ConversationViewHolder(View itemView) {
             super(itemView);
             conversationNameTextView = itemView.findViewById(R.id.tv_conversation_name);
             lastMessageTextView = itemView.findViewById(R.id.tv_last_message);
+            profileImageView = itemView.findViewById(R.id.profile_image); // Initialize ImageView
         }
     }
 
@@ -82,5 +103,11 @@ public class ConversationSellerAdapter extends RecyclerView.Adapter<Conversation
             }
         }
         return null;
+    }
+
+    // Method to update the list of conversations and notify the adapter
+    public void updateConversations(List<Conversation> newConversations) {
+        this.conversations = newConversations;
+        notifyDataSetChanged(); // Notify the adapter that the data set has changed
     }
 }

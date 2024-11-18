@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide; // Add Glide for image loading
 
 import java.util.List;
 
@@ -33,11 +36,19 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         // Get the current conversation
         Conversation conversation = conversations.get(position);
 
-        // Set the shopName as the conversation name (for the seller)
-        holder.conversationNameTextView.setText(conversation.getShopName()); // Set shopName as the conversation name
+        // Set the conversation name, use shopName for sellers or buyer's full name
+        String conversationName = conversation.getShopName() != null ? conversation.getShopName() : conversation.getName();
+        holder.conversationNameTextView.setText(conversationName); // Set the name for conversation
 
         // Set the last message in the conversation
         holder.lastMessageTextView.setText(conversation.getLastMessage());
+
+        // Load the profile image URL using Glide (or any image loading library)
+        String profileImageUrl = conversation.getProfileImageUrl(); // Get the profile image URL
+        Glide.with(holder.profileImageView.getContext())
+                .load(profileImageUrl) // Load the image URL
+                .circleCrop() // Crop the image into a circle (optional)
+                .into(holder.profileImageView); // Set the image to the ImageView
 
         // Set click listener for each conversation item
         holder.itemView.setOnClickListener(v -> {
@@ -59,11 +70,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
         TextView conversationNameTextView;
         TextView lastMessageTextView;
+        ImageView profileImageView; // Added an ImageView for the profile image
 
         public ConversationViewHolder(View itemView) {
             super(itemView);
             conversationNameTextView = itemView.findViewById(R.id.tv_conversation_name);
             lastMessageTextView = itemView.findViewById(R.id.tv_last_message);
+            profileImageView = itemView.findViewById(R.id.profile_image); // Initialize the ImageView for profile image
         }
     }
 
@@ -76,5 +89,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             }
         }
         return null;
+    }
+
+    // Method to update the conversation list (called after search or data update)
+    public void updateConversations(List<Conversation> newConversations) {
+        this.conversations = newConversations;
+        notifyDataSetChanged(); // Refresh the RecyclerView
     }
 }
