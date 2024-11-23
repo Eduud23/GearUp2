@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -131,10 +132,14 @@ public class CartFragment extends Fragment {
                     });
         });
 
-
         btnBuyNow.setOnClickListener(v -> {
             dialog.dismiss();
-            // Handle "Buy Now" action (e.g., navigate to the checkout screen)
+            // Pass the clicked product to ProductDetailsBuyerActivity
+            Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
+
+            // Pass the Product object using Serializable or Parcelable
+            intent.putExtra("PRODUCT", product); // Assuming Product is Serializable
+            startActivity(intent);
         });
 
         // Show the dialog

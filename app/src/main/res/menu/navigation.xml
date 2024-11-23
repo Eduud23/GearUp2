@@ -6,8 +6,12 @@
         android:title="Home" />
     <item
         android:id="@+id/inventoryId"
-        android:icon="@drawable/home"
+        android:icon="@drawable/inventoryseller"
         android:title="Inventory" />
+    <item
+        android:id="@+id/notificationId"
+        android:icon="@drawable/notification"
+        android:title="Notification" />
     <item
         android:id="@+id/meId"
         android:icon="@drawable/me"

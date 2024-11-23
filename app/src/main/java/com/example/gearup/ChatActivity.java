@@ -36,7 +36,7 @@ public class ChatActivity extends AppCompatActivity {
     private String buyerId;
 
     private TextView senderNameTextView; // Reference for the sender's name TextView
-    private ImageView profileImageView; // Reference for the profile image
+    private ImageView profileImageView; // Reference for the profile image ImageView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
 
         ImageView backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> {
-            onBackPressed();
-        });
-
+        backButton.setOnClickListener(v -> onBackPressed());
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -73,113 +70,51 @@ public class ChatActivity extends AppCompatActivity {
         // Set the click listener for the send button
         sendButton.setOnClickListener(v -> sendMessage());
 
-        // If chatroomId is passed, load messages directly
+        // Dynamically load the name of the other participant (either buyer or seller)
+        loadOtherParticipantName();
+
+        // If chatroomId is passed, load messages directly, otherwise check for existing chatroom
         if (chatroomId != null && !chatroomId.isEmpty()) {
             loadMessages();
         } else {
-            // Check if a chatroom already exists between these two participants
-            checkAndCreateChatroom();
-        }
-
-        // Dynamically load the name of the other participant (either buyer or seller)
-        loadOtherParticipantName();
-    }
-
-    private void loadOtherParticipantName() {
-        if (currentUserId == null || sellerId == null) {
-            Toast.makeText(ChatActivity.this, "User or Seller ID is null", Toast.LENGTH_SHORT).show();
-            return; // Exit the method early if IDs are missing
-        }
-
-        // Determine the other participant's ID (if currentUserId is the seller, the other is the buyer, and vice versa)
-        String otherParticipantId = currentUserId.equals(sellerId) ? buyerId : sellerId;
-
-        if (otherParticipantId == null) {
-            Toast.makeText(ChatActivity.this, "Other participant ID is null", Toast.LENGTH_SHORT).show();
-            return; // Exit if there's no valid other participant ID
-        }
-
-        // Fetch the other participant's data based on their role (seller or buyer)
-        if (otherParticipantId.equals(sellerId)) {
-            // Fetch seller's data
-            db.collection("sellers").document(sellerId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String shopName = documentSnapshot.getString("shopName");
-                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
-
-                            // Set the seller's name
-                            senderNameTextView.setText(shopName != null ? shopName : "Shop");
-
-                            // Load the profile image if available
-                            if (profileImageUrl != null) {
-                                Glide.with(ChatActivity.this)
-                                        .load(profileImageUrl)
-                                        .placeholder(R.drawable.gear) // Placeholder image
-                                        .into(profileImageView);
-                            } else {
-                                // Default image in case there's no profile image URL
-                                profileImageView.setImageResource(R.drawable.gear);
-                            }
-                        } else {
-                            senderNameTextView.setText("Shop"); // Default if no shop name found
-                            profileImageView.setImageResource(R.drawable.gear); // Default image
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(ChatActivity.this, "Error fetching seller's name and image", Toast.LENGTH_SHORT).show();
-                    });
-        } else if (otherParticipantId.equals(buyerId)) {
-            // Fetch buyer's data
-            db.collection("buyers").document(otherParticipantId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String firstName = documentSnapshot.getString("firstName");
-                            String lastName = documentSnapshot.getString("lastName");
-                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
-
-                            // Set the buyer's name
-                            senderNameTextView.setText(firstName + " " + lastName);
-
-                            // Load the profile image if available
-                            if (profileImageUrl != null) {
-                                Glide.with(ChatActivity.this)
-                                        .load(profileImageUrl)
-                                        .placeholder(R.drawable.gear) // Placeholder image
-                                        .into(profileImageView);
-                            } else {
-                                // Default image in case there's no profile image URL
-                                profileImageView.setImageResource(R.drawable.gear);
-                            }
-                        } else {
-                            senderNameTextView.setText("Buyer"); // Default if buyer name is not found
-                            profileImageView.setImageResource(R.drawable.gear); // Default image
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(ChatActivity.this, "Error fetching buyer's name and image", Toast.LENGTH_SHORT).show();
-                    });
+            // Chatroom is not created yet, so no need to auto-create it until a message is sent
         }
     }
 
-    // Send message method
+    private void loadMessages() {
+        db.collection("chatrooms").document(chatroomId)
+                .collection("messages")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    messages.clear();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Message message = document.toObject(Message.class);
+                        if (message != null) {
+                            messages.add(message);
+                        }
+                    }
+                    chatAdapter.notifyDataSetChanged();
+                    markMessagesAsRead(); // Mark messages as read when the user opens the chat
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ChatActivity.this, "Error loading messages", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void sendMessage() {
         String messageText = messageEditText.getText().toString().trim();
 
         if (!messageText.isEmpty()) {
-            // Determine the receiverId dynamically
             String receiverId = currentUserId.equals(sellerId) ? buyerId : sellerId;
 
-            // Create a new message with senderId, receiverId, content, and timestamp
-            Message message = new Message(currentUserId, receiverId, messageText, System.currentTimeMillis());
+            Message message = new Message(currentUserId, receiverId, messageText, System.currentTimeMillis(), "unread");
 
+            // If no chatroom exists yet, create one
             if (chatroomId == null || chatroomId.isEmpty()) {
-                // If no chatroomId, create a new chatroom and send the message
                 createChatroomAndSendMessage(message);
             } else {
-                // Send message directly to Firestore
+                // If chatroom already exists, send the message to Firestore
                 sendMessageToFirestore(message);
             }
         } else {
@@ -187,45 +122,6 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    // Check if a chatroom already exists with the same participants
-    private void checkAndCreateChatroom() {
-        // Fetch all chatrooms to check for existing chatrooms with the same participants
-        db.collection("chatrooms")
-                .whereArrayContains("participants", currentUserId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    boolean chatroomExists = false;
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        List<String> participants = (List<String>) document.get("participants");
-
-                        // Check if sellerId is in the participants list
-                        if (participants != null && participants.contains(sellerId)) {
-                            // If the chatroom already exists, use the existing one
-                            chatroomId = document.getId();
-                            chatroomExists = true;
-
-                            // Fetch buyerId from the participants list
-                            buyerId = participants.get(0).equals(sellerId) ? participants.get(1) : participants.get(0);
-
-                            break;
-                        }
-                    }
-
-                    if (!chatroomExists) {
-                        // If no existing chatroom is found, create a new chatroom
-                        createChatroomAndSendMessage(new Message(currentUserId, sellerId, "", System.currentTimeMillis()));
-                    } else {
-                        // Load messages for the existing chatroom
-                        loadMessages();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ChatActivity.this, "Error checking for existing chatroom", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    // Create a new chatroom and send the first message
     private void createChatroomAndSendMessage(Message message) {
         Map<String, Object> chatroomData = new HashMap<>();
         List<String> participants = new ArrayList<>();
@@ -236,11 +132,11 @@ public class ChatActivity extends AppCompatActivity {
         chatroomData.put("lastMessage", message.getContent());
         chatroomData.put("timestamp", System.currentTimeMillis());
 
+        // Create a new chatroom and then send the message
         db.collection("chatrooms")
                 .add(chatroomData)
                 .addOnSuccessListener(documentReference -> {
                     chatroomId = documentReference.getId();
-                    buyerId = (currentUserId.equals(sellerId)) ? participants.get(0) : participants.get(1); // Ensure buyerId is set
                     sendMessageToFirestore(message);
                 })
                 .addOnFailureListener(e -> {
@@ -249,7 +145,6 @@ public class ChatActivity extends AppCompatActivity {
                 });
     }
 
-    // Send message to Firestore
     private void sendMessageToFirestore(Message message) {
         db.collection("chatrooms").document(chatroomId)
                 .collection("messages")
@@ -257,33 +152,13 @@ public class ChatActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentReference -> {
                     updateChatroomLastMessage(message.getContent());
                     messageEditText.setText("");
-                    loadMessages();
+                    loadMessages(); // Reload messages to show the new one
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(ChatActivity.this, "Error sending message", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    // Load messages from Firestore
-    private void loadMessages() {
-        db.collection("chatrooms").document(chatroomId)
-                .collection("messages")
-                .orderBy("timestamp")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    messages.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Message message = document.toObject(Message.class);  // This should now work
-                        messages.add(message);
-                    }
-                    chatAdapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ChatActivity.this, "Error loading messages", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    // Update last message in chatroom document
     private void updateChatroomLastMessage(String lastMessage) {
         Map<String, Object> chatroomData = new HashMap<>();
         chatroomData.put("lastMessage", lastMessage);
@@ -298,5 +173,105 @@ public class ChatActivity extends AppCompatActivity {
                     Toast.makeText(ChatActivity.this, "Error updating last message", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
+    }
+
+    private void markMessagesAsRead() {
+        for (Message message : messages) {
+            if (message.getStatus().equals("unread") && message.getReceiverId().equals(currentUserId)) {
+                message.setStatus("read");
+
+                db.collection("chatrooms").document(chatroomId)
+                        .collection("messages")
+                        .whereEqualTo("timestamp", message.getTimestamp())
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+
+                                db.collection("chatrooms").document(chatroomId)
+                                        .collection("messages").document(documentSnapshot.getId())
+                                        .update("status", "read")
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Successfully updated message status
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(ChatActivity.this, "Error updating message status", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(ChatActivity.this, "Error updating message status", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        }
+    }
+
+    private void loadOtherParticipantName() {
+        if (currentUserId == null || sellerId == null) {
+            Toast.makeText(ChatActivity.this, "User or Seller ID is null", Toast.LENGTH_SHORT).show();
+            return; // Exit the method early if IDs are missing
+        }
+
+        String otherParticipantId = currentUserId.equals(sellerId) ? buyerId : sellerId;
+
+        if (otherParticipantId == null) {
+            Toast.makeText(ChatActivity.this, "Other participant ID is null", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (otherParticipantId.equals(sellerId)) {
+            db.collection("sellers").document(sellerId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String shopName = documentSnapshot.getString("shopName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+
+                            senderNameTextView.setText(shopName != null ? shopName : "Shop");
+
+                            if (profileImageUrl != null) {
+                                Glide.with(ChatActivity.this)
+                                        .load(profileImageUrl)
+                                        .placeholder(R.drawable.gear)
+                                        .into(profileImageView);
+                            } else {
+                                profileImageView.setImageResource(R.drawable.gear);
+                            }
+                        } else {
+                            senderNameTextView.setText("Shop");
+                            profileImageView.setImageResource(R.drawable.gear);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ChatActivity.this, "Error fetching seller's name and image", Toast.LENGTH_SHORT).show();
+                    });
+        } else if (otherParticipantId.equals(buyerId)) {
+            db.collection("buyers").document(otherParticipantId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String firstName = documentSnapshot.getString("firstName");
+                            String lastName = documentSnapshot.getString("lastName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+
+                            senderNameTextView.setText(firstName + " " + lastName);
+
+                            if (profileImageUrl != null) {
+                                Glide.with(ChatActivity.this)
+                                        .load(profileImageUrl)
+                                        .placeholder(R.drawable.gear)
+                                        .into(profileImageView);
+                            } else {
+                                profileImageView.setImageResource(R.drawable.gear);
+                            }
+                        } else {
+                            senderNameTextView.setText("Buyer");
+                            profileImageView.setImageResource(R.drawable.gear);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ChatActivity.this, "Error fetching buyer's name and image", Toast.LENGTH_SHORT).show();
+                    });
+        }
     }
 }

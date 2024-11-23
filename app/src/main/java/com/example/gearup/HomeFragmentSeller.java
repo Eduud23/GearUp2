@@ -14,10 +14,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,7 +44,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home_seller, container, false); // Ensure correct layout
+        View view = inflater.inflate(R.layout.fragment_home_seller, container, false);
 
         // Initialize views
         viewPagerCentralComponents = view.findViewById(R.id.viewPager_central_components);
@@ -53,29 +53,30 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
         searchBar = view.findViewById(R.id.search_bar);
 
+        // Unread message count text view
+        TextView unreadMessageTextView = view.findViewById(R.id.unread_message_count);
+
+        // Cart and Message icons
         ImageView iconCart = view.findViewById(R.id.icon_cart);
         iconCart.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), CartActivity.class);
             startActivity(intent);
         });
+
         ImageView iconMessage = view.findViewById(R.id.icon_message);
         iconMessage.setOnClickListener(v -> {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
             if (currentUser != null) {
                 String currentUserId = currentUser.getUid();
-
                 Intent intent = new Intent(getContext(), ConversationSellerActivity.class);
                 intent.putExtra("CURRENT_USER_ID", currentUserId);
                 startActivity(intent);
             } else {
-                // Handle case where user is not authenticated
                 Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
             }
         });
 
-
-        // Click listeners for See All buttons
+        // See All buttons for different categories
         TextView textSeeAllCentral = view.findViewById(R.id.text_see_all_central);
         TextView textSeeAllBody = view.findViewById(R.id.text_see_all_body);
         TextView textSeeAllConnectors = view.findViewById(R.id.text_see_all_connectors);
@@ -101,10 +102,11 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             startActivity(intent);
         });
 
+        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         loadProducts();
 
-        // Set text change listener for search bar to filter products
+        // Search functionality
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -122,6 +124,13 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             public void afterTextChanged(Editable s) {}
         });
 
+        // Check for unread messages
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String currentUserId = currentUser.getUid();
+            countUnreadMessages(currentUserId);  // Fetch unread messages count
+        }
+
         return view;
     }
 
@@ -135,7 +144,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                         connectorsList.clear();
                         peripheralsList.clear();
 
-                        // Iterate through the fetched products and categorize them
+                        // Categorize products
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
@@ -146,7 +155,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                             }
                         }
 
-                        // Once products are categorized, update the adapters
+                        // Update adapters once products are categorized
                         setAdapters();
                     } else {
                         Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
@@ -231,7 +240,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             }
         }
 
-        // Update the adapters with the filtered products
+        // Update the adapters with filtered products
         adapterCentralComponents.updateProductList(filteredCentralComponents);
         adapterBody.updateProductList(filteredBody);
         adapterConnectors.updateProductList(filteredConnectors);
@@ -261,6 +270,46 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         adapterPeripherals.notifyDataSetChanged();
     }
 
+    private void countUnreadMessages(String currentUserId) {
+        db.collection("chatrooms")
+                .whereArrayContains("participants", currentUserId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Use AtomicInteger to allow modification inside lambda
+                        AtomicInteger unreadCount = new AtomicInteger(0);
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String chatroomId = document.getId();
+                            db.collection("chatrooms").document(chatroomId)
+                                    .collection("messages")
+                                    .whereEqualTo("status", "unread")
+                                    .whereEqualTo("receiverId", currentUserId)
+                                    .get()
+                                    .addOnCompleteListener(messageTask -> {
+                                        if (messageTask.isSuccessful()) {
+                                            // Use AtomicInteger's incrementAndGet method to safely update
+                                            unreadCount.addAndGet(messageTask.getResult().size());
+                                            updateUnreadMessageCount(unreadCount.get());
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    private void updateUnreadMessageCount(int unreadCount) {
+        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
+        if (unreadMessageTextView != null) {
+            if (unreadCount > 0) {
+                unreadMessageTextView.setText(String.valueOf(unreadCount));
+                unreadMessageTextView.setVisibility(View.VISIBLE);
+            } else {
+                unreadMessageTextView.setVisibility(View.GONE);
+            }
+        }
+    }
+
     @Override
     public void onProductClick(int position, String category) {
         Product clickedProduct;
@@ -278,11 +327,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
 
         // Start ProductDetailsBuyerActivity with the clicked product
         Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
-
-        // Pass the clicked product to the activity
         intent.putExtra("PRODUCT", clickedProduct);  // Assuming Product implements Parcelable
-
-        // Start the activity
         startActivity(intent);
     }
 }
