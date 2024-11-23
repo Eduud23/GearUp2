@@ -41,7 +41,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
     private final String secretKey = "sk_test_51PF3ByC6MmcIFikTxmE9dhgo5ZLxCWlNgqBaBMwZUKCCeRd0pkgKBQZOBO9UymYma2sNPpNIKlU2befDh0JeISU700OoXXptWX";
     private final String publishableKey = "pk_test_51PF3ByC6MmcIFikTjKhzCftwVaWmffD2iAqfquBroHxyujRLOG6QJ07t0tljO8FzDYbsNZld6sSjbTSTFUfT8J1c00D2b0tfvg";
     private FirebaseFirestore db;
-    private String currentUserId;
+    private String buyerId;
 
     private EditText etName, etDeliveryAddress, etContactNumber, etZipCode;
     private RadioGroup radioGroupShipping;
@@ -66,10 +66,10 @@ public class DeliveryInfoActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        // Get the current user's ID
+        // Get the current user's ID (buyerId)
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            currentUserId = currentUser.getUid();
+            buyerId = currentUser.getUid(); // Use buyerId instead of userId
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
@@ -146,9 +146,12 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                         customerId = object.getString("id");
                         getEphemeralKey(productPrice);
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e("StripeError", "Error creating customer: " + e.getMessage());
                     }
-                }, error -> Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show()) {
+                }, error -> {
+            Log.e("StripeError", "Error creating customer: " + error.getLocalizedMessage());
+            Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
@@ -169,9 +172,12 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                         ephemeralKey = object.getString("id");
                         createPaymentIntent(productPrice);
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e("StripeError", "Error creating ephemeral key: " + e.getMessage());
                     }
-                }, error -> Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show()) {
+                }, error -> {
+            Log.e("StripeError", "Error creating ephemeral key: " + error.getLocalizedMessage());
+            Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
@@ -201,9 +207,12 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                         clientSecret = object.getString("client_secret");
                         presentPaymentSheet();
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        Log.e("StripeError", "Error creating payment intent: " + e.getMessage());
                     }
-                }, error -> Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show()) {
+                }, error -> {
+            Log.e("StripeError", "Error creating payment intent: " + error.getLocalizedMessage());
+            Toast.makeText(DeliveryInfoActivity.this, error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
@@ -233,27 +242,30 @@ public class DeliveryInfoActivity extends AppCompatActivity {
 
     private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
         if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
+            Log.d("PaymentResult", "Payment successful");
             Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
             storeOrder();  // Store the order after payment is successful
         } else {
+            Log.d("PaymentResult", "Payment failed");
             Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void storeOrder() {
-        String orderId = db.collection("orders").document().getId(); // Generate a new ID
+        String orderId = db.collection("orders").document().getId(); // Generate a new ID for the order
+        Log.d("OrderDetails", "Generated Order ID: " + orderId);
 
-        // Get user input
+        // Get user input for order details
         String userName = etName.getText().toString();
         String deliveryAddress = rbPickUp.isChecked() ? null : etDeliveryAddress.getText().toString();  // If Pick-Up is selected, deliveryAddress is null
         String contactNumber = etContactNumber.getText().toString();
         String zipCode = etZipCode.getText().toString();
         String shippingMethod = rbPickUp.isChecked() ? "Pick-Up" : "Delivery";  // Store the selected shipping method
 
-        // Create the order with order status set to "Pending"
+        // Create the order with the status set to "Pending"
         Order order = new Order(
                 orderId,
-                currentUserId,
+                buyerId, // Use buyerId here
                 product.getPrice(),
                 product.getName(),
                 product.getBrand(),
@@ -265,16 +277,51 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                 deliveryAddress,
                 contactNumber,
                 zipCode,
-                "Pending", // Set order status to "Pending"
+                "Pending", // Set the order status to "Pending"
                 product.getSellerId(), // Store the sellerId
                 shippingMethod // Store the selected shipping method
         );
+
+        Log.d("OrderDetails", "Order object: " + order.toString());
 
         // Store the order in the 'orders' collection
         db.collection("orders")
                 .document(orderId)
                 .set(order)
-                .addOnSuccessListener(aVoid -> Log.d("DeliveryInfoActivity", "Order stored successfully"))
-                .addOnFailureListener(e -> Log.e("DeliveryInfoActivity", "Error storing order", e));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DeliveryInfoActivity", "Order stored successfully");
+                    createNotification(orderId, userName, product.getName(), shippingMethod, product.getSellerId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DeliveryInfoActivity", "Error storing order", e);
+                });
     }
+
+    // Create a notification in the 'notifications' collection
+    private void createNotification(String orderId, String userName, String productName, String shippingMethod, String sellerId) {
+        // Create a new document in the 'notifications' collection
+        String notificationId = db.collection("notifications").document().getId(); // Auto-generated ID for the notification
+
+        // Prepare the content of the notification message
+        String message = "New order placed by " + userName + " for the product: " + productName +
+                ". Shipping method: " + shippingMethod + ". Order ID: " + orderId;
+
+        // Prepare data for the 'ordernotification' subcollection
+        Map<String, Object> orderNotification = new HashMap<>();
+        orderNotification.put("message", message);
+        orderNotification.put("buyerId", buyerId); // Store buyerId
+        orderNotification.put("orderId", orderId);  // Store orderId
+        orderNotification.put("timestamp", System.currentTimeMillis()); // Timestamp when notification is created
+        orderNotification.put("sellerId", sellerId); // Store sellerId as well
+
+        // Store the notification in the 'notifications' collection under the generated notificationId
+        db.collection("notifications")
+                .document(notificationId)  // Reference to the notification document
+                .collection("ordernotification") // Create the 'ordernotification' subcollection
+                .document()  // Auto-generated ID for each order notification
+                .set(orderNotification) // Store the notification content
+                .addOnSuccessListener(aVoid -> Log.d("DeliveryInfoActivity", "Notification stored successfully"))
+                .addOnFailureListener(e -> Log.e("DeliveryInfoActivity", "Error storing notification", e));
+    }
+
 }
