@@ -150,7 +150,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                             if (product != null) {
                                 product.setId(document.getId()); // Set the Firestore document ID
                                 categorizeProduct(product);
-                                loadSellerProfile(product);
+                                loadSellerProfile(product); // Fetch seller profile for each product
                                 Log.d("HomeFragmentSeller", "Loaded product: " + product.getName() + " with ID: " + product.getId());
                             }
                         }
@@ -256,7 +256,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                     if (document.exists()) {
                         String profileImageUrl = document.getString("profileImageUrl");
                         product.setSellerProfileImageUrl(profileImageUrl);
-                        notifyAdapters();
+                        notifyAdapters();  // Notify adapters to refresh the view
                     }
                 }
             });
@@ -299,16 +299,19 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     }
 
     private void updateUnreadMessageCount(int unreadCount) {
-        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
-        if (unreadMessageTextView != null) {
-            if (unreadCount > 0) {
-                unreadMessageTextView.setText(String.valueOf(unreadCount));
-                unreadMessageTextView.setVisibility(View.VISIBLE);
-            } else {
-                unreadMessageTextView.setVisibility(View.GONE);
+        if (getView() != null) {
+            TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
+            if (unreadMessageTextView != null) {
+                if (unreadCount > 0) {
+                    unreadMessageTextView.setText(String.valueOf(unreadCount));
+                    unreadMessageTextView.setVisibility(View.VISIBLE);
+                } else {
+                    unreadMessageTextView.setVisibility(View.GONE);
+                }
             }
         }
     }
+
 
     @Override
     public void onProductClick(int position, String category) {

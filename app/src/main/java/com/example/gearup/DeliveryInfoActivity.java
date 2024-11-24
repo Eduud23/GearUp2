@@ -290,21 +290,22 @@ public class DeliveryInfoActivity extends AppCompatActivity {
                 .set(order)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("DeliveryInfoActivity", "Order stored successfully");
-                    createNotification(orderId, userName, product.getName(), shippingMethod, product.getSellerId());
+                    // Corrected call to createNotification with buyerId as well
+                    createNotification(orderId, userName, product.getName(), shippingMethod, product.getSellerId(), buyerId);
                 })
                 .addOnFailureListener(e -> {
                     Log.e("DeliveryInfoActivity", "Error storing order", e);
                 });
     }
 
+
     // Create a notification in the 'notifications' collection
-    private void createNotification(String orderId, String userName, String productName, String shippingMethod, String sellerId) {
+    private void createNotification(String orderId, String userName, String productName, String shippingMethod, String sellerId, String buyerId) {
         // Create a new document in the 'notifications' collection
         String notificationId = db.collection("notifications").document().getId(); // Auto-generated ID for the notification
 
         // Prepare the content of the notification message
-        String message = "New order placed by " + userName + " for the product: " + productName +
-                ". Shipping method: " + shippingMethod + ". Order ID: " + orderId;
+        String message = "New order placed by " + userName + "\n Product: " + productName;
 
         // Prepare data for the 'ordernotification' subcollection
         Map<String, Object> orderNotification = new HashMap<>();
@@ -318,7 +319,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         db.collection("notifications")
                 .document(notificationId)  // Reference to the notification document
                 .collection("ordernotification") // Create the 'ordernotification' subcollection
-                .document()  // Auto-generated ID for each order notification
+                .document()  // Create a new document under 'ordernotification'
                 .set(orderNotification) // Store the notification content
                 .addOnSuccessListener(aVoid -> Log.d("DeliveryInfoActivity", "Notification stored successfully"))
                 .addOnFailureListener(e -> Log.e("DeliveryInfoActivity", "Error storing notification", e));

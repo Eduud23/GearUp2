@@ -35,42 +35,51 @@ public class MeFragmentSeller extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Inflate the fragment layout
         View view = inflater.inflate(R.layout.fragment_me_seller, container, false);
+
+        // Initialize Firebase components
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Initialize views
         profileImageView = view.findViewById(R.id.profileImageView);
         nameTextView = view.findViewById(R.id.textView);
         emailTextView = view.findViewById(R.id.textView2);
         addressTextView = view.findViewById(R.id.addressTextView);
 
+        // Load seller info
         loadSellerInfo();
 
-        // Set up upload button
+        // Set up the upload button
         Button uploadButton = view.findViewById(R.id.uploadButton);
         uploadButton.setOnClickListener(v -> openImageChooser());
 
-        // Set up manage order button
+        // Set up the manage order button
         Button manageOrderButton = view.findViewById(R.id.manageOrderButton);
         manageOrderButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ManageOrderActivity.class);
             startActivity(intent);
         });
 
-        // Set up logout button
+        // Set up the logout button
         view.findViewById(R.id.logoutbutton).setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Logout button clicked", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Logging out...", Toast.LENGTH_SHORT).show();
             logoutUser();
         });
 
         return view;
     }
 
+    /**
+     * Load seller's information from Firestore
+     */
     private void loadSellerInfo() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
 
+            // Fetch seller's data from Firestore
             db.collection("sellers").document(userId).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
@@ -82,10 +91,17 @@ public class MeFragmentSeller extends Fragment {
                         String address = document.getString("address");
                         String profileImageUrl = document.getString("profileImageUrl");
 
+                        // Set the data to the TextViews
                         nameTextView.setText(fullName);
                         emailTextView.setText(email);
                         addressTextView.setText(address != null ? address : "Address not available");
-                        Glide.with(this).load(profileImageUrl).into(profileImageView);  // Load profile image
+
+                        // Load profile image with Glide
+                        if (profileImageUrl != null) {
+                            Glide.with(this)
+                                    .load(profileImageUrl)
+                                    .into(profileImageView);
+                        }
                     } else {
                         nameTextView.setText("No seller info found.");
                     }
@@ -96,10 +112,12 @@ public class MeFragmentSeller extends Fragment {
         }
     }
 
+    /**
+     * Open the image chooser to select a profile picture
+     */
     private void openImageChooser() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
@@ -109,27 +127,35 @@ public class MeFragmentSeller extends Fragment {
         if (requestCode == PICK_IMAGE_REQUEST) {
             if (resultCode == getActivity().RESULT_OK && data != null && data.getData() != null) {
                 imageUri = data.getData();
-                profileImageView.setImageURI(imageUri);
-                uploadImageToFirebase(imageUri);
+                profileImageView.setImageURI(imageUri);  // Display the selected image in ImageView
+                uploadImageToFirebase(imageUri);  // Upload the image to Firebase Storage
             } else {
                 Toast.makeText(getContext(), "Image selection failed", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    /**
+     * Upload the selected image to Firebase Storage
+     */
     private void uploadImageToFirebase(Uri uri) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             String userId = currentUser.getUid();
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference("profile_images/" + userId + ".jpg");
+            StorageReference storageReference = FirebaseStorage.getInstance()
+                    .getReference("profile_images/" + userId + ".jpg");
 
             storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
                 Toast.makeText(getContext(), "Upload successful", Toast.LENGTH_SHORT).show();
+                // Get the download URL and save it to Firestore
                 storageReference.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                    db.collection("sellers").document(userId).update("profileImageUrl", downloadUrl.toString())
+                    db.collection("sellers").document(userId)
+                            .update("profileImageUrl", downloadUrl.toString())
                             .addOnSuccessListener(aVoid -> {
-                                // Optionally update UI after saving the URL
-                                Glide.with(this).load(downloadUrl).into(profileImageView);
+                                // Update the UI with the new profile image
+                                Glide.with(this)
+                                        .load(downloadUrl)
+                                        .into(profileImageView);
                             });
                 });
             }).addOnFailureListener(e -> {
@@ -138,13 +164,16 @@ public class MeFragmentSeller extends Fragment {
         }
     }
 
+    /**
+     * Log out the user and navigate to the Login screen
+     */
     private void logoutUser() {
         mAuth.signOut();
         if (getActivity() != null) {
             Intent intent = new Intent(getActivity(), Login.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            getActivity().finish();
+            getActivity().finish();  // Finish the current activity to prevent navigating back
         } else {
             Toast.makeText(getContext(), "Failed to logout: Activity not found", Toast.LENGTH_SHORT).show();
         }

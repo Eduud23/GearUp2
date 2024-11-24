@@ -4,29 +4,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
+
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.List;
 
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
-    private List<NotificationModel> notificationList;
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
+    private List<Notification> notificationList;
 
-    public NotificationAdapter(List<NotificationModel> notificationList) {
+    // Constructor
+    public NotificationAdapter(List<Notification> notificationList) {
         this.notificationList = notificationList;
     }
 
-    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public NotificationViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Inflate the item layout for each notification
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_notification, parent, false);
-        return new ViewHolder(view);
+        return new NotificationViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        NotificationModel notification = notificationList.get(position);
-        holder.titleTextView.setText(notification.getTitle());
-        holder.bodyTextView.setText(notification.getBody());
+    public void onBindViewHolder(NotificationViewHolder holder, int position) {
+        Notification notification = notificationList.get(position);
+        holder.messageTextView.setText(notification.getMessage());
+        // Set any other data you need here
     }
 
     @Override
@@ -34,14 +36,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         return notificationList.size();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView;
-        TextView bodyTextView;
+    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+        TextView messageTextView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public NotificationViewHolder(View itemView) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.titleTextView);
-            bodyTextView = itemView.findViewById(R.id.bodyTextView);
+            messageTextView = itemView.findViewById(R.id.messageTextView); // Adjust according to your layout
         }
     }
 }

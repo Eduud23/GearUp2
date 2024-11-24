@@ -18,10 +18,10 @@ import java.util.List;
 
 public class NotificationFragmentBuyer extends Fragment {
 
-    private RecyclerView notificationRecyclerView;
-    private NotificationAdapter notificationAdapter;
-    private List<NotificationModel> notificationList;
-    private FirebaseFirestore db;
+    //private RecyclerView notificationRecyclerView;
+    //private NotificationAdapter notificationAdapter;
+    //private List<NotificationModel> notificationList;
+   // private FirebaseFirestore db;
 
     @Nullable
     @Override
@@ -30,7 +30,7 @@ public class NotificationFragmentBuyer extends Fragment {
         return inflater.inflate(R.layout.fragment_notification_buyer, container, false);
     }
 
-    @Override
+    /*@Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -69,4 +69,5 @@ public class NotificationFragmentBuyer extends Fragment {
                     }
                 });
     }
+    */
 }
