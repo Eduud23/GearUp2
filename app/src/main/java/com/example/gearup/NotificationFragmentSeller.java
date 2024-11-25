@@ -63,6 +63,12 @@ public class NotificationFragmentSeller extends Fragment {
         String currentUserId = currentUser.getUid();  // Get the current user ID
         Log.d("NotificationFragment", "Fetching notifications for sellerId: " + currentUserId);
 
+        // Query both 'ordernotification' and 'messagenotification' subcollections for the specific seller
+        fetchOrderNotifications(currentUserId);  // Fetch order notifications
+        fetchMessageNotifications(currentUserId);  // Fetch message notifications
+    }
+
+    private void fetchOrderNotifications(String currentUserId) {
         // Query the 'ordernotification' subcollection for the specific seller
         db.collectionGroup("ordernotification")  // Using collectionGroup to query all subcollections named 'ordernotification'
                 .whereEqualTo("sellerId", currentUserId)  // Filter by sellerId matching the current user
@@ -78,9 +84,9 @@ public class NotificationFragmentSeller extends Fragment {
                             Notification notification = orderSnapshot.toObject(Notification.class);
                             if (notification != null) {
                                 notificationList.add(notification);  // Add to list
-                                Log.d("NotificationFragment", "Added notification: " + notification.getMessage());
+                                Log.d("NotificationFragment", "Added order notification: " + notification.getMessage());
                             } else {
-                                Log.e("NotificationFragment", "Failed to map notification object.");
+                                Log.e("NotificationFragment", "Failed to map order notification object.");
                             }
                         }
                         // Notify the adapter that data has changed and update the UI
@@ -89,6 +95,35 @@ public class NotificationFragmentSeller extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("NotificationFragment", "Error fetching order notifications", e);
+                });
+    }
+
+    private void fetchMessageNotifications(String currentUserId) {
+        db.collectionGroup("messagenotification")  // Using collectionGroup to query all subcollections named 'messagenotification'
+                .whereEqualTo("receiverId", currentUserId)  // Filter by receiverId matching the current user (seller)
+                .orderBy("timestamp", Query.Direction.DESCENDING)  // Order by timestamp to show the most recent notifications first
+                .get()  // Get all documents that match the query
+                .addOnSuccessListener(messageNotificationSnapshots -> {
+                    if (messageNotificationSnapshots.isEmpty()) {
+                        Log.d("NotificationFragment", "No message notifications found for this seller.");
+                    } else {
+                        Log.d("NotificationFragment", "Found " + messageNotificationSnapshots.size() + " message notifications.");
+                        for (DocumentSnapshot messageSnapshot : messageNotificationSnapshots) {
+                            // Map the data from the snapshot to a Notification object
+                            Notification notification = messageSnapshot.toObject(Notification.class);
+                            if (notification != null) {
+                                notificationList.add(notification);  // Add to list
+                                Log.d("NotificationFragment", "Added message notification: " + notification.getMessage());
+                            } else {
+                                Log.e("NotificationFragment", "Failed to map message notification object.");
+                            }
+                        }
+                        // Notify the adapter that data has changed and update the UI
+                        notificationAdapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("NotificationFragment", "Error fetching message notifications", e);
                 });
     }
 

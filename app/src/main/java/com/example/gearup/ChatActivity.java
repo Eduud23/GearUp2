@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -54,6 +55,11 @@ public class ChatActivity extends AppCompatActivity {
         sellerId = getIntent().getStringExtra("SELLER_ID");
         buyerId = getIntent().getStringExtra("BUYER_ID");
         currentUserId = getIntent().getStringExtra("CURRENT_USER_ID");
+
+        // If buyerId is not passed, we assume the currentUserId is the buyer
+        if (buyerId == null || buyerId.isEmpty()) {
+            buyerId = currentUserId; // Set currentUserId as buyerId if it's not passed
+        }
 
         // Initialize UI components
         messagesRecyclerView = findViewById(R.id.rv_messages);
@@ -117,10 +123,13 @@ public class ChatActivity extends AppCompatActivity {
                 // If chatroom already exists, send the message to Firestore
                 sendMessageToFirestore(message);
             }
+
+            createNotification(System.currentTimeMillis(), messageText);
         } else {
             Toast.makeText(ChatActivity.this, "Please enter a message", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void createChatroomAndSendMessage(Message message) {
         Map<String, Object> chatroomData = new HashMap<>();
@@ -274,4 +283,95 @@ public class ChatActivity extends AppCompatActivity {
                     });
         }
     }
+
+    private void createNotification(long timestamp, String messageText) {
+        // Check if the sender is the buyer or the seller
+        if (currentUserId.equals(buyerId)) {
+            // If the sender is the buyer, get buyer's details
+            db.collection("buyers")
+                    .document(buyerId)  // Query the buyer document using buyerId
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Retrieve buyer's firstName and lastName
+                            String firstName = documentSnapshot.getString("firstName");
+                            String lastName = documentSnapshot.getString("lastName");
+
+                            // Construct the message with buyer's firstName, lastName, and the actual message
+                            String messageTextWithNames = firstName + " " + lastName + "\nMessage You: " + messageText;
+
+                            // Determine receiverId as the seller
+                            String receiverId = sellerId;  // The seller is the receiver
+
+                            // Create notification data for the buyer (sender) to the seller (receiver)
+                            Map<String, Object> notificationData = new HashMap<>();
+                            notificationData.put("message", messageTextWithNames); // Full message text
+                            notificationData.put("timestamp", timestamp);
+                            notificationData.put("senderId", buyerId);  // Include buyerId as sender
+                            notificationData.put("receiverId", sellerId); // Include sellerId as receiver
+
+                            // Add the notification to Firestore under the seller's 'messagenotification' collection
+                            db.collection("notifications")
+                                    .document(receiverId)  // Store notification under receiver (seller) ID
+                                    .collection("messagenotification")
+                                    .add(notificationData)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Log.d("Notification", "Notification added for message: " + messageTextWithNames);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(ChatActivity.this, "Error adding notification", Toast.LENGTH_SHORT).show();
+                                    });
+
+                        } else {
+                            Log.e("Notification", "Buyer document not found.");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("Notification", "Error fetching buyer details", e);
+                    });
+        } else if (currentUserId.equals(sellerId)) {
+            // If the sender is the seller, get seller's details
+            db.collection("sellers")
+                    .document(sellerId)  // Query the seller document using sellerId
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Retrieve seller's shopName
+                            String shopName = documentSnapshot.getString("shopName");
+
+                            // Construct the message with shopName and the actual message
+                            String messageTextWithShop = shopName + "\nMessage from your shop: " + messageText;
+
+                            // Determine receiverId as the buyer
+                            String receiverId = buyerId;  // The buyer is the receiver
+
+                            // Create notification data for the seller (sender) to the buyer (receiver)
+                            Map<String, Object> notificationData = new HashMap<>();
+                            notificationData.put("message", messageTextWithShop);  // Full message text
+                            notificationData.put("timestamp", timestamp);
+                            notificationData.put("senderId", sellerId);  // Include sellerId as sender
+                            notificationData.put("receiverId", buyerId); // Include buyerId as receiver
+
+                            // Add the notification to Firestore under the buyer's 'messagenotification' collection
+                            db.collection("notifications")
+                                    .document(receiverId)  // Store notification under receiver (buyer) ID
+                                    .collection("messagenotification")
+                                    .add(notificationData)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Log.d("Notification", "Notification added for message: " + messageTextWithShop);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(ChatActivity.this, "Error adding notification", Toast.LENGTH_SHORT).show();
+                                    });
+
+                        } else {
+                            Log.e("Notification", "Seller document not found.");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("Notification", "Error fetching seller details", e);
+                    });
+        }
+    }
+
 }

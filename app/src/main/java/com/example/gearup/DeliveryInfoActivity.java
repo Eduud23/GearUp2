@@ -305,7 +305,7 @@ public class DeliveryInfoActivity extends AppCompatActivity {
         String notificationId = db.collection("notifications").document().getId(); // Auto-generated ID for the notification
 
         // Prepare the content of the notification message
-        String message = "New order placed by " + userName + "\n Product: " + productName;
+        String message = "New order placed by " + userName + "\nProduct: " + productName;
 
         // Prepare data for the 'ordernotification' subcollection
         Map<String, Object> orderNotification = new HashMap<>();

@@ -27,8 +27,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(NotificationViewHolder holder, int position) {
         Notification notification = notificationList.get(position);
+
+        // Set message and timestamp data
         holder.messageTextView.setText(notification.getMessage());
-        // Set any other data you need here
+        holder.timestampTextView.setText(notification.getFormattedTimestamp());  // Use the formatted timestamp
     }
 
     @Override
@@ -38,10 +40,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     public static class NotificationViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
+        TextView timestampTextView;  // Add reference for timestamp TextView
 
         public NotificationViewHolder(View itemView) {
             super(itemView);
-            messageTextView = itemView.findViewById(R.id.messageTextView); // Adjust according to your layout
+            messageTextView = itemView.findViewById(R.id.messageTextView);  // Adjust according to your layout
+            timestampTextView = itemView.findViewById(R.id.timestampTextView);  // Adjust according to your layout
         }
     }
 }
