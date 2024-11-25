@@ -11,63 +11,86 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationFragmentBuyer extends Fragment {
 
-    //private RecyclerView notificationRecyclerView;
-    //private NotificationAdapter notificationAdapter;
-    //private List<NotificationModel> notificationList;
-   // private FirebaseFirestore db;
+    private RecyclerView recyclerView;
+    private NotificationAdapter notificationAdapter;
+    private List<Notification> notificationList;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+
+    public NotificationFragmentBuyer() {
+        // Required empty public constructor
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate your layout
-        return inflater.inflate(R.layout.fragment_notification_buyer, container, false);
-    }
+        View rootView = inflater.inflate(R.layout.fragment_notification_buyer, container, false);
 
-    /*@Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        // Initialize Firebase
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
-        // Initialize your views
-        notificationRecyclerView = view.findViewById(R.id.notificationRecyclerView);
+        // Initialize the RecyclerView
+        recyclerView = rootView.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Initialize the notification list and adapter
         notificationList = new ArrayList<>();
         notificationAdapter = new NotificationAdapter(notificationList);
+        recyclerView.setAdapter(notificationAdapter);
 
-        // Set up RecyclerView
-        notificationRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        notificationRecyclerView.setAdapter(notificationAdapter);
+        // Fetch message notifications for the current buyer
+        fetchMessageNotifications();
 
-        // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
-
-        // Load notifications
-        loadNotifications();
+        return rootView;
     }
 
-    private void loadNotifications() {
-        db.collection("notifications")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        notificationList.clear(); // Clear the list to avoid duplicates
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String title = document.getString("title");
-                            String body = document.getString("body");
-                            Log.d("NotificationFragment", "Received notification: " + title + ", " + body);
-                            notificationList.add(new NotificationModel(title, body));
-                        }
-                        Log.d("NotificationFragment", "Notifications count: " + notificationList.size());
-                        notificationAdapter.notifyDataSetChanged();
+    private void fetchMessageNotifications() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e("NotificationFragment", "User is not logged in");
+            return;
+        }
+
+        String currentUserId = currentUser.getUid();  // Get the current user ID
+        Log.d("NotificationFragment", "Fetching message notifications for receiverId: " + currentUserId);
+
+        // Query Firestore for notifications where the receiverId matches the current user's ID
+        db.collectionGroup("messagenotification")  // Using collectionGroup to query all subcollections named 'messagenotification'
+                .whereEqualTo("receiverId", currentUserId)  // Filter by receiverId
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)  // Order by timestamp
+                .get()  // Get the notifications
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("NotificationFragment", "No message notifications found for this buyer.");
                     } else {
-                        Log.e("NotificationFragment", "Error getting documents: ", task.getException());
+                        Log.d("NotificationFragment", "Found " + queryDocumentSnapshots.size() + " message notifications.");
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            // Map the document to a Notification object
+                            Notification notification = documentSnapshot.toObject(Notification.class);
+                            if (notification != null) {
+                                notificationList.add(notification);  // Add to list
+                                Log.d("NotificationFragment", "Added message notification: " + notification.getMessage());
+                            }
+                        }
+                        // Notify the adapter that data has changed and update the UI
+                        notificationAdapter.notifyDataSetChanged();
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("NotificationFragment", "Error fetching message notifications", e);
                 });
     }
-    */
 }
