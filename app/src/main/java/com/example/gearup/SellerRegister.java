@@ -98,6 +98,7 @@ public class SellerRegister extends AppCompatActivity {
                         user.put("firstName", firstName);
                         user.put("lastName", lastName);
                         user.put("phone", phone);
+                        user.put("email", email);
                         user.put("shopName", shopName);
                         user.put("address", address);
                         user.put("role", "seller");
