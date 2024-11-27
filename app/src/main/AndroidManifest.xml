@@ -22,12 +22,6 @@
             android:name=".ConversationListActivity"
             android:exported="false" />
         <activity
-            android:name=".ChatListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MessageListBuyer"
-            android:exported="false" />
-        <activity
             android:name=".ChatActivity"
             android:exported="false" />
         <activity
@@ -38,9 +32,6 @@
             android:exported="false" />
         <activity
             android:name=".ProductDetailsBuyerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".MessageActivity"
             android:exported="false" />
         <activity
             android:name=".ManageOrderActivity"

@@ -77,9 +77,9 @@ public class InventoryFragment extends Fragment {
         String baseUrl;
 
         if (DeviceUtils.isEmulator()) {
-            baseUrl = "http://10.0.2.2:5001/"; // This points to localhost from the emulator
+            baseUrl = "http://10.0.2.2:5001/";
         } else {
-            baseUrl = "http://192.168.254.155:5001/"; // Update with your API base URL
+            baseUrl = "http://192.168.254.155:5001/";
         }
 
         Gson gson = new GsonBuilder()

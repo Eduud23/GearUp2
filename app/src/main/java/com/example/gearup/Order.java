@@ -2,7 +2,7 @@ package com.example.gearup;
 
 public class Order {
     private String orderId;
-    private String userId; // User ID for the current user
+    private String buyerId; // User ID for the current user
     private double productPrice;
     private String productName;
     private String productBrand;
@@ -25,13 +25,13 @@ public class Order {
     private String shippingMethod; // "Pick-Up" or "Delivery"
 
     // Updated constructor to include shippingMethod
-    public Order(String orderId, String userId, double productPrice, String productName,
+    public Order(String orderId, String buyerId, double productPrice, String productName,
                  String productBrand, String productYearModel, String productDescription,
                  int productQuantity, String productImageUrl, String userName,
                  String deliveryAddress, String contactNumber, String zipCode,
                  String orderStatus, String sellerId, String shippingMethod) {
         this.orderId = orderId;
-        this.userId = userId;
+        this.buyerId = buyerId;
         this.productPrice = productPrice;
         this.productName = productName;
         this.productBrand = productBrand;
@@ -65,12 +65,12 @@ public class Order {
         this.orderId = orderId;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getBuyerId() {
+        return buyerId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setBuyerId(String buyerId) {
+        this.buyerId = buyerId;
     }
 
     public double getProductPrice() {

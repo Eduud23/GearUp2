@@ -28,7 +28,7 @@ public class BodyActivity extends AppCompatActivity implements SeeAllProductAdap
 
         recyclerView = findViewById(R.id.recycler_view_body); // Update ID if necessary
         // Set GridLayoutManager with 3 columns
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
         loadProducts(); // Load only "Body" products

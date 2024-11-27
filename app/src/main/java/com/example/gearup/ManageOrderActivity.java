@@ -231,6 +231,8 @@ public class ManageOrderActivity extends AppCompatActivity {
             // Handle the "Approve" button click (change status to "Approved")
             btnApprove.setOnClickListener(v -> {
                 updateOrderStatus(orderItem, "Approved");
+                createSalesRecord(orderItem, "Approved");
+
                 dialog.dismiss(); // Close dialog after approving
             });
 
@@ -246,28 +248,87 @@ public class ManageOrderActivity extends AppCompatActivity {
 
         // If the order is approved, check the shipping method
         if ("Approved".equals(orderItem.getOrderStatus())) {
+            // Make sure the buttons are visible
+            btnApprove.setVisibility(View.VISIBLE);  // This button will be used to either "Ship" or "Ready to Pick Up"
+            btnReject.setVisibility(View.VISIBLE);   // We will hide this button if the shipping method is "Delivery"
+
             if ("Pick-Up".equals(shippingMethod)) {
-                // For "Pick Up" shipping method: Show "Ready to Pick Up" button only
-                btnApprove.setVisibility(View.GONE);  // Hide the "Ship" button
-                btnReject.setText("Ready to Pick Up");  // Change text of the "Reject" button
+                // For "Pick-Up" shipping method: Show "Ready to Pick Up" button
+                btnApprove.setText("Ready to Pick Up");
+                btnReject.setVisibility(View.GONE);  // Hide the reject button (not needed for Pick-Up)
 
                 // Handle the "Ready to Pick Up" button click
-                btnReject.setOnClickListener(v -> {
+                btnApprove.setOnClickListener(v -> {
                     updateOrderStatus(orderItem, "Ready to Pick Up");
                     dialog.dismiss(); // Close dialog after action
                 });
             } else if ("Delivery".equals(shippingMethod)) {
-                // For "Delivery" shipping method: Show "Ship" button only
-                btnReject.setVisibility(View.GONE);  // Hide the "Ready to Pick Up" button
-                btnApprove.setText("Ship");  // Change text of the "Approve" button
+                // For "Delivery" shipping method: Show "Ship" button
+                btnApprove.setText("Ship");
+                btnReject.setVisibility(View.GONE);  // Hide the reject button (not needed for Delivery)
 
+                // Handle the "Ship" button click
                 btnApprove.setOnClickListener(v -> {
                     updateOrderStatus(orderItem, "Shipping");
-                    dialog.dismiss();
+                    dialog.dismiss(); // Close dialog after action
                 });
+            } else {
             }
         }
     }
+
+    private void createSalesRecord(OrderItem orderItem, String status) {
+        // Get product details from orderItem
+        String productName = orderItem.getProductName();
+        String productBrand = orderItem.getProductBrand();
+        String productYearModel = orderItem.getProductYearModel();
+        int productQuantity = orderItem.getProductQuantity();
+        String sellerId = orderItem.getSellerId();
+        String buyerId = orderItem.getBuyerId();
+        double productPrice = orderItem.getProductPrice();
+
+        // Fetch seller details from Firestore
+        db.collection("sellers")
+                .document(sellerId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String shopName = documentSnapshot.getString("shopName");
+                        String address = documentSnapshot.getString("address");
+
+                        // Create a new Sales document in Firestore with the seller details
+                        long timestamp = System.currentTimeMillis();
+                        SalesRecord salesRecord = new SalesRecord(
+                                productName,
+                                productBrand,
+                                productYearModel,
+                                productQuantity,
+                                timestamp,
+                                sellerId,
+                                buyerId,
+                                address,
+                                shopName,
+                                productPrice
+                        );
+
+                        // Add the sales record to Firestore
+                        db.collection("sales")
+                                .add(salesRecord)
+                                .addOnSuccessListener(documentReference -> {
+                                    Log.d("ManageOrder", "Sales record created for product: " + productName);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("ManageOrder", "Error creating sales record", e);
+                                });
+                    } else {
+                        Log.e("ManageOrder", "Seller document not found");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ManageOrder", "Error fetching seller details", e);
+                });
+    }
+
 
     private void updateOrderStatus(OrderItem orderItem, String status) {
         if (orderItem.getDocumentId() == null) {
@@ -288,4 +349,5 @@ public class ManageOrderActivity extends AppCompatActivity {
                     Toast.makeText(ManageOrderActivity.this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

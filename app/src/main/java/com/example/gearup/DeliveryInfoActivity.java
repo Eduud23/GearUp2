@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -245,11 +247,19 @@ public class DeliveryInfoActivity extends AppCompatActivity {
             Log.d("PaymentResult", "Payment successful");
             Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
             storeOrder();  // Store the order after payment is successful
+
+            // Finish DeliveryInfoActivity to remove it from the back stack
+            finish();
+
+            // Start HomePageBuyer activity
+            Intent intent = new Intent(DeliveryInfoActivity.this, HomePageBuyer.class);
+            startActivity(intent);  // Navigate to HomePageBuyer
         } else {
             Log.d("PaymentResult", "Payment failed");
             Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void storeOrder() {
         String orderId = db.collection("orders").document().getId(); // Generate a new ID for the order

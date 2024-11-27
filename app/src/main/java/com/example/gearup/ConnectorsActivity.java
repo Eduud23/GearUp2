@@ -28,7 +28,7 @@ public class ConnectorsActivity extends AppCompatActivity implements SeeAllProdu
 
         recyclerView = findViewById(R.id.recycler_view_connectors);
         // Set GridLayoutManager with 3 columns
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
         loadProducts(); // Load only "Connectors" products

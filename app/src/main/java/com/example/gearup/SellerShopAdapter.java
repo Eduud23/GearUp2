@@ -39,6 +39,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         if (product != null) {
             // Set product name, price, and description
             holder.productNameTextView.setText(product.getName());
+            holder.brandTextView.setText(product.getBrand());
+            holder.yearModelTextView.setText(product.getYearModel());
             holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
             holder.productDescriptionTextView.setText(product.getDescription());
 
@@ -67,6 +69,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView productImageView;
         TextView productNameTextView;
+        TextView brandTextView;
+        TextView yearModelTextView;
         TextView productPriceTextView;
         TextView productDescriptionTextView;
 
@@ -75,6 +79,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
             // Initialize the views from the layout
             productImageView = itemView.findViewById(R.id.iv_product_image);
             productNameTextView = itemView.findViewById(R.id.tv_product_name);
+            brandTextView = itemView.findViewById(R.id.tv_product_brand);
+            yearModelTextView = itemView.findViewById(R.id.tv_product_year_model);
             productPriceTextView = itemView.findViewById(R.id.tv_product_price);
             productDescriptionTextView = itemView.findViewById(R.id.tv_product_description);
         }

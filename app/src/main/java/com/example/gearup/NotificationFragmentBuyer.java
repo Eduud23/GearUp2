@@ -1,10 +1,12 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +50,32 @@ public class NotificationFragmentBuyer extends Fragment {
 
         // Initialize the notification list and adapter
         notificationList = new ArrayList<>();
-        notificationAdapter = new NotificationAdapter(notificationList);
+        notificationAdapter = new NotificationAdapter(notificationList, new NotificationAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Notification notification) {
+                // Handle click: Check the type of notification and navigate accordingly
+                if (notification.getReceiverId() != null) {
+                    // Message notification - Open ConversationListActivity
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser != null) {
+                        String currentUserId = currentUser.getUid();
+
+                        // Create intent and pass the currentUserId
+                        Intent intent = new Intent(getContext(), ConversationListActivity.class);
+                        intent.putExtra("CURRENT_USER_ID", currentUserId);
+                        startActivity(intent);
+                    } else {
+                        // Handle case where user is not authenticated
+                        Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Handle other types of notifications here (e.g., order notifications)
+                    // You can handle other notification types if needed
+                    Log.d("NotificationFragment", "Non-message notification clicked");
+                }
+            }
+        });
+
         recyclerView.setAdapter(notificationAdapter);
 
         // Fetch message notifications for the current buyer
@@ -56,7 +83,6 @@ public class NotificationFragmentBuyer extends Fragment {
 
         return rootView;
     }
-
     private void fetchMessageNotifications() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {

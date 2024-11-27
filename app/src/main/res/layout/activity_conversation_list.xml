@@ -30,10 +30,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Search conversations"
+            android:drawableStart="@drawable/search"
             android:inputType="text"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:background="@android:drawable/edit_text"
+            android:drawablePadding="8dp"
+            android:padding="8dp"
+            android:background="@drawable/search_bar_background"
             android:textSize="14sp"/>
 
     </LinearLayout>

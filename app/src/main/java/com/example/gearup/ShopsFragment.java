@@ -47,8 +47,8 @@ public class ShopsFragment extends Fragment implements ShopAdapter.OnShopClickLi
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Initialize the search bar and back icon
-        searchBar = view.findViewById(R.id.search_bar);
-        backIcon = view.findViewById(R.id.icon_back);
+        searchBar = view.findViewById(R.id.et_search);
+        backIcon = view.findViewById(R.id.btn_back);
 
         // Initialize lists
         shopList = new ArrayList<>();

@@ -28,7 +28,7 @@ public class PeripheralsActivity extends AppCompatActivity implements SeeAllProd
 
         recyclerView = findViewById(R.id.recycler_view_peripherals); // Update ID if necessary
         // Set GridLayoutManager with 3 columns
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
         loadProducts(); // Load only "Peripherals" products

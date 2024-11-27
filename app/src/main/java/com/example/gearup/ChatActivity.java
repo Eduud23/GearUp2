@@ -298,7 +298,7 @@ public class ChatActivity extends AppCompatActivity {
                             String lastName = documentSnapshot.getString("lastName");
 
                             // Construct the message with buyer's firstName, lastName, and the actual message
-                            String messageTextWithNames = firstName + " " + lastName + "\nMessage You: " + messageText;
+                            String messageTextWithNames = "New message by: " + firstName + " " + lastName + "\n" + messageText;
 
                             // Determine receiverId as the seller
                             String receiverId = sellerId;  // The seller is the receiver

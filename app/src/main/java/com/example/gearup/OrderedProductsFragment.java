@@ -56,7 +56,7 @@ public class OrderedProductsFragment extends Fragment {
 
     private void fetchOrderedItems() {
         orderedListenerRegistration = db.collection("orders")
-                .whereEqualTo("userId", currentUserId)
+                .whereEqualTo("buyerId", currentUserId)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
