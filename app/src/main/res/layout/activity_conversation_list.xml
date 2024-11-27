@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
     <!-- Top Bar with Back Button and Search Field -->
     <LinearLayout
         android:orientation="horizontal"

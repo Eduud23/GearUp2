@@ -40,6 +40,11 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seller_shop);
 
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
         // Initialize UI components
         shopNameTextView = findViewById(R.id.tv_shop_name);
         addressTextView = findViewById(R.id.tv_address);
