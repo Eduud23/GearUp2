@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Back Button -->
     <ImageView
         android:id="@+id/btn_back"
         android:layout_width="48dp"
@@ -23,209 +24,175 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_back"
->
+        app:layout_constraintTop_toBottomOf="@id/btn_back">
 
-        <!-- ConstraintLayout inside the ScrollView -->
+        <!-- Inner ConstraintLayout inside the ScrollView -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp">
 
+            <!-- Profile and Message Container -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/profile_and_message_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/btn_back"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+android:elevation="4dp"            android:background="@drawable/border"
+                tools:ignore="NotSibling">
 
-    <!-- Profile and Message Container (Vertical Layout) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/profile_and_message_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:orientation="vertical"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@id/btn_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        tools:ignore="NotSibling">
+                <!-- Profile Image (CardView with rounded corners) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    app:cardCornerRadius="100dp"
+                    android:layout_marginEnd="8dp"
+                    tools:ignore="MissingConstraints">
 
-        <!-- Profile Image (CardView with rounded corners) -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            app:cardCornerRadius="100dp"
-            tools:ignore="MissingConstraints">
+                    <ImageView
+                        android:id="@+id/iv_profile_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:elevation="10dp"
+                        android:contentDescription="@string/seller_profile_image_desc"
+                        android:src="@drawable/gear"/>
+                </androidx.cardview.widget.CardView>
 
-            <ImageView
-                android:id="@+id/iv_profile_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:elevation="10dp"
-                android:contentDescription="@string/seller_profile_image_desc"
-                android:src="@drawable/gear"/>
+                <!-- Message Icon positioned at bottom-right of the profile image -->
+                <ImageView
+                    android:id="@+id/iv_message_icon"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/messenger"
+                    android:contentDescription="Message Icon"
+                    android:elevation="4dp"
+                    app:layout_constraintEnd_toEndOf="@id/cv"
+                    app:layout_constraintBottom_toBottomOf="@id/cv"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="4dp"/>
 
-        </androidx.cardview.widget.CardView>
+                <!-- Profile Information (Right side of the Profile Image) -->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toEndOf="@id/cv"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginStart="16dp">
 
-        <!-- Message Icon positioned at bottom-right of the profile image -->
-        <ImageView
-            android:id="@+id/iv_message_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/messenger"
-            android:contentDescription="Message Icon"
-            android:gravity="center_vertical"
-            android:elevation="4dp"
-            app:layout_constraintEnd_toEndOf="@id/cv"
-            app:layout_constraintBottom_toBottomOf="@id/cv"
-            />
+                    <!-- Shop Label and Value -->
+                    <TextView
+                        android:id="@+id/tv_shop_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Shop:"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/tv_shop_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shop Name"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@id/tv_shop_label"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Shop Label and Value (Label: Value) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/shop_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/profile_and_message_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+                    <!-- Address Label and Value -->
+                    <TextView
+                        android:id="@+id/tv_address_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Address:"
+                        android:layout_marginTop="2dp"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_shop_name" />
 
-        <TextView
-            android:id="@+id/tv_shop_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="132dp"
-            android:text="Shop:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:id="@+id/tv_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tech City"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@id/tv_address_label"
+                        app:layout_constraintTop_toBottomOf="@id/tv_shop_name" />
 
-        <TextView
-            android:id="@+id/tv_shop_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Shop Name"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.077"
-            app:layout_constraintStart_toEndOf="@id/tv_shop_label"
-            app:layout_constraintTop_toTopOf="parent" />
+                    <!-- Phone Number Label and Value -->
+                    <TextView
+                        android:id="@+id/tv_phone_number_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phone Number:"
+                        android:textSize="16sp"
+                        android:layout_marginTop="2dp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_address" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/tv_phone_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phone Number"
+                        android:textSize="18sp"
+                        app:layout_constraintStart_toEndOf="@id/tv_phone_number_label"
+                        app:layout_constraintTop_toBottomOf="@id/tv_address" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Address Label and Value (Label: Value) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/address_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/shop_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+            <!-- Search Bar -->
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Search products"
+                android:drawableStart="@drawable/search"
+                android:inputType="text"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:background="@drawable/search_bar_background"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/profile_and_message_container"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="30dp"/>
 
-        <TextView
-            android:id="@+id/tv_address_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="132dp"
-            android:text="Address:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginEnd="8dp"/>
+            <!-- Category Spinner -->
+            <Spinner
+                android:id="@+id/spinner_categories"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/et_search"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:padding="8dp"
+                android:layout_marginTop="10dp"/>
 
-        <TextView
-            android:id="@+id/tv_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tech City"
-            android:textSize="18sp"
-            app:layout_constraintHorizontal_bias="0.077"
-            app:layout_constraintStart_toEndOf="@id/tv_address_label"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Phone Number Label and Value (Label: Value) -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/phone_number_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/address_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
-
-        <TextView
-            android:id="@+id/tv_phone_number_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone Number:"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginStart="132dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginEnd="8dp"/>
-
-        <TextView
-            android:id="@+id/tv_phone_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone Number"
-            android:textSize="18sp"
-            app:layout_constraintHorizontal_bias="0.077"
-            app:layout_constraintStart_toEndOf="@id/tv_phone_number_label"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    <EditText
-        android:id="@+id/et_search"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Search products"
-        android:drawableStart="@drawable/search"
-        android:inputType="text"
-        android:drawablePadding="8dp"
-        android:padding="8dp"
-        android:background="@drawable/search_bar_background"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/phone_number_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp"/>
-
-    <!-- Spinner for selecting categories -->
-    <Spinner
-        android:id="@+id/spinner_categories"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/et_search"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="8dp"
-        android:layout_marginTop="10dp"/>
-
-
-
-    <!-- RecyclerView for displaying products -->
+            <!-- RecyclerView for displaying products -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_products"
                 android:layout_width="0dp"
-                android:layout_height="500dp"
+                android:layout_height="0dp"
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spinner_categories"
-                app:layout_constraintVertical_bias="0.0" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

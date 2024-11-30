@@ -32,6 +32,19 @@ public class ConnectorsActivity extends AppCompatActivity implements SeeAllProdu
 
         db = FirebaseFirestore.getInstance();
         loadProducts(); // Load only "Connectors" products
+
+        // Check if products are passed from another activity (e.g., HomeFragmentBuyer)
+            if (getIntent() != null && getIntent().hasExtra("PRODUCT_LIST")) {
+            // Retrieve the passed product list
+            productsList = getIntent().getParcelableArrayListExtra("PRODUCT_LIST");
+            if (productsList != null && !productsList.isEmpty()) {
+                setAdapter(); // Set the adapter if products are passed
+            } else {
+                loadProducts(); // Load products from Firestore if no list is passed
+            }
+        } else {
+            loadProducts(); // Load products from Firestore if no list is passed
+        }
     }
 
     private void loadProducts() {

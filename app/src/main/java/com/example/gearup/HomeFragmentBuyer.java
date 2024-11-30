@@ -93,24 +93,35 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         });
 
         // Click listeners for See All buttons
+        // Click listeners for See All buttons
         textSeeAllConnectors.setOnClickListener(v -> {
+            // Pass the connectors list to ConnectorsActivity
             Intent intent = new Intent(getContext(), ConnectorsActivity.class);
+            intent.putParcelableArrayListExtra("PRODUCT_LIST", new ArrayList<>(connectorsList));  // Pass the connectors list
             startActivity(intent);
         });
 
         textSeeAllCentral.setOnClickListener(v -> {
+            // Pass the central components list to CentralComponentsActivity
             Intent intent = new Intent(getContext(), CentralComponentsActivity.class);
+            intent.putParcelableArrayListExtra("PRODUCT_LIST", new ArrayList<>(centralComponentsList));  // Pass the central components list
             startActivity(intent);
         });
 
         textSeeAllBody.setOnClickListener(v -> {
+            // Pass the body list to BodyActivity
             Intent intent = new Intent(getContext(), BodyActivity.class);
+            intent.putParcelableArrayListExtra("PRODUCT_LIST", new ArrayList<>(bodyList));  // Pass the body list
             startActivity(intent);
         });
+
         textSeeAllPeripherals.setOnClickListener(v -> {
+            // Pass the peripherals list to PeripheralsActivity
             Intent intent = new Intent(getContext(), PeripheralsActivity.class);
+            intent.putParcelableArrayListExtra("PRODUCT_LIST", new ArrayList<>(peripheralsList));  // Pass the peripherals list
             startActivity(intent);
         });
+
 
         db = FirebaseFirestore.getInstance();
         loadProducts();
