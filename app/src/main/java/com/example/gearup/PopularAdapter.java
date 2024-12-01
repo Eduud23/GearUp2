@@ -6,20 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class PopularAdapter extends RecyclerView.Adapter<PopularAdapter.PopularViewHolder> {
 
-    private List<String> addressList;
+    private List<PopularItem> popularItemList;
     private Context context;
 
-    public PopularAdapter(List<String> addressList, Context context) {
-        this.addressList = addressList;
+    public PopularAdapter(List<PopularItem> popularItemList, Context context) {
+        this.popularItemList = popularItemList;
         this.context = context;
     }
 
@@ -32,34 +35,56 @@ public class PopularAdapter extends RecyclerView.Adapter<PopularAdapter.PopularV
 
     @Override
     public void onBindViewHolder(@NonNull PopularViewHolder holder, int position) {
-        String address = addressList.get(position);
-        holder.tvAddress.setText(address);
+        PopularItem popularItem = popularItemList.get(position);
 
+        // Set address and zipCode
+        holder.tvAddress.setText(popularItem.getAddress());
+        holder.tvZipCode.setText(popularItem.getZipCode());
+
+        // Load the product image using Glide
+        if (popularItem.getProductImage() != null && !popularItem.getProductImage().isEmpty()) {
+            Glide.with(context)
+                    .load(popularItem.getProductImage())  // Assuming productImage is a URL or URI
+                    .into(holder.imgProduct);
+        }
+
+        // Display the quantity sold
+        holder.tvQuantity.setText("Quantity Sold: " + popularItem.getProductQuantity());
+
+        // Set OnClickListener for the "View Details" button
         holder.btnViewDetails.setOnClickListener(v -> {
+            // Passing address, zipCode, product image, and quantity to the next activity
             Intent intent = new Intent(context, ProductSalesActivity.class);
-            intent.putExtra("address", address); // Passing the address to the next activity
+            intent.putExtra("address", popularItem.getAddress());
+            intent.putExtra("zipCode", popularItem.getZipCode());
+            intent.putExtra("productImage", popularItem.getProductImage());
+            intent.putExtra("productQuantity", popularItem.getProductQuantity());
             context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return addressList.size();
+        return popularItemList.size();
     }
 
-    public void setFilteredData(List<String> filteredList) {
-        this.addressList = filteredList;
-        notifyDataSetChanged(); // Notify that the data has changed
+    public void setFilteredData(List<PopularItem> filteredData) {
+        this.popularItemList = filteredData;
+        notifyDataSetChanged();  // Notify that the data has changed
     }
 
     public static class PopularViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvAddress;
+        TextView tvAddress, tvZipCode, tvQuantity;
+        ImageView imgProduct;
         Button btnViewDetails;
 
         public PopularViewHolder(View itemView) {
             super(itemView);
             tvAddress = itemView.findViewById(R.id.tvAddress);
+            tvZipCode = itemView.findViewById(R.id.tvZipCode);
+            tvQuantity = itemView.findViewById(R.id.tvQuantity); // TextView for quantity sold
+            imgProduct = itemView.findViewById(R.id.imgProduct); // ImageView for product image
             btnViewDetails = itemView.findViewById(R.id.btnAction);
         }
     }

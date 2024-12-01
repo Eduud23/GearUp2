@@ -26,8 +26,8 @@ public class TrendsFragmentSeller extends Fragment {
     private FirebaseFirestore db;
     private RecyclerView recyclerViewPopular;
     private PopularAdapter popularAdapter;
-    private List<String> addressList; // List of addresses
-    private List<String> filteredAddressList; // List for filtered search results
+    private List<PopularItem> popularItemList; // List of PopularItem (address, zipCode, productImage, productQuantity)
+    private List<PopularItem> filteredItemList; // List for filtered search results
 
     @Nullable
     @Override
@@ -41,9 +41,9 @@ public class TrendsFragmentSeller extends Fragment {
         // Initialize RecyclerView and adapter
         recyclerViewPopular = view.findViewById(R.id.recyclerViewPopular);
         recyclerViewPopular.setLayoutManager(new LinearLayoutManager(getContext()));
-        addressList = new ArrayList<>();
-        filteredAddressList = new ArrayList<>();
-        popularAdapter = new PopularAdapter(filteredAddressList, getContext());
+        popularItemList = new ArrayList<>();
+        filteredItemList = new ArrayList<>();
+        popularAdapter = new PopularAdapter(filteredItemList, getContext());
         recyclerViewPopular.setAdapter(popularAdapter);
 
         // Fetch data from Firestore
@@ -73,48 +73,135 @@ public class TrendsFragmentSeller extends Fragment {
     }
 
     private void fetchPopularItems() {
+        // Fetch trends from Firestore
         db.collectionGroup("trends")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                            addressList.clear();
+                            // Clear the popular items list to avoid old data when re-fetching
+                            popularItemList.clear();
 
+                            // Iterate through the documents in Firestore and create PopularItem objects
                             for (QueryDocumentSnapshot document : querySnapshot) {
                                 String address = document.getString("address");
+                                String zipCode = document.getString("zipCode");
 
-                                if (address != null && !address.isEmpty()) {
-                                    addressList.add(address);
+                                if (address != null && !address.isEmpty() && zipCode != null && !zipCode.isEmpty()) {
+                                    // Check if this item already exists in the list
+                                    PopularItem existingItem = getItemByAddressAndZipCode(address, zipCode);
+                                    if (existingItem == null) {
+                                        // Create a new PopularItem and add to the list if it doesn't exist
+                                        PopularItem popularItem = new PopularItem();
+                                        popularItem.setAddress(address);
+                                        popularItem.setZipCode(zipCode);
+                                        popularItemList.add(popularItem);
+                                        fetchSalesData(address, zipCode, popularItem);
+                                    } else {
+                                        // If item exists, just update it instead of adding a duplicate
+                                        fetchSalesData(address, zipCode, existingItem);
+                                    }
                                 }
                             }
 
                             // Initially display all items
-                            filteredAddressList.addAll(addressList);
+                            filteredItemList.addAll(popularItemList);
                             popularAdapter.notifyDataSetChanged();
                         }
                     } else {
-                        // Handle error
+                        // Handle error (e.g., show a Toast)
                     }
                 });
     }
 
+    private void fetchSalesData(String address, String zipCode, PopularItem popularItem) {
+        // Fetch sales data for the given address from the "sales" collection
+        db.collection("sales")
+                .whereEqualTo("address", address)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            int highestQuantity = 0;
+                            String productImage = null;
+
+                            for (QueryDocumentSnapshot document : querySnapshot) {
+                                // Get the quantitySold field and check for null
+                                Long quantitySoldLong = document.getLong("productQuantity");
+
+                                // If quantitySold is null, set a default value of 0
+                                int quantitySold = (quantitySoldLong != null) ? quantitySoldLong.intValue() : 0;
+
+                                // Check if this is the highest quantity sold
+                                if (quantitySold > highestQuantity) {
+                                    highestQuantity = quantitySold;
+                                    productImage = document.getString("productImage");
+                                }
+                            }
+
+                            // Update the PopularItem object with the fetched data
+                            popularItem.setProductImage(productImage);
+                            popularItem.setProductQuantity(highestQuantity);
+
+                            // Check if the item is already in the filtered list, update if necessary
+                            int position = filteredItemList.indexOf(popularItem);
+                            if (position >= 0) {
+                                // If the item exists in the filtered list, update and notify
+                                filteredItemList.set(position, popularItem);
+                                popularAdapter.notifyItemChanged(position);
+                            } else {
+                                // If it's not in the filtered list, add it
+                                filteredItemList.add(popularItem);
+                                popularAdapter.notifyDataSetChanged();
+                            }
+                        } else {
+                            // If no sales data exists for this address, set default values
+                            popularItem.setProductImage(null); // Or set a default image
+                            popularItem.setProductQuantity(0);
+
+                            // Add the item to the filtered list if it's not already there
+                            int position = filteredItemList.indexOf(popularItem);
+                            if (position < 0) {
+                                filteredItemList.add(popularItem);
+                                popularAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    } else {
+                        // Handle error (e.g., show a Toast)
+                    }
+                });
+    }
+
+
     private void filterList(String query) {
-        filteredAddressList.clear();
+        filteredItemList.clear();
 
         if (query.isEmpty()) {
             // If the search bar is empty, show all items
-            filteredAddressList.addAll(addressList);
+            filteredItemList.addAll(popularItemList);
         } else {
-            // Filter the list based on the query
-            for (String address : addressList) {
-                if (address.toLowerCase().contains(query.toLowerCase())) {
-                    filteredAddressList.add(address);
+            // Filter the list based on the query (both address and zipCode)
+            for (PopularItem popularItem : popularItemList) {
+                if (popularItem.getAddress().toLowerCase().contains(query.toLowerCase()) ||
+                        popularItem.getZipCode().toLowerCase().contains(query.toLowerCase())) {
+                    filteredItemList.add(popularItem);
                 }
             }
         }
 
         // Update the adapter with the filtered list
-        popularAdapter.setFilteredData(filteredAddressList);
+        popularAdapter.setFilteredData(filteredItemList);
+    }
+
+    private PopularItem getItemByAddressAndZipCode(String address, String zipCode) {
+        // Check if a PopularItem with the same address and zipCode already exists
+        for (PopularItem item : popularItemList) {
+            if (item.getAddress().equals(address) && item.getZipCode().equals(zipCode)) {
+                return item;
+            }
+        }
+        return null; // No matching item found
     }
 }
