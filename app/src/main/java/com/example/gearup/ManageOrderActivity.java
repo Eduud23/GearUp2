@@ -30,7 +30,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ManageOrderActivity extends AppCompatActivity {
 
@@ -243,6 +245,8 @@ public class ManageOrderActivity extends AppCompatActivity {
                 updateOrderStatus(orderItem, "Approved");
                 createSalesRecord(orderItem, "Approved");
 
+                storeProductInCollection(orderItem);
+
                 dialog.dismiss(); // Close dialog after approving
             });
 
@@ -286,6 +290,35 @@ public class ManageOrderActivity extends AppCompatActivity {
             }
         }
     }
+    private void storeProductInCollection(OrderItem orderItem) {
+        // Create a Map to store the product data with custom field names
+        Map<String, Object> productData = new HashMap<>();
+        productData.put("product_name", orderItem.getProductName());  // Map name to product_name
+        productData.put("price", orderItem.getProductPrice());
+        productData.put("brand", orderItem.getProductBrand());  // Map brand to brand
+
+        // Ensure that year_model is stored as an integer
+        try {
+            int yearModel = Integer.parseInt(orderItem.getProductYearModel());  // Parse year_model as integer
+            productData.put("year_model", yearModel);  // Store the year_model as integer
+        } catch (NumberFormatException e) {
+            // Handle the case where year_model is not a valid integer
+            Log.e("ManageOrder", "Invalid year_model format: " + orderItem.getProductYearModel());
+            return;  // Exit if year_model is invalid
+        }
+
+        // Add the product data to Firestore with custom field names
+        db.collection("products")
+                .add(productData)  // Adding the product data map to the "products" collection
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("ManageOrder", "Product added to products collection with custom field names: " + orderItem.getProductName());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ManageOrder", "Error adding product to products collection", e);
+                });
+    }
+
+
 
     private void createSalesRecord(OrderItem orderItem, String status) {
         // Get product details from orderItem
@@ -340,6 +373,8 @@ public class ManageOrderActivity extends AppCompatActivity {
                     Log.e("ManageOrder", "Error fetching seller details", e);
                 });
     }
+
+
 
 
 

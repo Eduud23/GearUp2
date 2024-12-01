@@ -96,9 +96,9 @@ public class MeFragmentSeller extends Fragment {
                         emailTextView.setText(email);
                         addressTextView.setText(address != null ? address : "Address not available");
 
-                        // Load profile image with Glide
-                        if (profileImageUrl != null) {
-                            Glide.with(this)
+                        // Load profile image with Glide, check if fragment is attached
+                        if (profileImageUrl != null && isAdded()) {
+                            Glide.with(requireContext())  // Use requireContext() or getContext()
                                     .load(profileImageUrl)
                                     .into(profileImageView);
                         }
@@ -111,6 +111,7 @@ public class MeFragmentSeller extends Fragment {
             });
         }
     }
+
 
     /**
      * Open the image chooser to select a profile picture
