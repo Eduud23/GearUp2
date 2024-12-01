@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
+
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,6 +47,14 @@ public class ManageOrderActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_order);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable the back button
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed(); // Go back when the back button is clicked
+        });
 
         recyclerViewOrders = findViewById(R.id.recyclerView_orders);
         recyclerViewOrders.setLayoutManager(new LinearLayoutManager(this));
@@ -286,6 +296,7 @@ public class ManageOrderActivity extends AppCompatActivity {
         String sellerId = orderItem.getSellerId();
         String buyerId = orderItem.getBuyerId();
         double productPrice = orderItem.getProductPrice();
+        String productImage = orderItem.getProductImageUrl();  // Get the product image URL from orderItem
 
         // Fetch seller details from Firestore
         db.collection("sellers")
@@ -308,7 +319,8 @@ public class ManageOrderActivity extends AppCompatActivity {
                                 buyerId,
                                 address,
                                 shopName,
-                                productPrice
+                                productPrice,
+                                productImage // Pass productImage
                         );
 
                         // Add the sales record to Firestore
@@ -330,6 +342,7 @@ public class ManageOrderActivity extends AppCompatActivity {
     }
 
 
+
     private void updateOrderStatus(OrderItem orderItem, String status) {
         if (orderItem.getDocumentId() == null) {
             Log.e("ManageOrder", "Document ID is null. Cannot update order status.");
@@ -343,6 +356,9 @@ public class ManageOrderActivity extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Log.d("ManageOrder", "Order status updated to " + status);
                     Toast.makeText(ManageOrderActivity.this, "Order " + status, Toast.LENGTH_SHORT).show();
+
+                    // Refresh the order list after updating the status
+                    fetchOrders(selectedOrderStatus);  // Fetch updated orders based on the current selected status
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ManageOrder", "Error updating order status", e);

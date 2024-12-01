@@ -79,7 +79,7 @@ public class InventoryFragment extends Fragment {
         if (DeviceUtils.isEmulator()) {
             baseUrl = "http://10.0.2.2:5001/";
         } else {
-            baseUrl = "http://192.168.254.155:5001/";
+            baseUrl = "http://192.168.254.192:5001/";
         }
 
         Gson gson = new GsonBuilder()

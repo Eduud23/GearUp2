@@ -10,156 +10,127 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <!-- Profile Image -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp">
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:elevation="4dp"
+                app:cardCornerRadius="50dp">
 
                 <ImageView
                     android:id="@+id/profileImageView"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
-                    android:scaleType="fitXY"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:srcCompat="@drawable/me"
-                    tools:ignore="MissingConstraints" />
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/gear"
+                    android:scaleType="centerCrop"/>
+            </androidx.cardview.widget.CardView>
 
-                <Button
-                    android:id="@+id/uploadButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Upload"
-                    android:layout_gravity="center"
-                    app:layout_constraintEnd_toEndOf="@+id/profileImageView"
-                    app:layout_constraintStart_toStartOf="@+id/profileImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/profileImageView"/>
+            <!-- Upload Button -->
+            <Button
+                android:id="@+id/uploadButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Upload"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"/>
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="User"
-                    android:layout_marginTop="10dp"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="@+id/uploadButton"
-                    app:layout_constraintStart_toStartOf="@+id/uploadButton"
-                    app:layout_constraintTop_toBottomOf="@+id/uploadButton"/>
+            <!-- User Name -->
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"/>
 
-                <TextView
-                    android:id="@+id/textView2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Email"
-                    android:layout_marginTop="10dp"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="@+id/textView"
-                    app:layout_constraintStart_toStartOf="@+id/textView"
-                    app:layout_constraintTop_toBottomOf="@+id/textView"/>
+            <!-- User Email -->
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"/>
 
-                <TextView
-                    android:id="@+id/addressTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Address"
-                    android:layout_marginTop="10dp"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="@+id/textView"
-                    app:layout_constraintStart_toStartOf="@+id/textView"
-                    app:layout_constraintTop_toBottomOf="@+id/textView2"/>
+            <!-- User Address -->
+            <TextView
+                android:id="@+id/addressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Address"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center"/>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/addressTextView">
+            <!-- Action Buttons -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/inventorybutton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Inventory Management"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/profile_btn"
+                android:drawableStart="@drawable/inventory"
+                android:drawablePadding="16dp"
+                android:paddingStart="16dp"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/inventorybutton"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:text="Inventory Management"
-                        android:textAlignment="viewStart"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/profile_btn"
-                        android:layout_marginBottom="10dp"
-                        android:drawablePadding="20dp"
-                        android:paddingStart="20dp"
-                        android:drawableStart="@drawable/inventory"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/manageOrderButton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Manage Orders"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/profile_btn"
+                android:drawableStart="@drawable/manage"
+                android:drawablePadding="16dp"
+                android:paddingStart="16dp"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/manageOrderButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:text="Manage Orders"
-                        android:textAlignment="viewStart"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/profile_btn"
-                        android:layout_marginBottom="10dp"
-                        android:drawablePadding="20dp"
-                        android:paddingStart="20dp"
-                        android:drawableStart="@drawable/ic_launcher_background"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/settingbutton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Settings"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/profile_btn"
+                android:drawableStart="@drawable/settings"
+                android:drawablePadding="16dp"
+                android:paddingStart="16dp"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/settingbutton"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:text="Settings"
-                        android:textAlignment="viewStart"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/profile_btn"
-                        android:layout_marginBottom="10dp"
-                        android:drawablePadding="20dp"
-                        android:paddingStart="20dp"
-                        android:drawableStart="@drawable/settings"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/editbutton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Edit Profile"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/profile_btn"
+                android:drawableStart="@drawable/edit"
+                android:drawablePadding="16dp"
+                android:paddingStart="16dp"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/editbutton"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:text="Edit Profile"
-                        android:textAlignment="viewStart"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/profile_btn"
-                        android:layout_marginBottom="10dp"
-                        android:drawablePadding="20dp"
-                        android:paddingStart="20dp"
-                        android:drawableStart="@drawable/edit"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/logoutbutton"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:text="Logout"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/profile_btn"
+                android:drawableStart="@drawable/logout"
+                android:drawablePadding="16dp"
+                android:paddingStart="16dp"/>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/logoutbutton"
-                        android:layout_width="match_parent"
-                        android:layout_height="55dp"
-                        android:text="Logout"
-                        android:textAlignment="viewStart"
-                        android:layout_marginStart="32dp"
-                        android:layout_marginEnd="32dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/profile_btn"
-                        android:layout_marginBottom="10dp"
-                        android:drawablePadding="20dp"
-                        android:paddingStart="20dp"
-                        android:drawableStart="@drawable/logout"/>
-
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

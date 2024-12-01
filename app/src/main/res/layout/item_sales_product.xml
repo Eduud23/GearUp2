@@ -1,0 +1,64 @@
+<!-- item_sales_product.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <!-- Product Image -->
+    <ImageView
+        android:id="@+id/ivProductImage"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/circle_background"
+        android:scaleType="centerCrop"
+        android:src="@drawable/gear" />
+
+    <!-- Product Information (TextViews) -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/tvProductName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textSize="16sp"
+            android:textColor="#000000" />
+
+        <!-- Product Price -->
+        <TextView
+            android:id="@+id/tvProductPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₱0.00"
+            android:textSize="14sp"
+            android:textColor="#000000" />
+
+        <!-- Product Quantity -->
+        <TextView
+            android:id="@+id/tvProductQuantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity: 0"
+            android:textSize="12sp"
+            android:textColor="#000000" />
+
+        <!-- Product Year Model -->
+        <TextView
+            android:id="@+id/tvProductYearModel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Year Model: 2020"
+            android:textSize="12sp"
+            android:textColor="#000000" />
+
+    </LinearLayout>
+
+</LinearLayout>

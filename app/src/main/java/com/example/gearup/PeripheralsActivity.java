@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -24,60 +23,74 @@ public class PeripheralsActivity extends AppCompatActivity implements SeeAllProd
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_peripherals); // Update layout name if necessary
+        setContentView(R.layout.activity_peripherals); // Ensure layout name matches
 
-        recyclerView = findViewById(R.id.recycler_view_peripherals); // Update ID if necessary
-        // Set GridLayoutManager with 3 columns
+        recyclerView = findViewById(R.id.recycler_view_peripherals); // Ensure ID is correct
+
+        // Set GridLayoutManager with 2 columns
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
-        loadProducts(); // Load only "Peripherals" products
-        // Check if products are passed from another activity (e.g., HomeFragmentBuyer)
+
+        // First, check if PRODUCTS_LIST exists in the Intent
         if (getIntent() != null && getIntent().hasExtra("PRODUCT_LIST")) {
-            // Retrieve the passed product list
             productsList = getIntent().getParcelableArrayListExtra("PRODUCT_LIST");
             if (productsList != null && !productsList.isEmpty()) {
                 setAdapter(); // Set the adapter if products are passed
             } else {
-                loadProducts(); // Load products from Firestore if no list is passed
+                loadProducts(); // If the list is empty, load products from Firestore
             }
         } else {
-            loadProducts(); // Load products from Firestore if no list is passed
+            loadProducts(); // If no PRODUCT_LIST exists, load products from Firestore
         }
     }
 
     private void loadProducts() {
+        // Firestore query to get products
         db.collectionGroup("products")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        productsList.clear();
+                        productsList.clear(); // Clear the list to avoid duplicates
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             // Filter products by "Peripherals" category
                             if (product != null && "Peripherals".equals(product.getCategory())) {
-                                productsList.add(product);
+                                productsList.add(product); // Add the product to the list
                             }
                         }
-                        setAdapter(); // Set the adapter after filtering
+
+                        // Log the number of products loaded
+                        Log.d("PeripheralsActivity", "Products loaded: " + productsList.size());
+
+                        // After loading the data, set the adapter
+                        setAdapter();
                     } else {
+                        // Handle the error if the Firestore query fails
                         Toast.makeText(this, "Failed to load products", Toast.LENGTH_SHORT).show();
-                        // Log the error for debugging
                         Log.e("PeripheralsActivity", "Error getting documents: ", task.getException());
                     }
                 });
     }
 
     private void setAdapter() {
-        adapter = new SeeAllProductAdapter(productsList, this); // Use SeeAllProductAdapter
+        // Create the adapter with the product list and set it on the RecyclerView
+        adapter = new SeeAllProductAdapter(productsList, this);
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onProductClick(int position, String category) {
+        // Get the clicked product from the list
         Product clickedProduct = productsList.get(position);
+
+        // Create an Intent to navigate to ProductDetailsBuyerActivity
         Intent intent = new Intent(this, ProductDetailsBuyerActivity.class);
+
+        // Pass the clicked product to the next activity
         intent.putExtra("PRODUCT", clickedProduct);
+
+        // Start the ProductDetailsBuyerActivity
         startActivity(intent);
     }
 }

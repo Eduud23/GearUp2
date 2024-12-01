@@ -31,7 +31,11 @@ public class HomePageSeller extends AppCompatActivity {
 
             if (itemId == R.id.homeId) {
                 selectedFragment = new HomeFragmentSeller();
-            } else if (itemId == R.id.inventoryId) {
+            }
+            else if (itemId == R.id.trendsId) {
+                selectedFragment = new TrendsFragmentSeller();
+            }
+            else if (itemId == R.id.inventoryId) {
                 selectedFragment = new InventoryFragment();
             } else if (itemId == R.id.notificationId) {
                 selectedFragment = new NotificationFragmentSeller();

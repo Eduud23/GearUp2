@@ -11,10 +11,11 @@ public class SalesRecord {
     private String address;  // New field for seller's address
     private String shopName; // New field for seller's shop name
     private double productPrice;
+    private String productImage;
 
     // Constructor to include address and shopName
     public SalesRecord(String productName, String productBrand, String productYearModel, int productQuantity,
-                       long timestamp, String sellerId, String buyerId, String address, String shopName, double productPrice) {
+                       long timestamp, String sellerId, String buyerId, String address, String shopName, double productPrice,String productImage) {
         this.productName = productName;
         this.productBrand = productBrand;
         this.productYearModel = productYearModel;
@@ -25,6 +26,14 @@ public class SalesRecord {
         this.address = address;
         this.shopName = shopName;
         this.productPrice = productPrice;
+        this.productImage = productImage;
+    }
+    public String getProductImage() {
+        return productImage;
+    }
+
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 
     public double getProductPrice() {

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -24,61 +23,77 @@ public class ConnectorsActivity extends AppCompatActivity implements SeeAllProdu
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connectors);
+        setContentView(R.layout.activity_connectors); // Make sure the layout is correct
 
         recyclerView = findViewById(R.id.recycler_view_connectors);
-        // Set GridLayoutManager with 3 columns
+        // Set GridLayoutManager with 2 columns
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
-        loadProducts(); // Load only "Connectors" products
 
         // Check if products are passed from another activity (e.g., HomeFragmentBuyer)
-            if (getIntent() != null && getIntent().hasExtra("PRODUCT_LIST")) {
+        if (getIntent() != null && getIntent().hasExtra("PRODUCT_LIST")) {
             // Retrieve the passed product list
             productsList = getIntent().getParcelableArrayListExtra("PRODUCT_LIST");
             if (productsList != null && !productsList.isEmpty()) {
-                setAdapter(); // Set the adapter if products are passed
+                // Set the adapter immediately if products are passed
+                setAdapter();
             } else {
-                loadProducts(); // Load products from Firestore if no list is passed
+                // If the list is empty, load products from Firestore
+                loadProducts();
             }
         } else {
-            loadProducts(); // Load products from Firestore if no list is passed
+            // If no list is passed, load products from Firestore
+            loadProducts();
         }
     }
 
+    // Load products from Firestore that belong to the "Connectors" category
     private void loadProducts() {
         db.collectionGroup("products")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        productsList.clear();
+                        productsList.clear(); // Clear previous data
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             // Filter products by "Connectors" category
                             if (product != null && "Connectors".equals(product.getCategory())) {
-                                productsList.add(product);
+                                productsList.add(product); // Add the product to the list
                             }
                         }
-                        setAdapter(); // Set the adapter after filtering
+                        // After loading products, set the adapter
+                        setAdapter();
                     } else {
                         Toast.makeText(this, "Failed to load products", Toast.LENGTH_SHORT).show();
-                        // Log the error for debugging
                         Log.e("ConnectorsActivity", "Error getting documents: ", task.getException());
                     }
                 });
     }
 
+    // Set the adapter for the RecyclerView after products are loaded
     private void setAdapter() {
-        adapter = new SeeAllProductAdapter(productsList, this); // Use SeeAllProductAdapter
-        recyclerView.setAdapter(adapter);
+        // Only set the adapter if the products list is not empty
+        if (!productsList.isEmpty()) {
+            adapter = new SeeAllProductAdapter(productsList, this); // Create the adapter
+            recyclerView.setAdapter(adapter); // Set the adapter to the RecyclerView
+        } else {
+            Toast.makeText(this, "No products found", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onProductClick(int position, String category) {
+        // Get the clicked product from the list
         Product clickedProduct = productsList.get(position);
-        Intent intent = new Intent(this,ProductDetailsBuyerActivity.class);
+
+        // Create an Intent to navigate to the ProductDetailsBuyerActivity
+        Intent intent = new Intent(this, ProductDetailsBuyerActivity.class);
+
+        // Pass the clicked product to the next activity
         intent.putExtra("PRODUCT", clickedProduct);
+
+        // Start the ProductDetailsBuyerActivity
         startActivity(intent);
     }
 }
