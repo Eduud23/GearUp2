@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".HomeFragmentSeller">
 
     <LinearLayout
@@ -65,6 +66,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:background="@drawable/badgeicon"
+                android:clickable="false"
                 android:gravity="center"
                 android:textColor="@android:color/white"
                 android:textSize="17sp"

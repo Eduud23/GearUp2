@@ -2,22 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
     android:background="@drawable/border"
     android:layout_marginBottom="8dp"
     android:elevation="2dp">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"
+        android:elevation="4dp"
+        app:cardCornerRadius="30dp">
 
     <ImageView
         android:id="@+id/iv_category_image"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
+        android:scaleType="centerCrop"
         android:contentDescription="@string/category_image"
         android:src="@drawable/gear"
         android:layout_marginBottom="12dp"
         android:background="@drawable/circle_background"
         android:padding="4dp"/>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/tv_category_name"
@@ -25,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Category Name"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textColor="#000000"
         android:textStyle="bold"
         android:layout_marginTop="8dp"/>

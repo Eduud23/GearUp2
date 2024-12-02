@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.OnProductClickListener {
@@ -156,22 +157,36 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                         connectorsList.clear();
                         peripheralsList.clear();
 
+                        // Load products into their respective categories
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
                                 product.setId(document.getId()); // Set the Firestore document ID
-                                categorizeProduct(product);
-                                loadSellerProfile(product);
+                                categorizeProduct(product); // Categorize the product
+                                loadSellerProfile(product); // Load the seller profile image
                                 Log.d("HomeFragmentBuyer", "Loaded product: " + product.getName() + " with ID: " + product.getId());
                             }
                         }
 
+                        // Shuffle the product lists
+                        shuffleProductLists();
+
+                        // Set adapters with shuffled lists
                         setAdapters();
                     } else {
                         Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+    private void shuffleProductLists() {
+        // Shuffle the lists using Collections.shuffle()
+        Collections.shuffle(centralComponentsList);
+        Collections.shuffle(bodyList);
+        Collections.shuffle(connectorsList);
+        Collections.shuffle(peripheralsList);
+    }
+
+
 
     private void categorizeProduct(Product product) {
         String category = product.getCategory();

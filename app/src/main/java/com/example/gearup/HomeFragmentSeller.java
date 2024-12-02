@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -152,23 +153,33 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                         connectorsList.clear();
                         peripheralsList.clear();
 
-                        // Categorize products
+                        // Load products into their respective categories
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
                                 product.setId(document.getId()); // Set the Firestore document ID
-                                categorizeProduct(product);
-                                loadSellerProfile(product); // Fetch seller profile for each product
+                                categorizeProduct(product); // Categorize the product
+                                loadSellerProfile(product); // Load the seller profile image
                                 Log.d("HomeFragmentSeller", "Loaded product: " + product.getName() + " with ID: " + product.getId());
                             }
                         }
 
-                        // Update adapters once products are categorized
+                        // Shuffle the product lists
+                        shuffleProductLists();
+
+                        // Set adapters with shuffled lists
                         setAdapters();
                     } else {
                         Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+    private void shuffleProductLists() {
+        // Shuffle the lists using Collections.shuffle()
+        Collections.shuffle(centralComponentsList);
+        Collections.shuffle(bodyList);
+        Collections.shuffle(connectorsList);
+        Collections.shuffle(peripheralsList);
     }
 
     private void categorizeProduct(Product product) {
