@@ -5,12 +5,27 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ProductSalesActivity">
 
+    <!-- Toolbar with back button and label -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:title="Most Sales"
+        app:titleMarginStart="10dp"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_back"
+        app:titleTextColor="@android:color/black"
+        app:titleCentered="true"
+        tools:ignore="MissingConstraints" />
+
+    <!-- RecyclerView for Products -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewProducts"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

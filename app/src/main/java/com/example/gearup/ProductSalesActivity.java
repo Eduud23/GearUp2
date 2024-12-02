@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
+import androidx.appcompat.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +27,20 @@ public class ProductSalesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_sales);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Set the title to "Most Sales"
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Most Sales");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed();
+        });
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
