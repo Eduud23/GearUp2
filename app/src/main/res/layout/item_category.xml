@@ -1,33 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/border"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
 
     <ImageView
         android:id="@+id/iv_category_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:contentDescription="@string/category_image"/>
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/category_image"
+        android:src="@drawable/gear"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/circle_background"
+        android:padding="4dp"/>
 
     <TextView
         android:id="@+id/tv_category_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/iv_category_image"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:textSize="10sp"
-        android:textStyle="bold"/>
+        android:layout_gravity="center_horizontal"
+        android:text="Category Name"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"/>
 
-    <TextView
-        android:id="@+id/tv_item_count"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/iv_category_image"
-        android:layout_marginStart="10dp"
-        android:textSize="10sp"
-        android:layout_below="@id/tv_category_name"/>
-</RelativeLayout>
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_item_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Items"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_item_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10"
+            android:textSize="14sp"
+            android:textColor="#8A8A8A"/>
+    </LinearLayout>
+
+
+</LinearLayout>

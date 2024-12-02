@@ -1,96 +1,159 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:spacing="12dp">
 
+        <!-- Title -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add New Product"
-            android:textSize="24sp"
+            android:textSize="26sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:textColor="@color/black"
+            android:layout_marginBottom="24dp" />
 
-        <EditText
-            android:id="@+id/et_product_name"
+        <!-- Product Name Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Product Name"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Product Name"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/et_product_brand"
+        <!-- Product Brand Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Brand"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_brand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Brand"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/et_product_year_model"
+        <!-- Year Model Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Year Model"
-            android:inputType="number"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_year_model"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Year Model"
+                android:inputType="number"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/et_product_price"
+        <!-- Predict Price Button (small and below Year Model) -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_predict_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recommend Price"
+            android:background="@drawable/border"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="12dp"
+            android:paddingStart="16dp"
+            android:drawableStart="@drawable/price"
+            android:textAllCaps="false"
+            android:paddingEnd="16dp" />
+
+        <!-- Price Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Price"
-            android:inputType="numberDecimal"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Price"
+                android:inputType="numberDecimal"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/et_product_description"
+        <!-- Product Description Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Product Description"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Product Description"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/et_product_quantity"
+        <!-- Product Quantity Field -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Product Quantity"
-            android:inputType="number"
-            android:background="@drawable/edit_text_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <EditText
+                android:id="@+id/et_product_quantity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Product Quantity"
+                android:inputType="number"
+                android:textColorHint="@color/grey"
+                android:backgroundTint="@color/primary_light"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <Spinner
-            android:id="@+id/spinner_category"
+        <!-- Category Spinner -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/spinner_background"
-            android:padding="12dp" />
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinner_category"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/spinner_background"
+                android:padding="12dp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Choose Images Section -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Choose Images"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="8dp" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_choose_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Choose Images"
+            android:background="@drawable/border"
+            android:textColor="@android:color/black"
             android:layout_marginBottom="8dp" />
 
+        <!-- Image Thumbnails -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -103,6 +166,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:visibility="gone"
+                android:contentDescription="Product Image 1"
+                android:layout_marginEnd="8dp"
                 android:clickable="true"
                 android:focusable="true" />
 
@@ -111,6 +176,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:visibility="gone"
+                android:contentDescription="Product Image 2"
+                android:layout_marginEnd="8dp"
                 android:clickable="true"
                 android:focusable="true" />
 
@@ -119,25 +186,21 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:visibility="gone"
+                android:contentDescription="Product Image 3"
                 android:clickable="true"
                 android:focusable="true" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btn_predict_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Predict Price"
-            android:layout_marginBottom="8dp" />
-
-        <Button
+        <!-- Add Product Button -->
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_add_product"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add Product"
+            android:background="@drawable/border"
+            android:textColor="@android:color/black"
             android:layout_gravity="center"
-            android:backgroundTint="@color/black"
-            android:textColor="@android:color/white"
             android:padding="12dp" />
     </LinearLayout>
+
 </ScrollView>

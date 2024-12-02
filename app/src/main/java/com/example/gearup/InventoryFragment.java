@@ -71,6 +71,8 @@ public class InventoryFragment extends Fragment {
         recyclerViewCategories = view.findViewById(R.id.recyclerView_categories);
         recyclerViewCategories.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
+
+
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();

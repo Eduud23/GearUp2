@@ -287,19 +287,82 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             return;
         }
 
-        Review review = new Review(reviewText, currentUserId);
+        // First, get the user profile information before creating the review
+        getUserProfileInfoForReview(reviewText, productId);
+    }
+
+    private void getUserProfileInfoForReview(final String reviewText, final String productId) {
+        // Retrieve the current user's ID
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // First, check if the user is a buyer
+        db.collection("buyers").document(userId).get()
+                .addOnSuccessListener(buyerDoc -> {
+                    if (buyerDoc.exists()) {
+                        // If the user is a buyer, retrieve their firstName, lastName, and profileImageUrl
+                        String firstName = buyerDoc.getString("firstName");
+                        String lastName = buyerDoc.getString("lastName");
+                        String profileImageUrl = buyerDoc.getString("profileImageUrl");
+
+                        // Create the review with buyer's info
+                        Review review = new Review(reviewText, userId, firstName + " " + lastName, profileImageUrl);
+
+                        // Submit the review to Firestore
+                        submitReviewToFirestore(review, productId);
+                    } else {
+                        // If not a buyer, check if the user is a seller
+                        getSellerProfileInfoForReview(reviewText, productId, userId);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to load buyer info", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void getSellerProfileInfoForReview(final String reviewText, final String productId, final String userId) {
+        // Check if the user is a seller
+        db.collection("sellers").document(userId).get()
+                .addOnSuccessListener(sellerDoc -> {
+                    if (sellerDoc.exists()) {
+                        // If the user is a seller, retrieve their shopName and profileImageUrl
+                        String shopName = sellerDoc.getString("shopName");
+                        String profileImageUrl = sellerDoc.getString("profileImageUrl");
+
+                        // Create the review with seller's info
+                        Review review = new Review(reviewText, userId, shopName, profileImageUrl);
+
+                        // Submit the review to Firestore
+                        submitReviewToFirestore(review, productId);
+                    } else {
+                        // Handle case where the user is neither a buyer nor a seller
+                        Toast.makeText(this, "Unable to identify the user as buyer or seller", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to load seller info", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void submitReviewToFirestore(Review review, String productId) {
+        if (productId == null || productId.isEmpty()) {
+            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Store the review in Firestore
         db.collection("productsreview")  // Correct path to reviews collection
                 .document(productId)
                 .collection("reviews")
                 .add(review)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
-                    loadReviews(productId);
+                    loadReviews(productId);  // Reload reviews after submitting
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void loadReviews(String productId) {
         if (productId == null || productId.isEmpty()) {

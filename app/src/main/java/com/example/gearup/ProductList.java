@@ -2,6 +2,8 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,6 +28,8 @@ public class ProductList extends AppCompatActivity {
     private List<Product> products = new ArrayList<>();
     private FirebaseFirestore db;
     private FirebaseUser user;
+    private TextView categoryHeader; // TextView for the category name header
+
     static final int PRODUCT_DETAILS_REQUEST_CODE = 1;
 
     @Override
@@ -33,15 +37,33 @@ public class ProductList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_list);
 
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
+        // Initialize views
         recyclerViewProducts = findViewById(R.id.recyclerView_products);
-        // Change the layout manager to GridLayoutManager with 3 columns
+        categoryHeader = findViewById(R.id.tv_category_header); // Find the TextView for category name
+
+        // Set up RecyclerView
         recyclerViewProducts.setLayoutManager(new GridLayoutManager(this, 2));
 
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
+        // Retrieve the category name from the Intent
+        String category = getIntent().getStringExtra("CATEGORY");
+
+        if (category != null) {
+            // Set the category name in the header TextView
+            categoryHeader.setText(category);
+        } else {
+            categoryHeader.setText("No Category Selected");
+        }
+
         if (user != null) {
-            loadProductsFromFirestore();
+            loadProductsFromFirestore(category);
         } else {
             // Handle user not authenticated
             Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
@@ -51,9 +73,7 @@ public class ProductList extends AppCompatActivity {
         recyclerViewProducts.setAdapter(productAdapter);
     }
 
-    private void loadProductsFromFirestore() {
-        String category = getIntent().getStringExtra("CATEGORY");
-
+    private void loadProductsFromFirestore(String category) {
         db.collection("users")
                 .document(user.getUid())
                 .collection("products")
