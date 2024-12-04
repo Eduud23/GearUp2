@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,12 +30,24 @@ public class TrendsFragmentSeller extends Fragment {
     private PopularAdapter popularAdapter;
     private List<PopularItem> popularItemList; // List of PopularItem (address, zipCode, productImage, productQuantity)
     private List<PopularItem> filteredItemList; // List for filtered search results
+    private ImageButton searchButton;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trends_seller, container, false);
+
+
+        searchButton = view.findViewById(R.id.iv_search_icon);
+
+        // Set the OnClickListener
+        searchButton.setOnClickListener(v -> {
+            // Navigate to FutureSalesActivity when clicked
+            Intent intent = new Intent(getActivity(), FutureSalesActivity.class);
+            startActivity(intent);
+        });
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();

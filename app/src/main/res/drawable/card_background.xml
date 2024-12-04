@@ -1,0 +1,12 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF"/> <!-- White background -->
+    <corners android:radius="30dp"/> <!-- Rounded corners -->
+    <padding
+        android:left="16dp"
+        android:top="16dp"
+        android:right="16dp"
+        android:bottom="16dp"/> <!-- Padding inside the CardView -->
+    <stroke
+        android:color="#DDDDDD"
+        android:width="1dp"/> <!-- Light border color -->
+</shape>
