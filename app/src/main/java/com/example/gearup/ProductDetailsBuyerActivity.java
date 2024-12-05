@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -109,6 +110,14 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
         // Setup RecyclerView for reviews
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable the back button
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed(); // Go back when the back button is clicked
+        });
 
         AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
         AppCompatImageButton btnNext = findViewById(R.id.btn_next);

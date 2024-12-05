@@ -91,7 +91,8 @@ public class FutureSalesActivity extends AppCompatActivity {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
 
-        String url = "http://192.168.254.155:5002/predict"; // Your Flask API URL
+        // Select the appropriate URL based on device type and network conditions
+        String url = selectApiUrl();  // Call the method to select the correct URL
 
         Request request = new Request.Builder().url(url).build();
 
@@ -149,6 +150,21 @@ public class FutureSalesActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private String selectApiUrl() {
+        // Choose the appropriate URL based on the device's status
+        if (DeviceUtils.isEmulator()) {
+            return "http://10.0.2.2:5001/predict";  // Emulator URL
+        } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(this)) {
+            return "http://192.168.254.155:5002/predict";  // Local network URL (your Flask API URL)
+        } else if (DeviceUtils.isDeviceOnStagingNetwork(this)) {
+            return "http//192.168.42.85:5001/predict";  // Staging network URL
+        } else if (DeviceUtils.isDeviceOnProductionNetwork(this)) {
+            return "https://api.yourdomain.com/predict";  // Production network URL
+        } else {
+            return "https://api.fallback.com/predict";  // Fallback URL
+        }
     }
 
     private List<Prediction> parsePredictions(JSONArray predictionsArray) throws Exception {

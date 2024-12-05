@@ -17,7 +17,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Profile Image -->
+            <!-- Profile Image Section -->
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -35,10 +35,11 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Upload Button -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/uploadButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/border"
                 android:text="Upload"
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"/>
@@ -83,6 +84,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/profile_btn"
+                android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/inventory"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"/>
@@ -94,6 +96,7 @@
                 android:text="Manage Orders"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/profile_btn"
+                android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/manage"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"/>
@@ -105,6 +108,7 @@
                 android:text="Settings"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/profile_btn"
+                android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/settings"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"/>
@@ -116,6 +120,7 @@
                 android:text="Edit Profile"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/profile_btn"
+                android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/edit"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"/>
@@ -127,6 +132,7 @@
                 android:text="Logout"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/profile_btn"
+                android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/logout"
                 android:drawablePadding="16dp"
                 android:paddingStart="16dp"/>

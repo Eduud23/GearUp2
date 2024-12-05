@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -77,12 +78,23 @@ public class InventoryFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         String baseUrl;
+        Context context = getContext();  // Assume you have the context here, e.g., inside an Activity or Fragment
 
         if (DeviceUtils.isEmulator()) {
-            baseUrl = "http://10.0.2.2:5001/";
+            baseUrl = "http://10.0.2.2:5001/";  // Emulator base URL
+        } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(context)) {
+            baseUrl = "http://192.168.254.192:5001/";  // Local device base URL
+        } else if (DeviceUtils.isDeviceOnStagingNetwork(context)) {
+            baseUrl = "http//192.168.42.85:5001/";
+        } else if (DeviceUtils.isDeviceOnProductionNetwork(context)) {
+            baseUrl = "https://api.yourdomain.com/";  // Production base URL
         } else {
-            baseUrl = "http://192.168.254.192:5001/";
+            baseUrl = "https://api.fallback.com/";  // Fallback base URL
         }
+
+        System.out.println("Base URL: " + baseUrl);
+
+
 
         Gson gson = new GsonBuilder()
                 .setLenient()

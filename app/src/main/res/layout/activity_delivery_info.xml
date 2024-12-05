@@ -4,94 +4,151 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="24dp"
+    android:background="@color/backgroundColor">
 
+    <!-- Title: Shipping Information -->
     <TextView
         android:id="@+id/tv_shipping_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Shipping Information"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp"
+        android:textColor="@color/primary_text"
+        android:layout_marginBottom="32dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
-        android:id="@+id/et_name"
+    <!-- Full Name Input Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_full_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Enter Your Full Name"
         app:layout_constraintTop_toBottomOf="@id/tv_shipping_info"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Your Full Name"
+            android:textColorHint="@color/grey"
+            android:textColor="@color/primary_text"
+            android:backgroundTint="@color/primary_light"
+            android:padding="16dp"
+            android:textSize="16sp"
+            android:inputType="textPersonName" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-
+    <!-- Shipping Method RadioGroup -->
     <RadioGroup
         android:id="@+id/radio_group_shipping"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/et_name"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/input_full_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:orientation="horizontal">
+        android:layout_marginTop="24dp">
 
         <RadioButton
             android:id="@+id/rb_pickup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pick-Up"
-            android:checked="true"/>
+            android:textColor="@color/primary_text"
+            android:paddingEnd="16dp"/>
 
         <RadioButton
             android:id="@+id/rb_delivery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Delivery"/>
+            android:text="Delivery"
+            android:textColor="@color/primary_text" />
     </RadioGroup>
 
-    <EditText
-        android:id="@+id/et_delivery_address"
+    <!-- Delivery Address Input Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_delivery_address"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter Delivery Address"
         app:layout_constraintTop_toBottomOf="@id/radio_group_shipping"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp">
 
-    <!-- Contact Number EditText -->
-    <EditText
-        android:id="@+id/et_contact_number"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_delivery_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Delivery Address"
+            android:textColorHint="@color/grey"
+            android:textColor="@color/primary_text"
+            android:backgroundTint="@color/primary_light"
+            android:padding="16dp"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Contact Number Input Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_contact_number"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter Contact Number"
-        android:inputType="phone"
-        app:layout_constraintTop_toBottomOf="@id/et_delivery_address"
+        app:layout_constraintTop_toBottomOf="@id/input_delivery_address"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_contact_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Contact Number"
+            android:inputType="phone"
+            android:textColorHint="@color/grey"
+            android:textColor="@color/primary_text"
+            android:backgroundTint="@color/primary_light"
+            android:padding="16dp"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Zip Code EditText -->
-    <EditText
-        android:id="@+id/et_zip_code"
+    <!-- Zip Code Input Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_zip_code"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Enter Zip Code"
-        android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/et_contact_number"
+        app:layout_constraintTop_toBottomOf="@id/input_contact_number"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="15dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_zip_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Zip Code"
+            android:inputType="number"
+            android:textColorHint="@color/grey"
+            android:textColor="@color/primary_text"
+            android:backgroundTint="@color/primary_light"
+            android:padding="16dp"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Proceed to Payment Button -->
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_payment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Proceed to Payment"
-        app:layout_constraintTop_toBottomOf="@id/et_zip_code"
+        android:textColor="@android:color/black"
+        android:background="@drawable/border"
+        android:textSize="16sp"
+        android:layout_marginTop="32dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/input_zip_code"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
