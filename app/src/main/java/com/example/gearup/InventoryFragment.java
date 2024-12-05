@@ -380,32 +380,10 @@ public class InventoryFragment extends Fragment {
                     Toast.makeText(getContext(), "Product added successfully", Toast.LENGTH_SHORT).show();
                     alertDialog.dismiss();
                     refreshProductList(); // Refresh the product list
-
-                    // Now save the product data to CSV
-                    saveProductDataToCSV(name, brand, yearModel, price);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error adding product", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void saveProductDataToCSV(String name, String brand, String yearModel, double price) {
-        ConcreteProductData productData = new ConcreteProductData(name, brand, yearModel, price);
-
-        priceApi.addProduct(productData).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Product data saved to CSV", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Failed to save product data to CSV", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }

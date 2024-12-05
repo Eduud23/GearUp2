@@ -14,6 +14,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -107,6 +109,25 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
         // Setup RecyclerView for reviews
         rvReviews.setLayoutManager(new LinearLayoutManager(this));
+
+        AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
+        AppCompatImageButton btnNext = findViewById(R.id.btn_next);
+
+        // Set up button listeners
+        btnPrevious.setOnClickListener(v -> {
+            int currentItem = viewPager.getCurrentItem();
+            if (currentItem > 0) {
+                viewPager.setCurrentItem(currentItem - 1, true); // Move to the previous image
+            }
+        });
+
+        btnNext.setOnClickListener(v -> {
+            int currentItem = viewPager.getCurrentItem();
+            int totalItems = viewPager.getAdapter() != null ? viewPager.getAdapter().getItemCount() : 0;
+            if (currentItem < totalItems - 1) {
+                viewPager.setCurrentItem(currentItem + 1, true); // Move to the next image
+            }
+        });
     }
 
     private void checkUserRole(String userId) {
