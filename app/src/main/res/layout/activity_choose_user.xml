@@ -1,89 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context=".ChooseUser">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <!-- Gear Image -->
+    <ImageView
+        android:id="@+id/gear"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:src="@drawable/gear"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <!-- Choose Role Text -->
+    <TextView
+        android:id="@+id/role"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingBottom="20dp">
+        android:text="Choose to register as a seller to list automotive parts, manage inventory, and connect with buyers, or as a buyer to explore a variety of car parts and make purchases."
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:lineSpacingExtra="4dp"
+        android:gravity="center"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintTop_toBottomOf="@id/gear"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <ImageView
-            android:id="@+id/gear"
-            android:layout_width="220dp"
-            android:layout_height="170dp"
-            android:src="@drawable/gear"
-            android:layout_centerHorizontal="true"
-            android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/role"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Choose Your Role"
-            android:layout_below="@id/gear"
-            android:textSize="30sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="30dp"
-            android:textStyle="bold"
-            android:layout_centerHorizontal="true"/>
+    <!-- Button Container (Seller / Buyer) -->
+    <LinearLayout
+        android:id="@+id/buttonContainer"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/role"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+       >
 
+        <!-- Seller Button -->
         <LinearLayout
-            android:id="@+id/buttonContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/role"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal">
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/seller"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="70dp"
-                android:onClick="onButtonClicked"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
                 android:text="Seller"
-                android:background="@drawable/loginbtn_custom"
-                android:textSize="20sp"
-                />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/buyer"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="70dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginEnd="5dp"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="80dp"
+                android:background="@drawable/border"
                 android:onClick="onButtonClicked"
-                android:background="@drawable/loginbtn_custom"
-                android:text="Buyer"
-                android:textSize="20sp"
-                />
+                tools:ignore="OnClick"/>
+
+            <!-- Seller Image -->
+            <ImageView
+                android:id="@+id/sellerImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/seller"
+                android:layout_marginTop="10dp"
+          />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/result"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:layout_below="@id/buttonContainer"
-            android:textSize="15sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="25dp"
-            android:textStyle="bold"
-            android:layout_centerHorizontal="true"/>
+        <!-- Buyer Button -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp">
 
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/buyer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Buyer"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_marginTop="80dp"
+                android:background="@drawable/border"
+                android:onClick="onButtonClicked"
+                tools:ignore="OnClick"/>
 
-    </RelativeLayout>
-</ScrollView>
+            <!-- Buyer Image -->
+            <ImageView
+                android:id="@+id/buyerImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/buyer"
+                android:layout_marginTop="10dp"
+               />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Result Text (Optional Display After Button Click) -->
+    <TextView
+        android:id="@+id/result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/buttonContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textStyle="bold"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
