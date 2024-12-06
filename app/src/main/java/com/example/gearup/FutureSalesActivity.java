@@ -1,190 +1,153 @@
 package com.example.gearup;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.Call;
-import okhttp3.Callback;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import java.io.IOException;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class FutureSalesActivity extends AppCompatActivity {
 
-    private Button btnGetPredictions;
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private PredictionAdapter adapter;
-    private List<AddressData> addressDataList = new ArrayList<>();
-    private List<AddressData> filteredAddressDataList = new ArrayList<>();
-    private boolean isFetchingData = false;
-    private EditText etSearch;
+    private FirebaseFirestore db; // Firestore instance
+    private RecyclerView rvAddresses; // RecyclerView to display data
+    private AddressAdapter addressAdapter; // Adapter for the RecyclerView
+    private List<String> addresses = new ArrayList<>();
+    private List<String> zipCodes = new ArrayList<>();
+    private ProgressBar progressBar; // Loading spinner
+    private EditText etSearch; // Search EditText
+    private ImageView btnBack; // Back button
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_future_sales);  // Update layout if necessary
+        setContentView(R.layout.activity_future_sales);
 
-        btnGetPredictions = findViewById(R.id.btnGetPredictions);
-        recyclerView = findViewById(R.id.recyclerView);
-        progressBar = findViewById(R.id.progressBar);
-        etSearch = findViewById(R.id.et_search);
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
         // Set up RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PredictionAdapter(filteredAddressDataList);
-        recyclerView.setAdapter(adapter);
+        rvAddresses = findViewById(R.id.rvAddresses);
+        rvAddresses.setLayoutManager(new LinearLayoutManager(this));
 
-        ImageView backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> {
-            onBackPressed();
-        });
+        // Set up ProgressBar (loading indicator)
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);  // Show progress bar while data is being fetched
 
+        // Set up the Search EditText and Back Button
+        etSearch = findViewById(R.id.et_search);
+        btnBack = findViewById(R.id.btn_back);
 
-        // Set up EditText listener for search
-        etSearch.addTextChangedListener(new TextWatcher() {
+        // Fetch the addresses and zip codes from Firestore
+        fetchAddressesAndZipCodes();
+
+        // Back button click listener
+        btnBack.setOnClickListener(v -> finish()); // Close the activity when back button is clicked
+
+        // Search functionality - listening for text changes
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                filterData(charSequence.toString());
+                String query = charSequence.toString().toLowerCase();
+                filterAddresses(query);
             }
 
             @Override
-            public void afterTextChanged(Editable editable) {}
-        });
-
-        btnGetPredictions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!isFetchingData) {
-                    fetchPredictions();
-                }
-            }
+            public void afterTextChanged(android.text.Editable editable) {}
         });
     }
 
-    private void fetchPredictions() {
-        isFetchingData = true;
-        progressBar.setVisibility(View.VISIBLE);
-        btnGetPredictions.setEnabled(false);
+    private void fetchAddressesAndZipCodes() {
+        // Query Firestore for the "trends" collection (collectionGroup searches all subcollections)
+        db.collectionGroup("trends")
+                .get()
+                .addOnCompleteListener(task -> {
+                    // Hide the progress bar when the task is complete
+                    progressBar.setVisibility(View.GONE);
 
-        OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .build();
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            // Clear previous data
+                            addresses.clear();
+                            zipCodes.clear();
 
-        // Select the appropriate URL based on device type and network conditions
-        String url = selectApiUrl();  // Call the method to select the correct URL
+                            // Iterate through the documents in Firestore and fetch 'address' and 'zipCode'
+                            for (QueryDocumentSnapshot document : querySnapshot) {
+                                String address = document.getString("address");
+                                String zipCode = document.getString("zipCode");
 
-        Request request = new Request.Builder().url(url).build();
+                                // Add only non-null values to the lists
+                                if (address != null && zipCode != null) {
+                                    addresses.add(address);
+                                    zipCodes.add(zipCode);
+                                }
+                            }
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setVisibility(View.GONE);
-                        btnGetPredictions.setEnabled(true);
-                        isFetchingData = false;
+                            // Log fetched data
+                            Log.d("FutureSalesActivity", "Fetched Addresses: " + addresses);
+                            Log.d("FutureSalesActivity", "Fetched Zip Codes: " + zipCodes);
+
+                            // Check if data is added to the list
+                            if (!addresses.isEmpty() && !zipCodes.isEmpty()) {
+                                // Set the adapter to the RecyclerView
+                                addressAdapter = new AddressAdapter(this, addresses, zipCodes);
+                                rvAddresses.setAdapter(addressAdapter);
+                            } else {
+                                // If no addresses or zip codes were fetched, show a message
+                                Toast.makeText(this, "No addresses or zip codes found.", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // Handle case when there are no documents in the collection
+                            Log.d("FutureSalesActivity", "No documents found in 'trends' collection.");
+                            Toast.makeText(this, "No data found.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // Handle error in Firestore query
+                        Log.w("FutureSalesActivity", "Error getting documents: ", task.getException());
+                        Toast.makeText(this, "Error fetching data", Toast.LENGTH_SHORT).show();
                     }
                 });
-            }
+    }
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseData = response.body().string();
-                    try {
-                        JSONObject predictionsObject = new JSONObject(responseData);
-                        List<AddressData> fetchedData = new ArrayList<>();
+    private void filterAddresses(String query) {
+        List<String> filteredAddresses = new ArrayList<>();
+        List<String> filteredZipCodes = new ArrayList<>();
 
-                        // Iterate through the predictions object for each address
-                        for (Iterator<String> it = predictionsObject.keys(); it.hasNext(); ) {
-                            String address = it.next();
-                            JSONObject addressData = predictionsObject.getJSONObject(address);
-
-                            // Only handle next month predictions
-                            List<Prediction> nextMonthPredictions = parsePredictions(addressData.getJSONArray("next_month"));
-
-                            fetchedData.add(new AddressData(address, nextMonthPredictions));
-                        }
-
-                        // Update UI with the fetched data
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                addressDataList.clear();
-                                addressDataList.addAll(fetchedData);
-                                // Initially display all data
-                                filteredAddressDataList.clear();
-                                filteredAddressDataList.addAll(fetchedData);
-                                adapter.notifyDataSetChanged();
-                                progressBar.setVisibility(View.GONE);
-                                btnGetPredictions.setEnabled(true);
-                                isFetchingData = false;
-                            }
-                        });
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        // Check if the query is empty or null
+        if (TextUtils.isEmpty(query)) {
+            // If the query is empty, just display the full list again
+            filteredAddresses.addAll(addresses);
+            filteredZipCodes.addAll(zipCodes);
+        } else {
+            // Otherwise, filter the lists based on the query
+            for (int i = 0; i < addresses.size(); i++) {
+                String address = addresses.get(i).toLowerCase();
+                if (address.contains(query)) {
+                    filteredAddresses.add(addresses.get(i));
+                    filteredZipCodes.add(zipCodes.get(i));
                 }
             }
-        });
-    }
-
-    private String selectApiUrl() {
-        // Choose the appropriate URL based on the device's status
-        if (DeviceUtils.isEmulator()) {
-            return "http://10.0.2.2:5001/predict";  // Emulator URL
-        } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(this)) {
-            return "http://192.168.254.155:5002/predict";  // Local network URL (your Flask API URL)
-        } else if (DeviceUtils.isDeviceOnStagingNetwork(this)) {
-            return "http//192.168.42.85:5001/predict";  // Staging network URL
-        } else if (DeviceUtils.isDeviceOnProductionNetwork(this)) {
-            return "https://api.yourdomain.com/predict";  // Production network URL
-        } else {
-            return "https://api.fallback.com/predict";  // Fallback URL
         }
-    }
 
-    private List<Prediction> parsePredictions(JSONArray predictionsArray) throws Exception {
-        List<Prediction> predictions = new ArrayList<>();
-        for (int i = 0; i < predictionsArray.length(); i++) {
-            JSONObject predictionObject = predictionsArray.getJSONObject(i);
-            String product = predictionObject.getString("product");
-            double predictedSales = predictionObject.getDouble("predicted_sales");
-            predictions.add(new Prediction(product, predictedSales));
-        }
-        return predictions;
-    }
-
-    private void filterData(String query) {
-        filteredAddressDataList.clear();
-        for (AddressData addressData : addressDataList) {
-            if (addressData.getAddress().toLowerCase().contains(query.toLowerCase())) {
-                filteredAddressDataList.add(addressData);
-            }
-        }
-        adapter.notifyDataSetChanged();
+        // Update the adapter with the filtered lists
+        addressAdapter = new AddressAdapter(this, filteredAddresses, filteredZipCodes);
+        rvAddresses.setAdapter(addressAdapter);
     }
 }

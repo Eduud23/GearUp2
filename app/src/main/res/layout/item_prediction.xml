@@ -1,69 +1,32 @@
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardView"
-    android:layout_margin="8dp"
-    android:elevation="4dp"
-    android:background="@drawable/card_background"
-    android:radius="12dp"
-  >
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <!-- Use ConstraintLayout to control the layout of the contents -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/addressTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:text="Address"
+        android:textSize="16sp" />
 
-        <!-- Address TextView -->
-        <TextView
-            android:id="@+id/tvAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Address"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            android:paddingBottom="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/btnGetPredictions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Predictions" />
 
-        <!-- Divider for better sectioning -->
-        <View
-            android:id="@+id/viewDivider"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginBottom="8dp"
-            android:background="@android:color/darker_gray"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvAddress" />
+    <Button
+        android:id="@+id/btnSeeMore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="See Predictions"
+        android:visibility="gone" />
 
-        <!-- Next Month Predictions TextView -->
-        <TextView
-            android:id="@+id/tvNextMonthPredictions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Next Month Predictions"
-            android:textSize="14sp"
-            android:textColor="@android:color/black"
-            android:paddingTop="8dp"
-            android:lineSpacingExtra="4dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/viewDivider" />
-
-        <!-- 'See More' Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnSeeMore"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="See More"
-            android:background="@drawable/border"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="16dp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvNextMonthPredictions" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+    <TextView
+        android:id="@+id/predictionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+</LinearLayout>

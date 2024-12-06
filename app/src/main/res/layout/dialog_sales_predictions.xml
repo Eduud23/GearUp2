@@ -1,0 +1,15 @@
+<!-- res/layout/dialog_sales_predictions.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/predictionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Predictions will appear here."
+        android:textSize="16sp" />
+
+</LinearLayout>
