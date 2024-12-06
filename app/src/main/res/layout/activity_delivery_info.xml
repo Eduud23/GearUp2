@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:hint="Enter Your Full Name"
             android:textColorHint="@color/grey"
+            android:imeOptions="actionNext"
             android:textColor="@color/primary_text"
             android:backgroundTint="@color/primary_light"
             android:padding="16dp"
@@ -88,6 +89,7 @@
             android:textColorHint="@color/grey"
             android:textColor="@color/primary_text"
             android:backgroundTint="@color/primary_light"
+            android:imeOptions="actionNext"
             android:padding="16dp"
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -108,6 +110,7 @@
             android:hint="Enter Contact Number"
             android:inputType="phone"
             android:textColorHint="@color/grey"
+            android:imeOptions="actionNext"
             android:textColor="@color/primary_text"
             android:backgroundTint="@color/primary_light"
             android:padding="16dp"
@@ -132,6 +135,7 @@
             android:textColorHint="@color/grey"
             android:textColor="@color/primary_text"
             android:backgroundTint="@color/primary_light"
+            android:imeOptions="actionNext"
             android:padding="16dp"
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>

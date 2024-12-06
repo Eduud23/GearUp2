@@ -213,6 +213,7 @@ public class InventoryFragment extends Fragment {
         EditText descriptionInput = dialogView.findViewById(R.id.et_product_description);
         EditText predictedPriceText = dialogView.findViewById(R.id.et_product_price);
         predictedPriceText.setEnabled(true); // Make it non-editable
+        EditText quantityInput = dialogView.findViewById(R.id.et_product_quantity);  // New quantity input field
 
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
         Button selectImageButton = dialogView.findViewById(R.id.btn_choose_image);
@@ -267,7 +268,6 @@ public class InventoryFragment extends Fragment {
                     Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
-
         });
 
         // Add product button listener
@@ -280,8 +280,18 @@ public class InventoryFragment extends Fragment {
             String category = categorySpinner.getSelectedItem().toString();
             String description = descriptionInput.getText().toString().trim();
 
-            if (name.isEmpty() || brand.isEmpty() || yearModelString.isEmpty() || description.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
+            // Get the quantity from the input field
+            String quantityString = quantityInput.getText().toString().trim();
+            if (quantityString.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter the quantity.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityString);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "Invalid quantity. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -296,13 +306,14 @@ public class InventoryFragment extends Fragment {
 
             // Upload images and save the product
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            uploadProductImages(userId, name, price, description, 1, category, brand, String.valueOf(yearModel), selectedImageUris);
+            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris);
         });
 
         // Create and show the dialog
         alertDialog = builder.create();
         alertDialog.show();
     }
+
 
     private void openImageChooser() {
         Intent intent = new Intent();

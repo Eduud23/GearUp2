@@ -43,10 +43,9 @@ public class SeeAllProductAdapter extends RecyclerView.Adapter<SeeAllProductAdap
     }
 
     // Method to update the product list and refresh the adapter
-    public void updateProductList(List<Product> newProducts) {
-        this.displayedProducts.clear();
-        this.displayedProducts.addAll(newProducts);
-        notifyDataSetChanged();
+    public void updateProducts(List<Product> updatedProducts) {
+        this.displayedProducts = updatedProducts;
+        notifyDataSetChanged(); // Notify the adapter that the data has changed
     }
 
     // Method to filter products by category
@@ -116,7 +115,6 @@ public class SeeAllProductAdapter extends RecyclerView.Adapter<SeeAllProductAdap
             itemView.setOnClickListener(v -> listener.onProductClick(position, "All Products"));
         }
     }
-
 
     // Listener interface for handling product clicks
     public interface OnProductClickListener {

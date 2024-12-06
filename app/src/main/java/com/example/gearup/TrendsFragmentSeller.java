@@ -21,6 +21,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TrendsFragmentSeller extends Fragment {
@@ -119,7 +120,11 @@ public class TrendsFragmentSeller extends Fragment {
                                 }
                             }
 
+                            // Shuffle the list after fetching data
+                            Collections.shuffle(popularItemList);
+
                             // Initially display all items
+                            filteredItemList.clear();
                             filteredItemList.addAll(popularItemList);
                             popularAdapter.notifyDataSetChanged();
                         }
@@ -128,6 +133,7 @@ public class TrendsFragmentSeller extends Fragment {
                     }
                 });
     }
+
 
     private void fetchSalesData(String address, String zipCode, PopularItem popularItem) {
         // Fetch sales data for the given address from the "sales" collection
@@ -205,9 +211,13 @@ public class TrendsFragmentSeller extends Fragment {
             }
         }
 
-        // Update the adapter with the filtered list
+        // Shuffle the filtered list
+        Collections.shuffle(filteredItemList);
+
+        // Update the adapter with the shuffled filtered list
         popularAdapter.setFilteredData(filteredItemList);
     }
+
 
     private PopularItem getItemByAddressAndZipCode(String address, String zipCode) {
         // Check if a PopularItem with the same address and zipCode already exists

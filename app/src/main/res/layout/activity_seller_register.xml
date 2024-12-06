@@ -16,7 +16,7 @@
         android:paddingTop="50dp"
         android:paddingBottom="20dp">
 
-
+        <!-- Header Text -->
         <TextView
             android:id="@+id/tv1"
             android:layout_width="wrap_content"
@@ -31,372 +31,217 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/tvEmailLabel"
-            android:layout_width="wrap_content"
+        <!-- Email Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/emailLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Email"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="50dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Email Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/tvEmailLabel"
+            app:layout_constraintTop_toBottomOf="@id/tv1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="25dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@color/white2"
-                android:drawableStart="@drawable/user"
-                android:fontFamily="serif-monospace"
-                android:hint="Email"
+                android:layout_height="wrap_content"
                 android:imeOptions="actionNext"
-                android:inputType="textEmailAddress"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:textColorHint="#FF000000"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </androidx.cardview.widget.CardView>
+                android:hint="Enter Your Email"
+                android:textColorHint="@color/grey"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password Label -->
-        <TextView
-            android:id="@+id/tvPasswordLabel"
-            android:layout_width="wrap_content"
+        <!-- Password Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/passwordLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Password"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cv1"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Password Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/tvPasswordLabel"
+            app:layout_constraintTop_toBottomOf="@id/emailLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
+                android:layout_height="wrap_content"
+                android:hint="Enter Your Password"
+                android:textColorHint="@color/grey"
                 android:imeOptions="actionNext"
-                android:hint="Password"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:drawableStart="@drawable/password"
-                android:inputType="textPassword"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Confirm Password Label -->
-        <TextView
-            android:id="@+id/tvConfirmPasswordLabel"
-            android:layout_width="wrap_content"
+        <!-- Confirm Password Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirmPasswordLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Confirm Password"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cv2"
-            app:layout_constraintStart_toStartOf="parent" />
-
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/tvConfirmPasswordLabel"
+            app:layout_constraintTop_toBottomOf="@id/passwordLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/confirmpassword"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
+                android:layout_height="wrap_content"
+                android:hint="Confirm Your Password"
+                android:textColorHint="@color/grey"
+                android:textColor="@color/primary_text"
                 android:imeOptions="actionNext"
-                android:hint="Confirm Password"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:drawableStart="@drawable/password"
-                android:inputType="textPassword"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- First Name Label -->
-        <TextView
-            android:id="@+id/fn"
-            android:layout_width="wrap_content"
+        <!-- First Name Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/firstNameLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="First Name"
-            app:layout_constraintTop_toBottomOf="@id/cv3"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="5dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- First Name Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/fn"
+            app:layout_constraintTop_toBottomOf="@id/confirmPasswordLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etfn"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
+                android:layout_height="wrap_content"
                 android:hint="First Name"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:inputType="textPersonName"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColorHint="@color/grey"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:imeOptions="actionNext"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Last Name Label -->
-        <TextView
-            android:id="@+id/ln"
-            android:layout_width="wrap_content"
+        <!-- Last Name Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lastNameLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Last Name"
-            app:layout_constraintTop_toBottomOf="@id/cv4"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Last Name Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/ln"
+            app:layout_constraintTop_toBottomOf="@id/firstNameLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etln"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
+                android:layout_height="wrap_content"
                 android:hint="Last Name"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:inputType="textPersonName"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColorHint="@color/grey"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:imeOptions="actionNext"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textPersonName" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-
-        <TextView
-            android:id="@+id/phonenum"
-            android:layout_width="wrap_content"
+        <!-- Phone Number Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phoneNumberLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Phone Number"
-            app:layout_constraintTop_toBottomOf="@id/cv5"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Phone Number Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/phonenum"
+            app:layout_constraintTop_toBottomOf="@id/lastNameLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etphone"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
+                android:layout_height="wrap_content"
                 android:hint="Phone Number"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:inputType="phone"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColorHint="@color/grey"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:imeOptions="actionNext"
+                android:textSize="16sp"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Country Label -->
-        <TextView
-            android:id="@+id/tvshop"
-            android:layout_width="wrap_content"
+        <!-- Shop Name Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/shopNameLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Shop Name"
-            app:layout_constraintTop_toBottomOf="@id/cv7"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/tvshop"
+            app:layout_constraintTop_toBottomOf="@id/phoneNumberLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etshop"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
+                android:layout_height="wrap_content"
                 android:hint="Shop Name"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:inputType="textCapWords"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColorHint="@color/grey"
+                android:imeOptions="actionNext"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
+        <!-- Address Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/addressLayout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Address"
-            app:layout_constraintTop_toBottomOf="@id/cv8"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Address Field -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/address"
+            app:layout_constraintTop_toBottomOf="@id/shopNameLayout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="16dp">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etaddress"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
+                android:layout_height="wrap_content"
                 android:hint="Address"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white2"
-                android:inputType="textPostalAddress"
-                android:textSize="18sp" />
-        </androidx.cardview.widget.CardView>
+                android:textColorHint="@color/grey"
+                android:imeOptions="actionNext"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textPostalAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv10"
+        <!-- Register Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnregister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:layout_constraintTop_toBottomOf="@id/cv9"
+            android:layout_marginTop="20dp"
+            android:text="REGISTER"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:backgroundTint="#FF018786"
+            android:fontFamily="sans-serif-black"
+            android:textStyle="bold"
+            android:background="@drawable/password_btn"
+            app:layout_constraintTop_toBottomOf="@id/addressLayout"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="30dp">
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnregister"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="@drawable/password_btn"
-                android:text="REGISTER"
-                android:textAllCaps="false"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:fontFamily="serif-monospace" />
-        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
