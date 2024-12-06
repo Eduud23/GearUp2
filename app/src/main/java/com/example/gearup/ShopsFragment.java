@@ -55,7 +55,7 @@ public class ShopsFragment extends Fragment implements ShopAdapter.OnShopClickLi
         filteredShopList = new ArrayList<>();
 
         // Set up the adapter
-        shopAdapter = new ShopAdapter(filteredShopList, this);
+        shopAdapter = new ShopAdapter(filteredShopList, this, getContext());  // Pass context here
         recyclerView.setAdapter(shopAdapter);
 
         // Set up the back icon click listener
@@ -93,9 +93,15 @@ public class ShopsFragment extends Fragment implements ShopAdapter.OnShopClickLi
                             String address = document.getString("address");
                             String phone = document.getString("phone");
                             String sellerId = document.getId();
+                            String profileImageUrl = document.getString("profileImageUrl"); // Retrieve profile image URL
+
+                            // If profile image URL is not available, use a default image or a placeholder
+                            if (profileImageUrl == null) {
+                                profileImageUrl = "default_image_url_here"; // Replace with your default image URL
+                            }
 
                             if (shopName != null && address != null && phone != null) {
-                                Shop shop = new Shop(shopName, address, phone, sellerId);
+                                Shop shop = new Shop(shopName, address, phone, sellerId, profileImageUrl);
                                 shopList.add(shop);
                             }
                         }
@@ -115,7 +121,12 @@ public class ShopsFragment extends Fragment implements ShopAdapter.OnShopClickLi
             filteredShopList.addAll(shopList);
         } else {
             for (Shop shop : shopList) {
-                if (shop.getShopName().toLowerCase().contains(query.toLowerCase())) {
+                String shopName = shop.getShopName().toLowerCase();
+                String address = shop.getAddress().toLowerCase();
+                String searchQuery = query.toLowerCase();
+
+                // Check if either shopName or address contains the search query
+                if (shopName.contains(searchQuery) || address.contains(searchQuery)) {
                     filteredShopList.add(shop);
                 }
             }

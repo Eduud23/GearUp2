@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -82,6 +83,16 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         TextView textSeeAllBody = view.findViewById(R.id.text_see_all_body);
         TextView textSeeAllConnectors = view.findViewById(R.id.text_see_all_connectors);
         TextView textSeeAllPeripherals = view.findViewById(R.id.text_see_all_peripherals);
+        TextView textShops = view.findViewById(R.id.text_shops);  // Assuming you have a TextView for Shops
+
+        // Set click listener for Shops button
+        textShops.setOnClickListener(v -> {
+            // Navigate to the ShopsFragment
+            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new ShopsFragment());  // Assuming R.id.fragment_container is your FrameLayout container
+            transaction.addToBackStack(null); // Optional, allows user to go back to the HomeFragment
+            transaction.commit();
+        });
 
         textSeeAllConnectors.setOnClickListener(v -> {
             // Pass the connectors list to ConnectorsActivity

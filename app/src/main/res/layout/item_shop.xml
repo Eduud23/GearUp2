@@ -1,41 +1,100 @@
-<!-- res/layout/item_shop.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="6dp"
     android:layout_margin="8dp"
     tools:context=".ShopAdapter">
 
+    <!-- Shop Item Layout -->
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/shopName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Shop Name"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+        <!-- Shop Image (Profile) -->
+        <ImageView
+            android:id="@+id/shopImage"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/gear"
+            android:contentDescription="Shop Image"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/circle_background"
+            android:scaleType="centerCrop" />
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
+        <!-- Shop Information -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Address"
-            android:textSize="14sp" />
+            android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/phone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone"
-            android:textSize="14sp" />
+            <!-- Shop Name -->
+            <TextView
+                android:id="@+id/shopName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shop Name"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black" />
+
+            <!-- Shop Address -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="start|center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/location"
+                    android:contentDescription="Address" />
+
+                <TextView
+                    android:id="@+id/address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shop Address"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Shop Phone Number -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start|center_vertical"
+                android:layout_marginTop="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/phone"
+                    android:contentDescription="Phone" />
+
+                <TextView
+                    android:id="@+id/phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Phone Number"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

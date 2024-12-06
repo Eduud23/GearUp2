@@ -21,6 +21,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressViewHolder> {
@@ -71,19 +72,26 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
     }
 
     private void fetchSalesPrediction(String address, AddressViewHolder holder) {
-        // Default base URL (for development)
-        String baseUrl = "http://192.168.254.155:5002/"; // Development URL
+        // List of base URLs for different environments
+        List<String> baseUrls = Arrays.asList(
+                "http://192.168.254.155:5002/", // Development URL
+                "http://192.168.42.85:5002/",   // Staging URL
+                "http://192.168.254.192:5002/"  // Production URL
+        );
 
-        // Check for different environments using else-if
-        if (isDevelopmentEnvironment()) {
-            baseUrl = "http://192.168.254.155:5002/"; // Development URL
-        } else if (isStagingEnvironment()) {
-            baseUrl = "http//192.168.42.85:5002/"; // Staging URL
-        } else if (isProductionEnvironment()) {
-            baseUrl = "https://api.yourcompany.com/"; // Production URL
+        // Start by trying the first URL
+        tryNextBaseUrl(address, holder, baseUrls, 0);
+    }
+
+    private void tryNextBaseUrl(String address, AddressViewHolder holder, List<String> baseUrls, int index) {
+        if (index >= baseUrls.size()) {
+            Toast.makeText(context, "All attempts to fetch predictions failed.", Toast.LENGTH_SHORT).show();
+            return; // All base URLs have been tried and failed
         }
 
-        // Create Retrofit instance with the dynamically set base URL
+        String baseUrl = baseUrls.get(index);
+
+        // Create Retrofit instance with the current base URL
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -105,28 +113,17 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
                     // Display the predictions in the container
                     displayPredictions(predictions, holder);
                 } else {
-                    Toast.makeText(context, "Error fetching predictions", Toast.LENGTH_SHORT).show();
+                    // Try the next base URL if this one fails
+                    tryNextBaseUrl(address, holder, baseUrls, index + 1);
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(context, "Failed to fetch predictions", Toast.LENGTH_SHORT).show();
+                // Try the next base URL if this one fails
+                tryNextBaseUrl(address, holder, baseUrls, index + 1);
             }
         });
-    }
-
-    private boolean isDevelopmentEnvironment() {
-
-        return true;
-    }
-
-    private boolean isStagingEnvironment() {
-        return false;
-    }
-
-    private boolean isProductionEnvironment() {
-        return false;
     }
 
     private void displayPredictions(JsonObject predictions, AddressViewHolder holder) {

@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class ProductDetails extends AppCompatActivity {
@@ -51,6 +52,14 @@ public class ProductDetails extends AppCompatActivity {
             ImageSliderAdapter imageSliderAdapter = new ImageSliderAdapter(product.getImageUrls());
             viewPager.setAdapter(imageSliderAdapter);
         }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable the back button
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed(); // Go back when the back button is clicked
+        });
+
 
         btnSave.setOnClickListener(v -> {
             String name = etProductName.getText().toString();

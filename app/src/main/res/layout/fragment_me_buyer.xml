@@ -58,7 +58,7 @@
 
             <!-- User Email -->
             <TextView
-                android:id="@+id/emailTextView"
+                android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="useremail@example.com"
@@ -66,15 +66,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_gravity="center"/>
 
-            <!-- Shipping Address -->
-            <TextView
-                android:id="@+id/addressTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="123 Main Street, City, Country"
-                android:textSize="16sp"
-                android:layout_marginTop="8dp"
-                android:layout_gravity="center"/>
+
 
             <!-- Purchase History Button -->
             <androidx.appcompat.widget.AppCompatButton

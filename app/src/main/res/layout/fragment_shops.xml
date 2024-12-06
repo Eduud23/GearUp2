@@ -23,7 +23,7 @@
             android:layout_height="48dp"
             android:src="@drawable/ic_back"
             android:contentDescription="Back"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="10dp"
             android:background="?android:attr/selectableItemBackground"
             android:padding="12dp"/>
 
@@ -34,10 +34,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:drawableStart="@drawable/search"
-            android:hint="Search conversations"
+            android:hint="Search Shop"
             android:inputType="text"
             android:drawablePadding="8dp"
             android:padding="8dp"
+            android:layout_marginTop="2dp"
             android:background="@drawable/search_bar_background"
             android:textSize="14sp"/>
     </LinearLayout>
