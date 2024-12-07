@@ -24,22 +24,23 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/primary_light"
                 android:hint="Product Name"
                 android:imeOptions="actionNext"
-                android:textColorHint="@color/grey"
-                android:backgroundTint="@color/primary_light"
-                android:padding="12dp" />
+                android:padding="12dp"
+                android:textColorHint="@color/grey" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Product Brand Field -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_brand"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -54,7 +55,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_year_model"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -85,7 +86,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,7 +102,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -116,7 +117,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_product_quantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

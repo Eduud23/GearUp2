@@ -32,6 +32,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,30 +78,20 @@ public class InventoryFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        String baseUrl;
-        Context context = getContext();  // Assume you have the context here, e.g., inside an Activity or Fragment
 
-        if (DeviceUtils.isEmulator()) {
-            baseUrl = "http://10.0.2.2:5001/";  // Emulator base URL
-        } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(context)) {
-            baseUrl = "http://192.168.254.192:5001/";  // Local device base URL
-        } else if (DeviceUtils.isDeviceOnStagingNetwork(context)) {
-            baseUrl = "http://192.168.42.85:5001/";
-        } else if (DeviceUtils.isDeviceOnProductionNetwork(context)) {
-            baseUrl = "https://api.yourdomain.com/";  // Production base URL
-        } else {
-            baseUrl = "https://api.fallback.com/";  // Fallback base URL
-        }
+        List<String> baseUrls = Arrays.asList(
+                "http://192.168.254.155:5001/", // Development URL
+                "http://192.168.42.85:5001/",   // Staging URL
+                "http://192.168.254.192:5001/", // Production URL
+                "https://api.fallback.com/"      // Fallback URL
+        );
+
+        String baseUrl = getBaseUrl(baseUrls);  // Get the base URL based on device/network
 
         System.out.println("Base URL: " + baseUrl);
 
-
-
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-        // Create Retrofit instance
+        // Create Retrofit instance with the selected base URL
+        Gson gson = new GsonBuilder().setLenient().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson)) // Use the customized Gson instance
@@ -115,6 +106,26 @@ public class InventoryFragment extends Fragment {
         addProductButton.setOnClickListener(v -> showAddProductDialog());
 
         return view;
+    }
+
+    // Method to determine which base URL to use based on device and network
+    private String getBaseUrl(List<String> baseUrls) {
+        Context context = getContext(); // Get the context from the Fragment
+        String baseUrl;
+
+        if (DeviceUtils.isEmulator()) {
+            baseUrl = baseUrls.get(0); // Use the Development URL if it's an emulator
+        } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(context)) {
+            baseUrl = baseUrls.get(2); // Use the Production URL for devices on local network
+        } else if (DeviceUtils.isDeviceOnStagingNetwork(context)) {
+            baseUrl = baseUrls.get(1); // Use the Staging URL for devices on staging network
+        } else if (DeviceUtils.isDeviceOnProductionNetwork(context)) {
+            baseUrl = baseUrls.get(2); // Use the Production URL for devices on production network
+        } else {
+            baseUrl = baseUrls.get(3); // Fallback URL if no conditions are matched
+        }
+
+        return baseUrl;
     }
 
     private void initializeCategories() {
