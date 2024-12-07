@@ -2,9 +2,12 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,10 +31,12 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     private RecyclerView productsRecyclerView;
     private SellerShopAdapter productAdapter;
     private List<Product> productList = new ArrayList<>();
+    private List<Product> fullProductList = new ArrayList<>(); // For filtering purposes
     private FirebaseFirestore db;
     private String sellerId;
     private Spinner categorySpinner;
     private ImageView messageIcon, profileImageView;
+    private EditText searchEditText; // Search bar for product search
 
     private String currentUserId;
 
@@ -41,9 +46,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         setContentView(R.layout.activity_seller_shop);
 
         ImageView backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> {
-            onBackPressed();
-        });
+        backButton.setOnClickListener(v -> onBackPressed());
 
         // Initialize UI components
         shopNameTextView = findViewById(R.id.tv_shop_name);
@@ -53,6 +56,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         productsRecyclerView = findViewById(R.id.rv_products);
         categorySpinner = findViewById(R.id.spinner_categories);
         messageIcon = findViewById(R.id.iv_message_icon);
+        searchEditText = findViewById(R.id.et_search); // Initialize search bar
 
         // Set GridLayoutManager with 2 columns for the RecyclerView
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -79,6 +83,9 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
 
         // Set up the category Spinner
         setupCategorySpinner();
+
+        // Set up the search functionality
+        setupSearchEditText();
 
         // Get current user ID from Firebase Authentication
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -107,6 +114,37 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         });
     }
 
+    private void setupSearchEditText() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // No action needed
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Filter products as user types
+                filterProducts(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // No action needed
+            }
+        });
+    }
+
+    private void filterProducts(String query) {
+        List<Product> filteredList = new ArrayList<>();
+        for (Product product : fullProductList) {
+            if (product.getName().toLowerCase().contains(query.toLowerCase()) ||
+                    product.getBrand().toLowerCase().contains(query.toLowerCase())) {
+                filteredList.add(product);
+            }
+        }
+        productAdapter.updateList(filteredList); // Update the adapter with the filtered list
+    }
+
     private void loadSellerInfo(String sellerId) {
         db.collection("sellers").document(sellerId)
                 .get()
@@ -114,41 +152,26 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                     if (documentSnapshot.exists()) {
                         // Set shop name
                         String shopName = documentSnapshot.getString("shopName");
-                        if (shopName != null && !shopName.isEmpty()) {
-                            shopNameTextView.setText(shopName);
-                        } else {
-                            Toast.makeText(SellerShopActivity.this, "Shop name not found", Toast.LENGTH_SHORT).show();
-                        }
+                        shopNameTextView.setText(shopName != null ? shopName : "Shop name not found");
 
                         // Set profile image
                         String profileImageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                            Glide.with(SellerShopActivity.this)
-                                    .load(profileImageUrl)
-                                    .placeholder(R.drawable.gear)  // Placeholder if image is missing
-                                    .into(profileImageView);
-                        }
+                        Glide.with(this)
+                                .load(profileImageUrl)
+                                .placeholder(R.drawable.gear)
+                                .into(profileImageView);
 
                         // Set phone number
-                        String phoneNumber = documentSnapshot.getString("phone");
-                        if (phoneNumber != null && !phoneNumber.isEmpty()) {
-                            phoneNumberTextView.setText(phoneNumber);
-                        }
+                        phoneNumberTextView.setText(documentSnapshot.getString("phone"));
 
                         // Set address
-                        String address = documentSnapshot.getString("address");
-                        if (address != null && !address.isEmpty()) {
-                            addressTextView.setText(address); // Assuming you have a TextView for the address
-                        } else {
-                            addressTextView.setText("Address not available"); // Optional: Default message if no address found
-                        }
-
+                        addressTextView.setText(documentSnapshot.getString("address"));
                     } else {
-                        Toast.makeText(SellerShopActivity.this, "Shop not found", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Shop not found", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(SellerShopActivity.this, "Error getting shop info", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error getting shop info", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
     }
@@ -160,17 +183,19 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         productList.clear();
+                        fullProductList.clear();
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             Product product = document.toObject(Product.class);
                             if (product != null) {
                                 product.setId(document.getId());
                                 productList.add(product);
+                                fullProductList.add(product); // Add to full list for filtering
                             }
                         }
                         productAdapter.notifyDataSetChanged();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(SellerShopActivity.this, "Error getting products", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error getting products", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     });
         } else {
@@ -190,7 +215,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                         productAdapter.notifyDataSetChanged();
                     })
                     .addOnFailureListener(e -> {
-                        Toast.makeText(SellerShopActivity.this, "Error getting products", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error getting products", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     });
         }
@@ -199,13 +224,12 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     private void setupMessageIconClickListener() {
         messageIcon.setOnClickListener(v -> {
             if (sellerId != null && currentUserId != null) {
-                // Start the ChatActivity and pass both the sellerId and currentUserId
-                Intent intent = new Intent(SellerShopActivity.this, ChatActivity.class);
+                Intent intent = new Intent(this, ChatActivity.class);
                 intent.putExtra("SELLER_ID", sellerId);
-                intent.putExtra("CURRENT_USER_ID", currentUserId);  // Pass the current logged-in user ID
+                intent.putExtra("CURRENT_USER_ID", currentUserId);
                 startActivity(intent);
             } else {
-                Toast.makeText(SellerShopActivity.this, "Error: Missing seller or current user ID", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Error: Missing seller or user ID", Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -59,6 +59,11 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
             holder.itemView.setOnClickListener(v -> listener.onProductClick(product));
         }
     }
+    public void updateList(List<Product> updatedList) {
+        this.productList = updatedList; // Replace the current list
+        notifyDataSetChanged(); // Notify adapter about the data change
+    }
+
 
     @Override
     public int getItemCount() {

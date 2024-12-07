@@ -34,4 +34,10 @@
     <color name="btnTextColor">#FFFFFF</color> <!-- White text for buttons -->
 
 
+    <color name="background_color">#F8F9FA</color>
+    <color name="button_color">#2196F3</color>
+    <color name="button_text_color">#FFFFFF</color>
+    <color name="fragment_background">#FFFFFF</color>
+
+
 </resources>

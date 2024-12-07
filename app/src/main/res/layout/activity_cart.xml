@@ -1,33 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@color/background_color"
+    android:padding="16dp">
 
-    <Button
+    <!-- Back Button -->
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_back"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="12dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Add to Cart Button -->
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_cart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/tab_add_to_cart"
-        app:layout_constraintEnd_toStartOf="@+id/button_ordered"
+        android:backgroundTint="@color/button_color"
+        android:textColor="@color/button_text_color"
+        android:contentDescription="@string/desc_add_to_cart"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:singleLine="true"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintEnd_toStartOf="@id/button_ordered"
+        app:layout_constraintTop_toBottomOf="@id/btn_back"
+        app:layout_constraintWidth_percent="0.45" />
 
-    <Button
+    <!-- Ordered Products Button -->
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button_ordered"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/tab_ordered_products"
+        android:backgroundTint="@color/button_color"
+        android:textColor="@color/button_text_color"
+        android:contentDescription="@string/desc_ordered_products"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="16dp"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/button_cart"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.5" />
+        app:layout_constraintTop_toBottomOf="@id/btn_back"
+        app:layout_constraintWidth_percent="0.45" />
 
+    <!-- Fragment Container for Dynamic Content -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@color/fragment_background"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/button_cart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
