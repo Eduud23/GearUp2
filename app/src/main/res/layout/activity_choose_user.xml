@@ -26,7 +26,7 @@
         android:id="@+id/role"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Choose to register as a seller to list automotive parts, manage inventory, and connect with buyers, or as a buyer to explore a variety of car parts and make purchases."
+        android:text="Choose to register as a seller to list automotive parts, manage inventory, and connect with buyers, or as a buyer to explore a variety of car and motorcyle parts and make purchases."
         android:textSize="16sp"
         android:textColor="@android:color/black"
         android:textStyle="bold"
