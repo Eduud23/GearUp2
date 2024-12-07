@@ -85,7 +85,7 @@ public class InventoryFragment extends Fragment {
         } else if (DeviceUtils.isDeviceConnectedToLocalNetwork(context)) {
             baseUrl = "http://192.168.254.192:5001/";  // Local device base URL
         } else if (DeviceUtils.isDeviceOnStagingNetwork(context)) {
-            baseUrl = "http//192.168.42.85:5001/";
+            baseUrl = "http://192.168.42.85:5001/";
         } else if (DeviceUtils.isDeviceOnProductionNetwork(context)) {
             baseUrl = "https://api.yourdomain.com/";  // Production base URL
         } else {
