@@ -4,29 +4,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    android:background="@color/backgroundColor">
 
-    <!-- Title: Shipping Information -->
-    <TextView
-        android:id="@+id/tv_shipping_info"
-        android:layout_width="wrap_content"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Shipping Information"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/primary_text"
-        android:layout_marginBottom="32dp"
+        android:background="@android:color/white"
+        android:titleTextColor="@android:color/black"
+        app:title="Shipping Information"
+        app:navigationIcon="@drawable/ic_back"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp" />
 
     <!-- Full Name Input Field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_full_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tv_shipping_info"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp">
@@ -61,7 +63,7 @@
             android:layout_height="wrap_content"
             android:text="Pick-Up"
             android:textColor="@color/primary_text"
-            android:paddingEnd="16dp"/>
+            android:paddingEnd="16dp" />
 
         <RadioButton
             android:id="@+id/rb_delivery"
@@ -76,11 +78,12 @@
         android:id="@+id/input_delivery_address"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintTop_toBottomOf="@id/radio_group_shipping"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="15dp">
-
+        android:layout_marginTop="16dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_delivery_address"
             android:layout_width="match_parent"
@@ -102,7 +105,9 @@
         app:layout_constraintTop_toBottomOf="@id/input_delivery_address"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="15dp">
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="16dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_contact_number"
             android:layout_width="match_parent"
@@ -122,10 +127,12 @@
         android:id="@+id/input_zip_code"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         app:layout_constraintTop_toBottomOf="@id/input_contact_number"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="15dp">
+        android:layout_marginTop="16dp">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_zip_code"
             android:layout_width="match_parent"

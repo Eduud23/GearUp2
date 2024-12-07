@@ -54,6 +54,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:layout_marginTop="8dp"
                 android:text="Product Name" />
 
@@ -74,6 +76,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp"
                 android:text="Product Description"
+                android:singleLine="true"
                 android:maxLines="2"
                 android:ellipsize="end" />
         </LinearLayout>
@@ -124,6 +127,8 @@
                 android:id="@+id/tv_product_name_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:layout_marginTop="8dp"
@@ -146,6 +151,7 @@
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp"
                 android:text="Product Description 2"
+                android:singleLine="true"
                 android:maxLines="2"
                 android:ellipsize="end" />
         </LinearLayout>

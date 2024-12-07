@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.AuthFailureError;
@@ -56,6 +57,15 @@ public class DeliveryInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delivery_info);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable the back button
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed(); // Go back when the back button is clicked
+        });
+
 
         etName = findViewById(R.id.et_name);
         etDeliveryAddress = findViewById(R.id.et_delivery_address);
