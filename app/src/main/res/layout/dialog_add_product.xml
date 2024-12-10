@@ -68,19 +68,38 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Predict Price Button (small and below Year Model) -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_predict_price"
-            android:layout_width="wrap_content"
+        <!-- Predict Price Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Recommend Price"
-            android:background="@drawable/border"
-            android:textColor="@android:color/black"
+            android:orientation="horizontal"
+            android:gravity="start|center_vertical"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="12dp"
-            android:paddingStart="16dp"
-            android:drawableStart="@drawable/price"
-            android:textAllCaps="false"
-            android:paddingEnd="16dp" />
+            android:layout_marginBottom="12dp">
+
+            <!-- Recommend Price Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_predict_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recommend Price"
+                android:background="@drawable/border"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="12dp"
+                android:paddingStart="16dp"
+                android:drawableStart="@drawable/price"
+                android:textAllCaps="false"
+                android:paddingEnd="16dp" />
+
+            <!-- TextView beside the button -->
+            <TextView
+                android:id="@+id/tvRecommendPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:textSize="16sp"
+                android:textColor="@color/black" />
+        </LinearLayout>
 
         <!-- Price Field -->
         <com.google.android.material.textfield.TextInputLayout

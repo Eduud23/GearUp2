@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -63,7 +64,10 @@ public class InventoryFragment extends Fragment {
 
     // Retrofit for price prediction and product addition
     private PriceApi priceApi;
-    private static final String BASE_URL = "http://192.168.42.85:5001/";
+    private static final String BASE_URL ="http://192.168.42.85:5001/";
+            //"http://192.168.254.155:5001/";
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -196,6 +200,7 @@ public class InventoryFragment extends Fragment {
         EditText brandInput = dialogView.findViewById(R.id.et_product_brand);
         EditText yearModelInput = dialogView.findViewById(R.id.et_product_year_model);
         EditText descriptionInput = dialogView.findViewById(R.id.et_product_description);
+        TextView tvRecommendPrice = dialogView.findViewById(R.id.tvRecommendPrice);
         EditText predictedPriceText = dialogView.findViewById(R.id.et_product_price);
         predictedPriceText.setEnabled(true); // Make it non-editable
         EditText quantityInput = dialogView.findViewById(R.id.et_product_quantity);  // New quantity input field
@@ -217,9 +222,9 @@ public class InventoryFragment extends Fragment {
 
         // Predict price button listener
         predictPriceButton.setOnClickListener(v -> {
-            String productName = productNameInput.getText().toString();
-            String brand = brandInput.getText().toString();
-            String yearModelString = yearModelInput.getText().toString();
+            String productName = productNameInput.getText().toString().trim().toLowerCase();
+            String brand = brandInput.getText().toString().trim().toLowerCase();
+            String yearModelString = yearModelInput.getText().toString().trim();
 
             // Validate year model input
             if (yearModelString.isEmpty()) {
@@ -242,7 +247,7 @@ public class InventoryFragment extends Fragment {
                 public void onResponse(Call<PriceResponse> call, Response<PriceResponse> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         double predictedPrice = response.body().getPredictedPrice();
-                        predictedPriceText.setText("₱" + String.format("%.2f", predictedPrice));
+                        tvRecommendPrice.setText("₱" + String.format("%.2f", predictedPrice));
                     } else {
                         Toast.makeText(getContext(), "Prediction failed. Please try again.", Toast.LENGTH_SHORT).show();
                     }
@@ -261,7 +266,7 @@ public class InventoryFragment extends Fragment {
             String priceString = predictedPriceText.getText().toString().replace("₱", "");
             double price = priceString.isEmpty() ? 0 : Double.parseDouble(priceString);
             String brand = brandInput.getText().toString().trim();
-            String yearModelString = yearModelInput.getText().toString().trim(); // Keep this as a String
+            String yearModelString = yearModelInput.getText().toString().trim();
             String category = categorySpinner.getSelectedItem().toString();
             String description = descriptionInput.getText().toString().trim();
 

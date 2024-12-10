@@ -39,5 +39,7 @@
     <color name="button_text_color">#FFFFFF</color>
     <color name="fragment_background">#FFFFFF</color>
 
+    <color name="darkgray">#A9A9A9</color>
+
 
 </resources>

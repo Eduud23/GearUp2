@@ -59,9 +59,14 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
             if (holder.predictionContainer.getVisibility() == View.GONE) {
                 // Fetch predictions and show
                 fetchSalesPrediction(address, holder);
+                holder.predictionContainer.setVisibility(View.VISIBLE);
+                // Change button text to "See Less"
+                holder.seeMoreButton.setText("See Less");
             } else {
                 // Hide predictions if they are already visible
                 holder.predictionContainer.setVisibility(View.GONE);
+                // Change button text back to "See More"
+                holder.seeMoreButton.setText("See More");
             }
         });
     }

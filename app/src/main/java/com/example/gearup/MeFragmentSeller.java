@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -68,6 +69,17 @@ public class MeFragmentSeller extends Fragment {
             logoutUser();
         });
 
+        // Set up the edit profile button to navigate to EditProfileSellerFragment
+        Button editProfileButton = view.findViewById(R.id.editbutton);
+        editProfileButton.setOnClickListener(v -> navigateToEditProfileSeller());
+
+        Button inventoryButton = view.findViewById(R.id.inventorybutton);
+        inventoryButton.setOnClickListener(v -> navigateToInventoryFragment());
+
+        // Set up the Settings button
+        Button settingsButton = view.findViewById(R.id.settingbutton);
+        settingsButton.setOnClickListener(v -> navigateToSettingsFragment());
+
         return view;
     }
 
@@ -111,7 +123,6 @@ public class MeFragmentSeller extends Fragment {
             });
         }
     }
-
 
     /**
      * Open the image chooser to select a profile picture
@@ -178,5 +189,37 @@ public class MeFragmentSeller extends Fragment {
         } else {
             Toast.makeText(getContext(), "Failed to logout: Activity not found", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Navigate to the EditProfileSellerFragment
+     */
+    private void navigateToEditProfileSeller() {
+        // Replace current fragment with EditProfileSellerFragment
+        EditProfileSellerFragment fragment = new EditProfileSellerFragment();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // Use your fragment container ID
+        transaction.addToBackStack(null); // Optionally add to back stack
+        transaction.commit();
+    }
+    private void navigateToInventoryFragment() {
+        // Replace current fragment with InventoryFragment
+        InventoryFragment fragment = new InventoryFragment();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // Use your fragment container ID
+        transaction.addToBackStack(null); // Optionally add to back stack
+        transaction.commit();
+    }
+
+    /**
+     * Navigate to SettingsFragment
+     */
+    private void navigateToSettingsFragment() {
+        // Replace current fragment with SettingsFragment
+        SettingsFragment fragment = new SettingsFragment();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // Use your fragment container ID
+        transaction.addToBackStack(null); // Optionally add to back stack
+        transaction.commit();
     }
 }

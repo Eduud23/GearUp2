@@ -56,6 +56,17 @@ public class MeFragmentBuyer extends Fragment {
             logoutUser();
         });
 
+        // Edit Profile button click listener
+        Button editButton = view.findViewById(R.id.editbutton);
+        editButton.setOnClickListener(v -> navigateToEditProfile());
+
+        Button orderHistoryButton = view.findViewById(R.id.orderHistoryButton);
+        orderHistoryButton.setOnClickListener(v -> navigateToCartActivity());
+
+        // Account Settings button click listener
+        Button settingButton = view.findViewById(R.id.settingbutton);
+        settingButton.setOnClickListener(v -> navigateToSettingsFragment());
+
         return view;
     }
 
@@ -153,5 +164,30 @@ public class MeFragmentBuyer extends Fragment {
         } else {
             Toast.makeText(getContext(), "Failed to logout: Activity not found", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    // Navigate to EditProfileBuyerFragment
+    private void navigateToEditProfile() {
+        // Replace current fragment with EditProfileBuyerFragment
+        Fragment editProfileFragment = new EditProfileBuyerFragment();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, editProfileFragment)
+                .addToBackStack(null)  // Add transaction to back stack (so the user can navigate back)
+                .commit();
+    }
+    private void navigateToCartActivity() {
+        // Navigate to CartActivity where the order history is displayed
+        Intent intent = new Intent(getActivity(), CartActivity.class);
+        startActivity(intent);
+    }
+
+    // Navigate to SettingsFragment
+    private void navigateToSettingsFragment() {
+        // Replace current fragment with SettingsFragment
+        Fragment settingsFragment = new SettingsFragment();
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, settingsFragment)
+                .addToBackStack(null)  // Add transaction to back stack (so the user can navigate back)
+                .commit();
     }
 }
