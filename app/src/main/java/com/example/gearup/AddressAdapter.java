@@ -80,7 +80,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.AddressV
         // List of base URLs for different environments
         List<String> baseUrls = Arrays.asList(
                 "http://192.168.254.155:5002/", // Development URL
-                "http://192.168.42.85:5002/",   // Staging URL
+                "http://192.168.179.85:5002/",   // Staging URL
                 "http://192.168.254.192:5002/"  // Production URL
         );
 

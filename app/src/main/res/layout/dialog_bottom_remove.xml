@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_remove_from_cart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remove from Cart"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Cancel"
+        android:textColor="@android:color/black"
+        android:background="@drawable/button_with_black_stroke" />
+</LinearLayout>

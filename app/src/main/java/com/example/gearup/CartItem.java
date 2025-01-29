@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class CartItem implements Parcelable {
-    private String documentId; // Add this field for Firestore document ID
+    private String documentId; // Firestore document ID
     private Product product;
     private int quantity;
 
@@ -48,12 +48,29 @@ public class CartItem implements Parcelable {
         return product;
     }
 
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
     public int getQuantity() {
         return quantity;
     }
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    // Method to get the total price for this CartItem (price * quantity)
+    public double getTotalPrice() {
+        double price = 0.0;
+        try {
+            // Directly use getPrice() since it's already a double
+            price = product.getPrice();
+        } catch (Exception e) {
+            // Handle the case where the price is invalid (optional)
+            e.printStackTrace(); // Optionally log the exception
+        }
+        return price * quantity;
     }
 
     @Override

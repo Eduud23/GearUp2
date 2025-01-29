@@ -26,16 +26,19 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CartFragment extends Fragment {
+public class CartFragment extends Fragment implements CartAdapter.RemoveItemListener {
+
     private RecyclerView recyclerViewCart;
     private CartAdapter cartAdapter;
     private FirebaseFirestore db;
     private List<CartItem> cartItems;
     private ListenerRegistration cartListenerRegistration;
     private String currentUserId;
+    private TextView totalTextView;
 
     @Nullable
     @Override
@@ -44,9 +47,13 @@ public class CartFragment extends Fragment {
         recyclerViewCart = view.findViewById(R.id.recyclerView_cart);
         recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        totalTextView = view.findViewById(R.id.textView_total);
+
         db = FirebaseFirestore.getInstance();
         cartItems = new ArrayList<>();
-        cartAdapter = new CartAdapter(cartItems, cartItem -> showItemDetailsDialog(cartItem));
+
+        // Pass both the OnItemClickListener and RemoveItemListener
+        cartAdapter = new CartAdapter(cartItems, cartItem -> updateTotal(), this);
         recyclerViewCart.setAdapter(cartAdapter);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -66,13 +73,12 @@ public class CartFragment extends Fragment {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
-                            return; // Handle the error
+                            return;
                         }
 
                         cartItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
                             CartItem cartItem = doc.toObject(CartItem.class);
-                            // Set the documentId (Firestore document ID)
                             cartItem.setDocumentId(doc.getId());
                             cartItems.add(cartItem);
                         }
@@ -81,68 +87,54 @@ public class CartFragment extends Fragment {
                 });
     }
 
-    private void showItemDetailsDialog(final CartItem cartItem) {
-        // Create a custom dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.cart_dialog_item, null);
-        builder.setView(dialogView);
+    private void updateTotal() {
+        double total = 0;
+        List<CartItem> selectedItems = cartAdapter.getSelectedItems();
 
-        // Bind the dialog views
-        ImageView itemImageView = dialogView.findViewById(R.id.imageView_item);
-        TextView itemNameTextView = dialogView.findViewById(R.id.textView_item_name);
-        TextView itemPriceTextView = dialogView.findViewById(R.id.textView_item_price);
-        TextView itemDescriptionTextView = dialogView.findViewById(R.id.textView_item_description);
-        Button btnDelete = dialogView.findViewById(R.id.btn_delete);
-        Button btnBuyNow = dialogView.findViewById(R.id.btn_buy_now);
-        ImageView btnExit = dialogView.findViewById(R.id.icon_exit);
-
-        // Set the item details
-        Product product = cartItem.getProduct();
-        itemNameTextView.setText(product.getName());
-        itemPriceTextView.setText("₱" + product.getPrice());
-        itemDescriptionTextView.setText(product.getDescription());
-
-        // Load the product image using Glide
-        List<String> imageUrls = product.getImageUrls();
-        if (imageUrls != null && !imageUrls.isEmpty()) {
-            Glide.with(getContext()).load(imageUrls.get(0)).into(itemImageView);
+        for (CartItem cartItem : selectedItems) {
+            total += cartItem.getTotalPrice();
         }
 
-        // Create the dialog (must be done before using the dialog object)
+        String formattedTotal = formatPrice(total);
+        totalTextView.setText("Total: ₱" + formattedTotal);
+    }
+
+    private String formatPrice(double price) {
+        DecimalFormat formatter = new DecimalFormat("#,###");
+        return formatter.format(price);
+    }
+
+    // Show bottom dialog for long press on item
+    private void showRemoveItemDialog(final CartItem cartItem) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_bottom_remove, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(dialogView);
+
+        Button btnRemove = dialogView.findViewById(R.id.btn_remove_from_cart);
+        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
+
         final AlertDialog dialog = builder.create();
 
-        // Set up the Exit button (dismiss the dialog)
-        btnExit.setOnClickListener(v -> dialog.dismiss());
-
-        btnDelete.setOnClickListener(v -> {
-            // Delete the item from Firestore using the document ID
+        btnRemove.setOnClickListener(v -> {
+            // Remove item from Firestore
             db.collection("buyers")
                     .document(currentUserId)
                     .collection("cartItems")
-                    .document(cartItem.getDocumentId()) // Use getDocumentId() here
+                    .document(cartItem.getDocumentId())
                     .delete()
                     .addOnSuccessListener(aVoid -> {
-                        // On success, dismiss the dialog and notify the user
-                        dialog.dismiss();
-                        Toast.makeText(getContext(), "Item deleted from cart", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Item removed from cart", Toast.LENGTH_SHORT).show();
+                        updateTotal(); // Update total after deletion
                     })
                     .addOnFailureListener(e -> {
-                        // Handle failure (show an error message)
-                        Toast.makeText(getContext(), "Failed to delete item. Please try again.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Failed to remove item. Try again.", Toast.LENGTH_SHORT).show();
                     });
+
+            dialog.dismiss(); // Dismiss the dialog after removal
         });
 
-        btnBuyNow.setOnClickListener(v -> {
-            dialog.dismiss();
-            // Pass the clicked product to ProductDetailsBuyerActivity
-            Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
 
-            // Pass the Product object using Serializable or Parcelable
-            intent.putExtra("PRODUCT", product); // Assuming Product is Serializable
-            startActivity(intent);
-        });
-
-        // Show the dialog
         dialog.show();
     }
 
@@ -152,5 +144,11 @@ public class CartFragment extends Fragment {
         if (cartListenerRegistration != null) {
             cartListenerRegistration.remove();
         }
+    }
+
+    // Implementing RemoveItemListener interface method
+    @Override
+    public void onItemLongPress(CartItem cartItem) {
+        showRemoveItemDialog(cartItem); // Show the dialog on long press
     }
 }

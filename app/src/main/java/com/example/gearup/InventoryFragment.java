@@ -64,7 +64,7 @@ public class InventoryFragment extends Fragment {
 
     // Retrofit for price prediction and product addition
     private PriceApi priceApi;
-    private static final String BASE_URL ="http://192.168.42.85:5001/";
+    private static final String BASE_URL ="http://192.168.179.85:5001/";
             //"http://192.168.254.155:5001/";
 
 
