@@ -163,7 +163,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
     private void setProductDetails() {
         productName.setText(product.getName());
-        productPrice.setText(String.format("₱%.2f", product.getPrice()));
+        productPrice.setText(String.format("₱%,.2f", product.getPrice()));
         productDescription.setText(product.getDescription());
         maxQuantity = product.getQuantity();
         availableQuantityText.setText("Available Quantity: " + maxQuantity);
