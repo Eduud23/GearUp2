@@ -22,6 +22,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private OnItemClickListener listener;
     private List<CartItem> selectedItems; // List to keep track of selected items
     private RemoveItemListener removeItemListener; // Callback interface
+    private boolean showCheckboxes = false; // Flag to show or hide all checkboxes
 
     // Interface for item click listener
     public interface OnItemClickListener {
@@ -68,6 +69,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                     .into(holder.ivProductImage);
         }
 
+        // Show or hide the checkbox based on the flag
+        if (showCheckboxes) {
+            holder.checkbox.setVisibility(View.VISIBLE);
+        } else {
+            holder.checkbox.setVisibility(View.GONE);
+        }
+
         // Set checkbox listener
         holder.checkbox.setChecked(selectedItems.contains(cartItem));
         holder.checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -79,11 +87,23 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             listener.onItemClick(cartItem);
         });
 
-        // Long press listener to trigger the remove item dialog
+        // Long press listener to show the checkboxes and trigger the remove item dialog
         holder.itemView.setOnLongClickListener(v -> {
+            // Show the checkboxes for all items when long-pressed
+            showCheckboxes = !showCheckboxes;
+            notifyDataSetChanged(); // Notify the adapter to update the UI
+
             // Call the callback method in the fragment
             removeItemListener.onItemLongPress(cartItem);
             return true;
+        });
+
+        // OnClickListener to handle item clicks and hide the checkboxes when clicked (optional)
+        holder.itemView.setOnClickListener(v -> {
+            if (showCheckboxes) {
+                showCheckboxes = false;
+                notifyDataSetChanged(); // Hide checkboxes if an item is clicked
+            }
         });
     }
 
@@ -100,6 +120,12 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     private String formatPrice(double price) {
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(price);
+    }
+
+    // Method to toggle delete mode externally (e.g., when user cancels or confirms deletion)
+    public void setDeleteMode(boolean deleteMode) {
+        showCheckboxes = deleteMode;
+        notifyDataSetChanged();  // Refresh RecyclerView to reflect delete mode
     }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {

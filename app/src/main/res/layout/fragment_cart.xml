@@ -26,6 +26,17 @@
         android:background="@android:color/darker_gray"
         android:layout_marginBottom="16dp" />
 
+    <!-- Delete Icon below Divider -->
+    <ImageView
+        android:id="@+id/cart_delete_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="5dp"
+        android:visibility="gone"
+        android:src="@drawable/delete" />
+
+
     <!-- RecyclerView for displaying cart items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView_cart"

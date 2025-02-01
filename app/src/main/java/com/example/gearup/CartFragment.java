@@ -39,6 +39,7 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
     private ListenerRegistration cartListenerRegistration;
     private String currentUserId;
     private TextView totalTextView;
+    private ImageView deleteImageView; // Button to delete selected items
 
     @Nullable
     @Override
@@ -48,13 +49,16 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
         recyclerViewCart.setLayoutManager(new LinearLayoutManager(getContext()));
 
         totalTextView = view.findViewById(R.id.textView_total);
+        deleteImageView = view.findViewById(R.id.cart_delete_icon); // The button to delete selected items
 
         db = FirebaseFirestore.getInstance();
         cartItems = new ArrayList<>();
 
-        // Pass both the OnItemClickListener and RemoveItemListener
         cartAdapter = new CartAdapter(cartItems, cartItem -> updateTotal(), this);
         recyclerViewCart.setAdapter(cartAdapter);
+
+        // Show delete confirmation dialog when delete button is clicked
+        deleteImageView.setOnClickListener(v -> showDeleteConfirmationDialog());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -83,15 +87,17 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                             cartItems.add(cartItem);
                         }
                         cartAdapter.notifyDataSetChanged();
+
+                        // Update the total after fetching cart items
+                        updateTotal();
                     }
                 });
     }
 
     private void updateTotal() {
         double total = 0;
-        List<CartItem> selectedItems = cartAdapter.getSelectedItems();
-
-        for (CartItem cartItem : selectedItems) {
+        // Calculate total for all items in the cart, not just selected ones
+        for (CartItem cartItem : cartItems) {
             total += cartItem.getTotalPrice();
         }
 
@@ -104,51 +110,38 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
         return formatter.format(price);
     }
 
-    // Show bottom dialog for long press on item
-    private void showRemoveItemDialog(final CartItem cartItem) {
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_bottom_remove, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setView(dialogView);
-
-        Button btnRemove = dialogView.findViewById(R.id.btn_remove_from_cart);
-        Button btnCancel = dialogView.findViewById(R.id.btn_cancel);
-
-        final AlertDialog dialog = builder.create();
-
-        btnRemove.setOnClickListener(v -> {
-            // Remove item from Firestore
-            db.collection("buyers")
-                    .document(currentUserId)
-                    .collection("cartItems")
-                    .document(cartItem.getDocumentId())
-                    .delete()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "Item removed from cart", Toast.LENGTH_SHORT).show();
-                        updateTotal(); // Update total after deletion
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "Failed to remove item. Try again.", Toast.LENGTH_SHORT).show();
-                    });
-
-            dialog.dismiss(); // Dismiss the dialog after removal
-        });
-
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (cartListenerRegistration != null) {
-            cartListenerRegistration.remove();
+    private void showDeleteConfirmationDialog() {
+        List<CartItem> selectedItems = cartAdapter.getSelectedItems();
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(getContext(), "No items selected for deletion", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Selected Items")
+                .setMessage("Are you sure to delete these products?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Delete selected items from Firestore
+                    for (CartItem item : selectedItems) {
+                        db.collection("buyers")
+                                .document(currentUserId)
+                                .collection("cartItems")
+                                .document(item.getDocumentId())
+                                .delete();
+                    }
+                    Toast.makeText(getContext(), "Items removed from cart", Toast.LENGTH_SHORT).show();
+                    updateTotal();  // Update total after deletion
+                    cartAdapter.setDeleteMode(false);  // Exit delete mode
+                    deleteImageView.setVisibility(View.GONE);  // Hide delete button
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
-    // Implementing RemoveItemListener interface method
     @Override
     public void onItemLongPress(CartItem cartItem) {
-        showRemoveItemDialog(cartItem); // Show the dialog on long press
+        // Enable delete mode when an item is long-pressed
+        cartAdapter.setDeleteMode(true);
+        deleteImageView.setVisibility(View.VISIBLE); // Show delete button when in delete mode
     }
 }

@@ -24,7 +24,7 @@
         android:id="@+id/button_cart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/tab_add_to_cart"
+        android:text="Your Cart"
         android:backgroundTint="@color/button_color"
         android:textColor="@color/button_text_color"
         android:contentDescription="@string/desc_add_to_cart"
