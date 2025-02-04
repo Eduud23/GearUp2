@@ -33,7 +33,10 @@
             android:padding="8dp"
             android:background="@drawable/search_bar_background"
             android:inputType="text"
-            android:imeOptions="actionSearch"/>
+            android:imeOptions="actionSearch"
+            android:focusable="false"
+            android:clickable="false"/>
+
 
         <!-- Cart Icon -->
         <ImageView

@@ -63,6 +63,8 @@ dependencies {
     implementation ("org.tensorflow:tensorflow-lite-gpu:2.12.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
 
+    implementation ("org.apache.commons:commons-text:1.9")
+
 
 
 

@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -126,23 +128,26 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         db = FirebaseFirestore.getInstance();
         loadProducts();
 
-        // Search functionality
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().isEmpty()) {
-                    loadProducts(); // Reload all products if the search is empty
-                } else {
-                    filterProducts(s.toString().trim()); // Filter based on search text
-                }
+        // Handle Search Bar Click
+        searchBar.setOnClickListener(v -> {
+            // Disable editing and prevent keyboard from popping up
+            searchBar.clearFocus(); // Removes focus from the EditText
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null && requireActivity().getCurrentFocus() != null) {
+                imm.hideSoftInputFromWindow(requireActivity().getCurrentFocus().getWindowToken(), 0); // Hide the keyboard
             }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+            // Log the action and navigate to SearchActivity
+            Log.d("SearchBar", "Clicked, navigating to SearchActivity");
+            try {
+                Intent intent = new Intent(requireContext(), SearchActivity.class);
+                startActivity(intent); // Go directly to the SearchActivity without any typing enabled
+            } catch (Exception e) {
+                Log.e("SearchBar", "Error opening SearchActivity", e);
+                Toast.makeText(requireContext(), "Failed to open search", Toast.LENGTH_SHORT).show();
+            }
         });
+
 
         // Check for unread messages
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -185,6 +190,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                     }
                 });
     }
+
     private void shuffleProductLists() {
         // Shuffle the lists using Collections.shuffle()
         Collections.shuffle(centralComponentsList);
@@ -283,63 +289,35 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             db.collection("sellers").document(sellerId).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (document != null && document.exists()) {
                         String profileImageUrl = document.getString("profileImageUrl");
-                        product.setSellerProfileImageUrl(profileImageUrl);
-                        notifyAdapters();  // Notify adapters to refresh the view
+                        if (profileImageUrl != null) {
+                            product.setSellerProfileImageUrl(profileImageUrl);
+                        }
                     }
                 }
             });
         }
     }
 
-    private void notifyAdapters() {
-        adapterCentralComponents.notifyDataSetChanged();
-        adapterBody.notifyDataSetChanged();
-        adapterConnectors.notifyDataSetChanged();
-        adapterPeripherals.notifyDataSetChanged();
-    }
-
     private void countUnreadMessages(String currentUserId) {
-        db.collection("chatrooms")
-                .whereArrayContains("participants", currentUserId)
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("messages")
+                .whereEqualTo("recipientId", currentUserId)
+                .whereEqualTo("status", "unread")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Use AtomicInteger to allow modification inside lambda
-                        AtomicInteger unreadCount = new AtomicInteger(0);
-
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String chatroomId = document.getId();
-                            db.collection("chatrooms").document(chatroomId)
-                                    .collection("messages")
-                                    .whereEqualTo("status", "unread")
-                                    .whereEqualTo("receiverId", currentUserId)
-                                    .get()
-                                    .addOnCompleteListener(messageTask -> {
-                                        if (messageTask.isSuccessful()) {
-                                            // Use AtomicInteger's incrementAndGet method to safely update
-                                            unreadCount.addAndGet(messageTask.getResult().size());
-                                            updateUnreadMessageCount(unreadCount.get());
-                                        }
-                                    });
+                        int unreadCount = 0;
+                        for (DocumentSnapshot document : task.getResult()) {
+                            unreadCount++;
+                        }
+                        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
+                        if (unreadMessageTextView != null) {
+                            unreadMessageTextView.setText(String.valueOf(unreadCount));
                         }
                     }
                 });
-    }
-
-    private void updateUnreadMessageCount(int unreadCount) {
-        if (getView() != null) {
-            TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
-            if (unreadMessageTextView != null) {
-                if (unreadCount > 0) {
-                    unreadMessageTextView.setText(String.valueOf(unreadCount));
-                    unreadMessageTextView.setVisibility(View.VISIBLE);
-                } else {
-                    unreadMessageTextView.setVisibility(View.GONE);
-                }
-            }
-        }
     }
 
 

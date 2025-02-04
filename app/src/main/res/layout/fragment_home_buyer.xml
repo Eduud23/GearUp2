@@ -20,19 +20,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Search Bar -->
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/search_bar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Search Product"
-            android:layout_marginTop="5dp"
             android:drawableStart="@drawable/search"
             android:drawablePadding="8dp"
             android:padding="8dp"
             android:background="@drawable/search_bar_background"
             android:inputType="text"
-            android:imeOptions="actionSearch"/>
+            android:imeOptions="actionSearch"
+            android:focusable="false"
+            android:clickable="false"/>
 
         <ImageView
             android:id="@+id/icon_cart"

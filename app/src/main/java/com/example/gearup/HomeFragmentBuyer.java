@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -127,22 +129,26 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         db = FirebaseFirestore.getInstance();
         loadProducts();
 
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().isEmpty()) {
-                    loadProducts();
-                } else {
-                    filterProducts(s.toString().trim());
-                }
+        // Handle Search Bar Click
+        searchBar.setOnClickListener(v -> {
+            // Disable editing and prevent keyboard from popping up
+            searchBar.clearFocus(); // Removes focus from the EditText
+            InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null && requireActivity().getCurrentFocus() != null) {
+                imm.hideSoftInputFromWindow(requireActivity().getCurrentFocus().getWindowToken(), 0); // Hide the keyboard
             }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+            // Log the action and navigate to SearchActivity
+            Log.d("SearchBar", "Clicked, navigating to SearchActivity");
+            try {
+                Intent intent = new Intent(requireContext(), SearchActivity.class);
+                startActivity(intent); // Go directly to the SearchActivity without any typing enabled
+            } catch (Exception e) {
+                Log.e("SearchBar", "Error opening SearchActivity", e);
+                Toast.makeText(requireContext(), "Failed to open search", Toast.LENGTH_SHORT).show();
+            }
         });
+
 
         return view;
     }
