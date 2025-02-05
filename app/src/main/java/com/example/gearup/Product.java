@@ -14,17 +14,18 @@ public class Product implements Parcelable {
     private String sellerId;
     private String sellerProfileImageUrl;
     private int quantity;
-
-    // New fields for brand and year model
     private String brand; // Brand field
     private String yearModel; // Year model field
+    private int views; // Number of views
+    private float stars; // Average star rating
 
     // Default constructor
     public Product() {}
 
     // Constructor with all parameters
     public Product(String id, String name, double price, String description, List<String> imageUrls,
-                   String category, String sellerId, int quantity, String brand, String yearModel) {
+                   String category, String sellerId, int quantity, String brand, String yearModel,
+                   int views, float stars) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -34,8 +35,10 @@ public class Product implements Parcelable {
         this.sellerId = sellerId;
         this.sellerProfileImageUrl = ""; // Default value
         this.quantity = quantity;
-        this.brand = brand; // Set brand
-        this.yearModel = yearModel; // Set year model
+        this.brand = brand;
+        this.yearModel = yearModel;
+        this.views = views;
+        this.stars = stars;
     }
 
     // Parcelable implementation
@@ -51,6 +54,8 @@ public class Product implements Parcelable {
         quantity = in.readInt();
         brand = in.readString();
         yearModel = in.readString();
+        views = in.readInt();
+        stars = in.readFloat();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -78,6 +83,8 @@ public class Product implements Parcelable {
         dest.writeInt(quantity);
         dest.writeString(brand);
         dest.writeString(yearModel);
+        dest.writeInt(views);
+        dest.writeFloat(stars);
     }
 
     @Override
@@ -158,16 +165,6 @@ public class Product implements Parcelable {
         this.quantity = quantity;
     }
 
-    // Adjust the quantity
-    public void adjustQuantity(int amount) {
-        if (this.quantity + amount >= 0) {
-            this.quantity += amount;
-        } else {
-            throw new IllegalArgumentException("Quantity cannot be negative");
-        }
-    }
-
-    // Getter and setter for brand and year model
     public String getBrand() {
         return brand;
     }
@@ -182,5 +179,25 @@ public class Product implements Parcelable {
 
     public void setYearModel(String yearModel) {
         this.yearModel = yearModel;
+    }
+
+    public int getViews() {
+        return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
+    }
+
+    public void incrementViews() {
+        this.views++;
+    }
+
+    public float getStars() {
+        return stars;
+    }
+
+    public void setStars(float stars) {
+        this.stars = stars;
     }
 }

@@ -293,10 +293,12 @@ public class InventoryFragment extends Fragment {
                 Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            int views = 0; // Default initial views count
+            float stars = 0.0f;
 
             // Upload images and save the product
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris);
+            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars);
         });
 
         // Create and show the dialog
@@ -351,7 +353,7 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris) {
+    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris, int views, float stars) {
         List<String> imageUrls = new ArrayList<>();
         StorageReference storageRef = storage.getReference().child("products/" + userId);
 
@@ -364,7 +366,7 @@ public class InventoryFragment extends Fragment {
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         imageUrls.add(uri.toString());
                         if (imageUrls.size() == selectedImageUris.size()) {
-                            saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls);
+                            saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls, views, stars);
                         }
                     });
                 }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
@@ -372,7 +374,7 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<String> imageUrls) {
+    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<String> imageUrls, int views, float stars) {
         Product newProduct = new Product(
                 null, // id can be null initially
                 name,
@@ -383,7 +385,9 @@ public class InventoryFragment extends Fragment {
                 userId,
                 quantity,
                 brand,
-                yearModel
+                yearModel,
+                views,
+                stars
         );
 
         db.collection("users").document(userId)

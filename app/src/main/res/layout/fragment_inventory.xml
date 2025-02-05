@@ -56,15 +56,11 @@
     <!-- Button for adding a new product -->
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_add_product"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add Product"
-        android:background="@drawable/borderblackbg"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:background="@drawable/add"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp" />
+       />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

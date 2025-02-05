@@ -27,6 +27,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -336,9 +337,34 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             clickedProduct = peripheralsList.get(position);
         }
 
+        // Assuming you have the user ID (from FirebaseAuth or another method)
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        incrementProductViews(userId, clickedProduct.getId());
+
         // Start ProductDetailsBuyerActivity with the clicked product
         Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
         intent.putExtra("PRODUCT", clickedProduct);  // Assuming Product implements Parcelable
         startActivity(intent);
     }
+
+    private void incrementProductViews(String userId, String productId) {
+        if (productId == null || productId.isEmpty() || userId == null || userId.isEmpty()) {
+            Log.e("HomeFragmentSeller", "User ID or Product ID is null or empty");
+            return;
+        }
+
+        // Increment the views in the user's products subcollection
+        db.collection("users") // Users collection
+                .document(userId) // Specific user document
+                .collection("products") // Products subcollection within the user's document
+                .document(productId) // The product document
+                .update("views", FieldValue.increment(1)) // Atomically increment the "views" field
+                .addOnSuccessListener(aVoid -> Log.d("HomeFragmentSeller", "Views incremented for product: " + productId))
+                .addOnFailureListener(e -> Log.e("HomeFragmentSeller", "Failed to increment views", e));
+    }
+
+
+
+
 }
