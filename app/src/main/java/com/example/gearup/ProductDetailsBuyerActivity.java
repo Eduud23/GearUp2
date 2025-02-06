@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
@@ -27,10 +30,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
@@ -44,7 +50,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private String sellerId;
     private String currentUserId;
     private Product product;
-
+    private ImageButton ratingBtn;
     private FirebaseFirestore db;
 
     @SuppressLint("MissingInflatedId")
@@ -66,11 +72,14 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         addReviewButton = findViewById(R.id.btn_add_review);
         rvReviews = findViewById(R.id.rv_reviews);
+        ratingBtn = findViewById(R.id.ratingBtn);
 
         productBrand = findViewById(R.id.tv_product_brand);
         productYearModel = findViewById(R.id.tv_product_year_model);
 
         db = FirebaseFirestore.getInstance();
+
+
 
         // Get the current user's ID and role
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -129,6 +138,10 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(currentItem - 1, true); // Move to the previous image
             }
         });
+        ratingBtn.setOnClickListener(v -> {
+            showRatingDialog();
+        });
+
 
         btnNext.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
@@ -138,6 +151,88 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             }
         });
     }
+    private void showRatingDialog() {
+        // Inflate the custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_rating, null);
+
+        // Create the dialog
+        Dialog dialog = new Dialog(ProductDetailsBuyerActivity.this);
+        dialog.setContentView(dialogView);
+
+        // Find the RatingBar and Button from the dialog layout
+        RatingBar ratingBar = dialogView.findViewById(R.id.dialogRatingBar);
+        Button submitButton = dialogView.findViewById(R.id.buttonSubmitRating);
+
+        // Set up the Submit button to handle the rating
+        submitButton.setOnClickListener(v -> {
+            float rating = ratingBar.getRating();
+            // Call submitRating to store the data in Firestore
+            submitRating(rating, product.getId());  // Assuming product.getId() is the product ID
+            dialog.dismiss(); // Dismiss the dialog after submission
+        });
+
+        // Show the dialog
+        dialog.show();
+    }
+
+    private void submitRating(float rating, String productId) {
+        if (productId == null || productId.isEmpty()) {
+            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (rating <= 0) {
+            Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get the current user's ID (already retrieved in onCreate())
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Prepare the data to be saved in Firestore
+        Map<String, Object> ratingData = new HashMap<>();
+        ratingData.put("rating", rating);
+        ratingData.put("productId", productId);
+        ratingData.put("userId", currentUserId);
+        ratingData.put("timestamp", FieldValue.serverTimestamp()); // Optionally add a timestamp
+
+        // Store the rating in Firestore under the "star" collection
+        db.collection("star")
+                .document(currentUserId + "_" + productId) // Use a composite key for unique rating
+                .set(ratingData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Rating submitted successfully", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to submit rating", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void checkUserRole(String userId) {
         db.collection("buyers").document(userId).get()
@@ -418,4 +513,5 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

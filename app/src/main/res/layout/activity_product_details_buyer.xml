@@ -218,17 +218,16 @@
                 app:layout_constraintStart_toEndOf="@id/tv_label_product_description"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-            <RatingBar
-                android:id="@+id/ratingBar"
+            <ImageButton
+                android:id="@+id/ratingBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:numStars="5"
-                android:rating="0"
-                android:stepSize="0.5"
                 android:layout_marginTop="5dp"
+                android:background="@drawable/star"
                 app:layout_constraintTop_toBottomOf="@id/tv_label_product_description"
                 app:layout_constraintStart_toStartOf="parent"
-  />
+                />
+
 
             <TextView
                 android:id="@+id/tv_available_quantity"
@@ -237,7 +236,7 @@
                 android:textSize="16sp"
                 android:layout_marginTop="20dp"
                 android:textColor="@android:color/holo_blue_dark"
-                app:layout_constraintTop_toBottomOf="@id/ratingBar"
+                app:layout_constraintTop_toBottomOf="@id/ratingBtn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
