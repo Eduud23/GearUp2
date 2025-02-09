@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +42,7 @@ import java.util.Map;
 
 public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
-    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel;
+    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel, tvAverageRating;
     private Button addToCartButton, checkoutButton, addReviewButton;
     private EditText productQuantity;
     private ViewPager2 viewPager;
@@ -73,13 +75,13 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         addReviewButton = findViewById(R.id.btn_add_review);
         rvReviews = findViewById(R.id.rv_reviews);
         ratingBtn = findViewById(R.id.ratingBtn);
+        tvAverageRating = findViewById(R.id.tv_average_rating);
 
         productBrand = findViewById(R.id.tv_product_brand);
         productYearModel = findViewById(R.id.tv_product_year_model);
 
         db = FirebaseFirestore.getInstance();
-
-
+        String productId = getIntent().getStringExtra("productId");
 
         // Get the current user's ID and role
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -91,7 +93,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             finish();
         }
 
-        // Get product from the intent (via bundle or arguments)
+        // Get product from the intent
         if (getIntent() != null) {
             product = getIntent().getParcelableExtra("PRODUCT");
         }
@@ -102,6 +104,10 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             // Retrieve seller info from Firestore
             sellerId = product.getSellerId();
             getSellerInfo(sellerId);
+
+            // **Immediately load the average rating when the activity starts**
+            getAverageRating(product.getId(), sellerId);
+
             loadReviews(product.getId());
         } else {
             Toast.makeText(this, "Invalid product data", Toast.LENGTH_SHORT).show();
@@ -111,10 +117,8 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         // Set up button click listeners
         addToCartButton.setOnClickListener(v -> addToCart(product));
         checkoutButton.setOnClickListener(v -> checkout());
-
         productName.setOnClickListener(v -> openSellerShop());
         sellerProfileImage.setOnClickListener(v -> openSellerShop());
-
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
         // Setup RecyclerView for reviews
@@ -122,13 +126,12 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable the back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        toolbar.setNavigationOnClickListener(v -> {
-            onBackPressed(); // Go back when the back button is clicked
-        });
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
+
+    AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
         AppCompatImageButton btnNext = findViewById(R.id.btn_next);
 
         // Set up button listeners
@@ -142,7 +145,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             showRatingDialog();
         });
 
-
         btnNext.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
             int totalItems = viewPager.getAdapter() != null ? viewPager.getAdapter().getItemCount() : 0;
@@ -151,6 +153,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             }
         });
     }
+
     private void showRatingDialog() {
         // Inflate the custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_rating, null);
@@ -186,30 +189,105 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             return;
         }
 
-        // Get the current user's ID (already retrieved in onCreate())
         if (currentUserId == null || currentUserId.isEmpty()) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Prepare the data to be saved in Firestore
         Map<String, Object> ratingData = new HashMap<>();
         ratingData.put("rating", rating);
         ratingData.put("productId", productId);
         ratingData.put("userId", currentUserId);
-        ratingData.put("timestamp", FieldValue.serverTimestamp()); // Optionally add a timestamp
+        ratingData.put("timestamp", FieldValue.serverTimestamp());
 
-        // Store the rating in Firestore under the "star" collection
         db.collection("star")
-                .document(currentUserId + "_" + productId) // Use a composite key for unique rating
+                .document(currentUserId + "_" + productId)
                 .set(ratingData)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Rating submitted successfully", Toast.LENGTH_SHORT).show();
+                    updateAverageRating(productId); // Update average after submission
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to submit rating", Toast.LENGTH_SHORT).show();
                 });
     }
+
+
+
+    private void updateAverageRating(String productId) {
+        db.collection("star")
+                .whereEqualTo("productId", productId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    double totalRating = 0;
+                    int count = 0;
+
+                    // Sum up all the ratings
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Double rating = document.getDouble("rating");
+                        if (rating != null) {
+                            totalRating += rating;
+                            count++;
+                        }
+                    }
+
+                    // Calculate average rating if count > 0
+                    if (count > 0) {
+                        double averageRating = totalRating / count;
+                        saveAverageRating(productId, averageRating); // Store the average
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to calculate average rating", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+
+    private void saveAverageRating(String productId, double averageRating) {
+        String sellerPath = "users/" + sellerId + "/products/" + productId;
+        db.document(sellerPath)
+                .update("stars", averageRating)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Rating updated successfully", Toast.LENGTH_SHORT).show();
+                    tvAverageRating.setText(String.format("%.1f", averageRating)); // Update the displayed rating
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to update rating", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+    private void getAverageRating(String productId, String sellerId) {
+        if (sellerId == null || sellerId.isEmpty()) {
+            Log.e("FirestoreDebug", "Seller ID is null or empty!");
+            return;
+        }
+
+        // Fetch the average rating immediately when the activity loads
+        db.collection("users")
+                .document(sellerId)
+                .collection("products")
+                .document(productId)
+                .get() // Use `get()` for immediate fetch
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        Double averageRating = documentSnapshot.getDouble("stars");
+                        if (averageRating != null) {
+                            tvAverageRating.setText(String.format("%.1f", averageRating)); // Display the rating immediately
+                        } else {
+                            tvAverageRating.setText("No Ratings Yet"); // Fallback message if no rating exists
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreDebug", "Failed to fetch rating", e);
+                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to get rating", Toast.LENGTH_SHORT).show();
+                    tvAverageRating.setText("N/A"); // Fallback in case of failure
+                });
+    }
+
+
+
 
 
 
