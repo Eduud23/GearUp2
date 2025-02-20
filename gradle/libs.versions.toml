@@ -16,6 +16,7 @@ swiperefreshlayout = "1.1.0"
 cardview = "1.0.0"
 lifecycleViewmodelKtx = "2.8.6"
 firebaseMessaging = "24.0.3"
+playServicesMaps = "19.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -34,6 +35,7 @@ swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefre
 cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

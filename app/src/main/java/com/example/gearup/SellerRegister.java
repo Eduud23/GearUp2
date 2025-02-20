@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +24,9 @@ public class SellerRegister extends AppCompatActivity {
 
     private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText;
     private Button registerButton;
+    private ImageButton locationButton;
+    private double selectedLatitude = 0.0;
+    private double selectedLongitude = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +48,25 @@ public class SellerRegister extends AppCompatActivity {
         addressEditText = findViewById(R.id.etaddress);
         servicesEditText = findViewById(R.id.etservices);
         registerButton = findViewById(R.id.btnregister);
+        locationButton = findViewById(R.id.imgAddress);
+
+        locationButton.setOnClickListener(v -> {
+            Intent intent = new Intent(SellerRegister.this, MapsActivity.class);
+            startActivityForResult(intent, 100);
+        });
 
         registerButton.setOnClickListener(v -> registerUser());
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
+            selectedLatitude = data.getDoubleExtra("latitude", 0);
+            selectedLongitude = data.getDoubleExtra("longitude", 0);
+            String locationText = "Lat: " + selectedLatitude + ", Lng: " + selectedLongitude;
+            addressEditText.setText(locationText);
+        }
     }
 
     private void registerUser() {
@@ -104,6 +126,8 @@ public class SellerRegister extends AppCompatActivity {
                         user.put("shopName", shopName);
                         user.put("address", address);
                         user.put("services", services);
+                        user.put("latitude", selectedLatitude);
+                        user.put("longitude", selectedLongitude);
                         user.put("role", "seller");
 
                         db.collection("sellers").document(userId).set(user)

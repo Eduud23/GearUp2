@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.cardview)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.firebase.messaging)
+    implementation(libs.play.services.maps)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -64,6 +65,9 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
 
     implementation ("org.apache.commons:commons-text:1.9")
+
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
 
 
 
