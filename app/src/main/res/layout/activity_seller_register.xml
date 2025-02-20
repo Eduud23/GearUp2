@@ -10,11 +10,12 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="50dp"
         android:paddingBottom="20dp">
+
 
         <!-- Header Text -->
         <TextView
@@ -199,7 +200,6 @@
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Address Input Field -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/addressLayout"
             android:layout_width="0dp"
@@ -223,6 +223,56 @@
                 android:inputType="textPostalAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Label: Pin Location -->
+        <TextView
+            android:id="@+id/tvPinLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pin Location"
+            android:textSize="16sp"
+            android:textColor="@color/grey"
+            app:layout_constraintTop_toBottomOf="@id/addressLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp" />
+
+        <!-- Image Button Below Address Field -->
+        <ImageButton
+            android:id="@+id/imgAddress"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@null"
+            android:src="@drawable/location"
+            android:contentDescription="Pin Location"
+            app:layout_constraintTop_toBottomOf="@id/tvPinLocation"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Services Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/servicesLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/imgAddress"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etservices"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Services Offered"
+                android:textColorHint="@color/grey"
+                android:imeOptions="actionNext"
+                android:textColor="@color/primary_text"
+                android:backgroundTint="@color/primary_light"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:inputType="textCapWords" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Register Button -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnregister"
@@ -237,11 +287,9 @@
             android:fontFamily="sans-serif-black"
             android:textStyle="bold"
             android:background="@drawable/password_btn"
-            app:layout_constraintTop_toBottomOf="@id/addressLayout"
+            app:layout_constraintTop_toBottomOf="@id/servicesLayout"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

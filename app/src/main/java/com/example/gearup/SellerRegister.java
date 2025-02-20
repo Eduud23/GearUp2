@@ -20,7 +20,7 @@ public class SellerRegister extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText;
+    private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText;
     private Button registerButton;
 
     @Override
@@ -41,6 +41,7 @@ public class SellerRegister extends AppCompatActivity {
         phoneEditText = findViewById(R.id.etphone);
         shopNameEditText = findViewById(R.id.etshop);
         addressEditText = findViewById(R.id.etaddress);
+        servicesEditText = findViewById(R.id.etservices);
         registerButton = findViewById(R.id.btnregister);
 
         registerButton.setOnClickListener(v -> registerUser());
@@ -55,6 +56,7 @@ public class SellerRegister extends AppCompatActivity {
         String phone = phoneEditText.getText().toString().trim();
         String shopName = shopNameEditText.getText().toString().trim();
         String address = addressEditText.getText().toString().trim();
+        String services = servicesEditText.getText().toString().trim();
 
         // Validate inputs
         if (TextUtils.isEmpty(email)) {
@@ -101,6 +103,7 @@ public class SellerRegister extends AppCompatActivity {
                         user.put("email", email);
                         user.put("shopName", shopName);
                         user.put("address", address);
+                        user.put("services", services);
                         user.put("role", "seller");
 
                         db.collection("sellers").document(userId).set(user)
