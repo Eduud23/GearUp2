@@ -223,7 +223,6 @@
                 android:inputType="textPostalAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Label: Pin Location -->
         <TextView
             android:id="@+id/tvPinLocation"
             android:layout_width="wrap_content"
@@ -233,8 +232,31 @@
             android:textColor="@color/grey"
             app:layout_constraintTop_toBottomOf="@id/addressLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="8dp" />
+
+        <!-- Latitude -->
+        <TextView
+            android:id="@+id/tvLatitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lat: --"
+            android:textSize="16sp"
+            android:textColor="@color/grey"
+            app:layout_constraintTop_toTopOf="@id/tvPinLocation"
+            app:layout_constraintStart_toEndOf="@id/tvPinLocation"
+            android:layout_marginStart="16dp" />
+
+        <!-- Longitude -->
+        <TextView
+            android:id="@+id/tvLongitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lng: --"
+            android:textSize="16sp"
+            android:textColor="@color/grey"
+            app:layout_constraintTop_toTopOf="@id/tvPinLocation"
+            app:layout_constraintStart_toEndOf="@id/tvLatitude"
+            android:layout_marginStart="16dp" />
 
         <!-- Image Button Below Address Field -->
         <ImageButton
@@ -246,8 +268,7 @@
             android:src="@drawable/location"
             android:contentDescription="Pin Location"
             app:layout_constraintTop_toBottomOf="@id/tvPinLocation"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Services Input Field -->
         <com.google.android.material.textfield.TextInputLayout

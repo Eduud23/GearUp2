@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -23,6 +24,7 @@ public class SellerRegister extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText;
+    private TextView tvLatitude, tvLongitude;
     private Button registerButton;
     private ImageButton locationButton;
     private double selectedLatitude = 0.0;
@@ -47,6 +49,8 @@ public class SellerRegister extends AppCompatActivity {
         shopNameEditText = findViewById(R.id.etshop);
         addressEditText = findViewById(R.id.etaddress);
         servicesEditText = findViewById(R.id.etservices);
+        tvLatitude = findViewById(R.id.tvLatitude);
+        tvLongitude = findViewById(R.id.tvLongitude);
         registerButton = findViewById(R.id.btnregister);
         locationButton = findViewById(R.id.imgAddress);
 
@@ -64,8 +68,9 @@ public class SellerRegister extends AppCompatActivity {
         if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
             selectedLatitude = data.getDoubleExtra("latitude", 0);
             selectedLongitude = data.getDoubleExtra("longitude", 0);
-            String locationText = "Lat: " + selectedLatitude + ", Lng: " + selectedLongitude;
-            addressEditText.setText(locationText);
+
+            tvLatitude.setText(String.valueOf(selectedLatitude));
+            tvLongitude.setText(String.valueOf(selectedLongitude));
         }
     }
 
@@ -112,9 +117,7 @@ public class SellerRegister extends AppCompatActivity {
         // Register user in Firebase Authentication
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    // Re-enable the button
                     registerButton.setEnabled(true);
-
                     if (task.isSuccessful()) {
                         // Store additional user info in Firestore
                         String userId = mAuth.getCurrentUser().getUid();
@@ -148,6 +151,6 @@ public class SellerRegister extends AppCompatActivity {
     private void navigateToLogin() {
         Intent intent = new Intent(SellerRegister.this, Login.class);
         startActivity(intent);
-        finish(); // Close registration activity
+        finish();
     }
 }
