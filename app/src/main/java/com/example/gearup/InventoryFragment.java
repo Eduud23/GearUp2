@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -191,9 +192,9 @@ public class InventoryFragment extends Fragment {
     }
 
     private void showAddProductDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_product, null);
-        builder.setView(dialogView);
+        bottomSheetDialog.setContentView(dialogView);
 
         // Initialize dialog views
         EditText productNameInput = dialogView.findViewById(R.id.et_product_name);
@@ -203,7 +204,7 @@ public class InventoryFragment extends Fragment {
         TextView tvRecommendPrice = dialogView.findViewById(R.id.tvRecommendPrice);
         EditText predictedPriceText = dialogView.findViewById(R.id.et_product_price);
         predictedPriceText.setEnabled(true); // Make it non-editable
-        EditText quantityInput = dialogView.findViewById(R.id.et_product_quantity);  // New quantity input field
+        EditText quantityInput = dialogView.findViewById(R.id.et_product_quantity);
 
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
         Button selectImageButton = dialogView.findViewById(R.id.btn_choose_image);
@@ -226,7 +227,6 @@ public class InventoryFragment extends Fragment {
             String brand = brandInput.getText().toString().trim().toLowerCase();
             String yearModelString = yearModelInput.getText().toString().trim();
 
-            // Validate year model input
             if (yearModelString.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter the year model.", Toast.LENGTH_SHORT).show();
                 return;
@@ -240,7 +240,6 @@ public class InventoryFragment extends Fragment {
                 return;
             }
 
-            // Create PriceRequest and call the API
             PriceRequest request = new PriceRequest(productName, brand, yearModel);
             priceApi.predictPrice(request).enqueue(new Callback<PriceResponse>() {
                 @Override
@@ -270,7 +269,6 @@ public class InventoryFragment extends Fragment {
             String category = categorySpinner.getSelectedItem().toString();
             String description = descriptionInput.getText().toString().trim();
 
-            // Get the quantity from the input field
             String quantityString = quantityInput.getText().toString().trim();
             if (quantityString.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter the quantity.", Toast.LENGTH_SHORT).show();
@@ -285,7 +283,6 @@ public class InventoryFragment extends Fragment {
                 return;
             }
 
-            // Validate year model again
             int yearModel;
             try {
                 yearModel = Integer.parseInt(yearModelString);
@@ -293,18 +290,19 @@ public class InventoryFragment extends Fragment {
                 Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            int views = 0; // Default initial views count
+
+            int views = 0;
             float stars = 0.0f;
 
-            // Upload images and save the product
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars);
+
+            bottomSheetDialog.dismiss(); // Dismiss the dialog after adding the product
         });
 
-        // Create and show the dialog
-        alertDialog = builder.create();
-        alertDialog.show();
+        bottomSheetDialog.show();
     }
+
 
 
     private void openImageChooser() {
