@@ -43,11 +43,16 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         // Set review text
         holder.reviewText.setText(review.getReviewText());
 
-        // Set star rating
-        holder.ratingBar.setRating((float)review.getStarRating());
-
-        // Set rating value text
-        holder.ratingValue.setText(String.format(Locale.getDefault(), "(%.1f)", review.getStarRating()));
+        // Set star rating and rating value
+        if (review.getStarRating() > 0) {
+            holder.ratingBar.setVisibility(View.VISIBLE);
+            holder.ratingBar.setRating((float) review.getStarRating());
+            holder.ratingValue.setVisibility(View.VISIBLE);
+            holder.ratingValue.setText(String.format(Locale.getDefault(), "(%.1f)", review.getStarRating()));
+        } else {
+            holder.ratingBar.setVisibility(View.GONE);
+            holder.ratingValue.setVisibility(View.GONE);
+        }
 
         // Set how long ago the review was made
         holder.reviewDate.setText(getTimeAgo(review.getTimestamp()));

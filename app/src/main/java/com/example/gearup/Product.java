@@ -18,6 +18,7 @@ public class Product implements Parcelable {
     private String yearModel; // Year model field
     private int views; // Number of views
     private double stars; // Average star rating
+    private int sold;
 
     // Default constructor
     public Product() {}
@@ -25,7 +26,7 @@ public class Product implements Parcelable {
     // Constructor with all parameters
     public Product(String id, String name, double price, String description, List<String> imageUrls,
                    String category, String sellerId, int quantity, String brand, String yearModel,
-                   int views, double stars) {
+                   int views, double stars, int sold) {
         this.id = id;
         this.name = name;
         this.price = price;
@@ -39,6 +40,7 @@ public class Product implements Parcelable {
         this.yearModel = yearModel;
         this.views = views;
         this.stars = stars;
+        this.sold=sold;
     }
 
     // Parcelable implementation
@@ -56,6 +58,7 @@ public class Product implements Parcelable {
         yearModel = in.readString();
         views = in.readInt();
         stars = in.readDouble();
+        sold =in.readInt();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -85,6 +88,7 @@ public class Product implements Parcelable {
         dest.writeString(yearModel);
         dest.writeInt(views);
         dest.writeDouble(stars);
+        dest.writeInt(sold);
     }
 
     @Override
@@ -199,5 +203,12 @@ public class Product implements Parcelable {
 
     public void setStars(float stars) {
         this.stars = stars;
+    }
+
+    public void setSold(int sold) {
+        this.sold = sold;
+    }
+    public int getSold(){
+        return sold;
     }
 }

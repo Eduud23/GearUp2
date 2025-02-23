@@ -47,10 +47,14 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+
 public class InventoryFragment extends Fragment {
+    private BottomSheetDialog bottomSheetDialog;
+    private View dialogView;
     private RecyclerView recyclerViewCategories;
     private CategoryAdapter categoryAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int REQUEST_CODE_PRODUCT_DETAILS = 2;
 
@@ -192,8 +196,8 @@ public class InventoryFragment extends Fragment {
     }
 
     private void showAddProductDialog() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_product, null);
+        bottomSheetDialog = new BottomSheetDialog(requireContext()); // Assign to class variable
+        dialogView = getLayoutInflater().inflate(R.layout.dialog_add_product, null);
         bottomSheetDialog.setContentView(dialogView);
 
         // Initialize dialog views
@@ -290,14 +294,17 @@ public class InventoryFragment extends Fragment {
                 Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            int sold = 0;
             int views = 0;
             float stars = 0.0f;
 
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars);
+            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars, sold);
 
-            bottomSheetDialog.dismiss(); // Dismiss the dialog after adding the product
+            // Safely dismiss the dialog
+            if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+                bottomSheetDialog.dismiss();
+            }
         });
 
         bottomSheetDialog.show();
@@ -318,29 +325,38 @@ public class InventoryFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK && data != null) {
             selectedImageUris.clear(); // Clear previous selections
+
             if (data.getClipData() != null) {
                 int count = Math.min(data.getClipData().getItemCount(), 3); // Limit to 3 images
                 for (int i = 0; i < count; i++) {
                     Uri selectedImageUri = data.getClipData().getItemAt(i).getUri();
                     selectedImageUris.add(selectedImageUri);
-                    ImageView productImage = alertDialog.findViewById(getImageViewId(i));
-                    if (productImage != null) {
-                        productImage.setVisibility(View.VISIBLE);
-                        Glide.with(this).load(selectedImageUri).into(productImage);
+
+                    if (dialogView != null) {
+                        ImageView productImage = dialogView.findViewById(getImageViewId(i));
+                        if (productImage != null) {
+                            productImage.setVisibility(View.VISIBLE); // Make it visible
+                            Glide.with(this).load(selectedImageUri).into(productImage);
+                        }
                     }
                 }
             } else if (data.getData() != null) {
-                // Handle single image selection
                 Uri selectedImageUri = data.getData();
                 selectedImageUris.add(selectedImageUri);
-                ImageView productImage = alertDialog.findViewById(R.id.iv_product_image1);
-                if (productImage != null) {
-                    productImage.setVisibility(View.VISIBLE);
-                    Glide.with(this).load(selectedImageUri).into(productImage);
+
+                if (dialogView != null) {
+                    ImageView productImage = dialogView.findViewById(R.id.iv_product_image1);
+                    if (productImage != null) {
+                        productImage.setVisibility(View.VISIBLE); // Make it visible
+                        Glide.with(this).load(selectedImageUri).into(productImage);
+                    }
                 }
             }
         }
     }
+
+
+
 
     private int getImageViewId(int index) {
         switch (index) {
@@ -351,7 +367,7 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris, int views, float stars) {
+    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris, int views, float stars,int sold) {
         List<String> imageUrls = new ArrayList<>();
         StorageReference storageRef = storage.getReference().child("products/" + userId);
 
@@ -364,7 +380,7 @@ public class InventoryFragment extends Fragment {
                     imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         imageUrls.add(uri.toString());
                         if (imageUrls.size() == selectedImageUris.size()) {
-                            saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls, views, stars);
+                            saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls, views, stars, sold);
                         }
                     });
                 }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
@@ -372,12 +388,16 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void saveProductToFirestore(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<String> imageUrls, int views, float stars) {
+    private void saveProductToFirestore(
+            String userId, String name, double price, String description, int quantity,
+            String category, String brand, String yearModel, List<String> imageUrls,
+            int views, float stars, int sold) {
+
         Product newProduct = new Product(
-                null, // id can be null initially
+                null, // ID can be null initially
                 name,
                 price,
-                description, // Store the description
+                description,
                 imageUrls,
                 category,
                 userId,
@@ -385,7 +405,8 @@ public class InventoryFragment extends Fragment {
                 brand,
                 yearModel,
                 views,
-                stars
+                stars,
+                sold
         );
 
         db.collection("users").document(userId)
@@ -393,11 +414,21 @@ public class InventoryFragment extends Fragment {
                 .add(newProduct)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(getContext(), "Product added successfully", Toast.LENGTH_SHORT).show();
-                    alertDialog.dismiss();
+
+                    // ✅ Check if alertDialog is not null before dismissing
+                    if (alertDialog != null && alertDialog.isShowing()) {
+                        alertDialog.dismiss();
+                    }
+
+                    // ✅ If using bottomSheetDialog, ensure it's dismissed safely
+                    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+                        bottomSheetDialog.dismiss();
+                    }
+
                     refreshProductList(); // Refresh the product list
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error adding product", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error adding product: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 

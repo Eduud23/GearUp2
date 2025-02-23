@@ -32,6 +32,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 
@@ -44,6 +46,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel, tvAverageRating;
     private Button addToCartButton, checkoutButton, addReviewButton;
     private EditText productQuantity;
+    private ListenerRegistration reviewsListener;
     private ViewPager2 viewPager;
     private ImageView sellerProfileImage;
     private RecyclerView rvReviews;
@@ -311,16 +314,24 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             String reviewText = editTextReview.getText().toString().trim();
             float rating = ratingBar.getRating();
 
-            if (!reviewText.isEmpty() && rating > 0 && product != null && product.getId() != null && product.getSellerId() != null) {
+            // Prevent submission if both fields are empty
+            if (reviewText.isEmpty() && rating == 0) {
+                Toast.makeText(this, "Please enter a review or select a rating", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (product != null && product.getId() != null && product.getSellerId() != null) {
                 submitReview(reviewText, rating, product.getId(), product.getSellerId());
                 dialog.dismiss();
             } else {
-                Toast.makeText(this, "Please enter a review and select a rating", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Invalid product or seller ID", Toast.LENGTH_SHORT).show();
             }
         });
 
         dialog.show();
     }
+
+
 
     private void submitReview(String reviewText, float rating, String productId, String sellerId) {
         if (productId == null || productId.isEmpty() || sellerId == null || sellerId.isEmpty()) {
@@ -390,7 +401,8 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                         })
                         .addOnFailureListener(e ->
                                 Toast.makeText(this, "Failed to update review", Toast.LENGTH_SHORT).show());
-            } else {
+            }
+            else {
                 // Add a new review
                 reviewRef.set(review)
                         .addOnSuccessListener(aVoid -> {
@@ -494,23 +506,42 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             return;
         }
 
-        db.collection("productsreview")
+        // Remove any existing listener to prevent duplicate listeners
+        if (reviewsListener != null) {
+            reviewsListener.remove();
+        }
+
+        // Set up a real-time listener
+        reviewsListener = db.collection("productsreview")
                 .document(productId)  // This points to the product document
-                .collection("reviews")  // This points to the reviews collection within the product document
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .collection("reviews")  // This points to the reviews collection
+                .orderBy("timestamp", Query.Direction.DESCENDING) // Order reviews by timestamp (newest first)
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots == null) return;
+
                     List<Review> reviews = new ArrayList<>();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         Review review = document.toObject(Review.class);
                         reviews.add(review);
                     }
-                    // Set the RecyclerView adapter to display the reviews
+
+                    // Update the RecyclerView adapter dynamically
                     ReviewAdapter reviewsAdapter = new ReviewAdapter(reviews);
                     rvReviews.setAdapter(reviewsAdapter);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
                 });
     }
 
+    // Call this method in onDestroy() to avoid memory leaks
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (reviewsListener != null) {
+            reviewsListener.remove();
+        }
+    }
 }
