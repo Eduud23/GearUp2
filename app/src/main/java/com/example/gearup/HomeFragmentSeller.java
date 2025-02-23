@@ -290,16 +290,22 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             db.collection("sellers").document(sellerId).get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document != null && document.exists()) {
+                    if (document.exists()) {
                         String profileImageUrl = document.getString("profileImageUrl");
-                        if (profileImageUrl != null) {
-                            product.setSellerProfileImageUrl(profileImageUrl);
-                        }
+                        product.setSellerProfileImageUrl(profileImageUrl);
+                        notifyAdapters();
                     }
                 }
             });
         }
     }
+    private void notifyAdapters() {
+        adapterCentralComponents.notifyDataSetChanged();
+        adapterBody.notifyDataSetChanged();
+        adapterConnectors.notifyDataSetChanged();
+        adapterPeripherals.notifyDataSetChanged();
+    }
+
 
     private void countUnreadMessages(String currentUserId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
