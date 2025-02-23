@@ -26,19 +26,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
 public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
@@ -52,7 +51,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private String sellerId;
     private String currentUserId;
     private Product product;
-    private ImageButton ratingBtn;
     private FirebaseFirestore db;
 
     @SuppressLint("MissingInflatedId")
@@ -74,14 +72,15 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         addReviewButton = findViewById(R.id.btn_add_review);
         rvReviews = findViewById(R.id.rv_reviews);
-        ratingBtn = findViewById(R.id.ratingBtn);
         tvAverageRating = findViewById(R.id.tv_average_rating);
-
         productBrand = findViewById(R.id.tv_product_brand);
         productYearModel = findViewById(R.id.tv_product_year_model);
 
+
+
+
         db = FirebaseFirestore.getInstance();
-        String productId = getIntent().getStringExtra("productId");
+
 
         // Get the current user's ID and role
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -104,9 +103,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             // Retrieve seller info from Firestore
             sellerId = product.getSellerId();
             getSellerInfo(sellerId);
-
-            // **Immediately load the average rating when the activity starts**
-            getAverageRating(product.getId(), sellerId);
 
             loadReviews(product.getId());
         } else {
@@ -131,7 +127,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
 
-    AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
+        AppCompatImageButton btnPrevious = findViewById(R.id.btn_previous);
         AppCompatImageButton btnNext = findViewById(R.id.btn_next);
 
         // Set up button listeners
@@ -141,9 +137,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(currentItem - 1, true); // Move to the previous image
             }
         });
-        ratingBtn.setOnClickListener(v -> {
-            showRatingDialog();
-        });
+
 
         btnNext.setOnClickListener(v -> {
             int currentItem = viewPager.getCurrentItem();
@@ -153,165 +147,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             }
         });
     }
-
-    private void showRatingDialog() {
-        // Inflate the custom dialog layout
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_rating, null);
-
-        // Create the dialog
-        Dialog dialog = new Dialog(ProductDetailsBuyerActivity.this);
-        dialog.setContentView(dialogView);
-
-        // Find the RatingBar and Button from the dialog layout
-        RatingBar ratingBar = dialogView.findViewById(R.id.dialogRatingBar);
-        Button submitButton = dialogView.findViewById(R.id.buttonSubmitRating);
-
-        // Set up the Submit button to handle the rating
-        submitButton.setOnClickListener(v -> {
-            float rating = ratingBar.getRating();
-            // Call submitRating to store the data in Firestore
-            submitRating(rating, product.getId());  // Assuming product.getId() is the product ID
-            dialog.dismiss(); // Dismiss the dialog after submission
-        });
-
-        // Show the dialog
-        dialog.show();
-    }
-
-    private void submitRating(float rating, String productId) {
-        if (productId == null || productId.isEmpty()) {
-            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (rating <= 0) {
-            Toast.makeText(this, "Please provide a rating", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (currentUserId == null || currentUserId.isEmpty()) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Map<String, Object> ratingData = new HashMap<>();
-        ratingData.put("rating", rating);
-        ratingData.put("productId", productId);
-        ratingData.put("userId", currentUserId);
-        ratingData.put("timestamp", FieldValue.serverTimestamp());
-
-        db.collection("star")
-                .document(currentUserId + "_" + productId)
-                .set(ratingData)
-                .addOnSuccessListener(aVoid -> {
-                    updateAverageRating(productId); // Update average after submission
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to submit rating", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-
-
-    private void updateAverageRating(String productId) {
-        db.collection("star")
-                .whereEqualTo("productId", productId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    double totalRating = 0;
-                    int count = 0;
-
-                    // Sum up all the ratings
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Double rating = document.getDouble("rating");
-                        if (rating != null) {
-                            totalRating += rating;
-                            count++;
-                        }
-                    }
-
-                    // Calculate average rating if count > 0
-                    if (count > 0) {
-                        double averageRating = totalRating / count;
-                        saveAverageRating(productId, averageRating); // Store the average
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to calculate average rating", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-
-
-    private void saveAverageRating(String productId, double averageRating) {
-        String sellerPath = "users/" + sellerId + "/products/" + productId;
-        db.document(sellerPath)
-                .update("stars", averageRating)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Rating updated successfully", Toast.LENGTH_SHORT).show();
-                    tvAverageRating.setText(String.format("%.1f", averageRating)); // Update the displayed rating
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to update rating", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-
-    private void getAverageRating(String productId, String sellerId) {
-        if (sellerId == null || sellerId.isEmpty()) {
-            Log.e("FirestoreDebug", "Seller ID is null or empty!");
-            return;
-        }
-
-        // Fetch the average rating immediately when the activity loads
-        db.collection("users")
-                .document(sellerId)
-                .collection("products")
-                .document(productId)
-                .get() // Use `get()` for immediate fetch
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot != null && documentSnapshot.exists()) {
-                        Double averageRating = documentSnapshot.getDouble("stars");
-                        if (averageRating != null) {
-                            tvAverageRating.setText(String.format("%.1f", averageRating)); // Display the rating immediately
-                        } else {
-                            tvAverageRating.setText("No Ratings Yet"); // Fallback message if no rating exists
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FirestoreDebug", "Failed to fetch rating", e);
-                    Toast.makeText(ProductDetailsBuyerActivity.this, "Failed to get rating", Toast.LENGTH_SHORT).show();
-                    tvAverageRating.setText("N/A"); // Fallback in case of failure
-                });
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private void checkUserRole(String userId) {
         db.collection("buyers").document(userId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -463,58 +298,55 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private void showReviewDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_review, null);
         EditText editTextReview = dialogView.findViewById(R.id.editTextReview);
+        RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
         Button buttonSubmitReview = dialogView.findViewById(R.id.buttonSubmitReview);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
-                .setTitle("Add a Review")
+                .setTitle("Add or Update Review")
                 .setCancelable(true)
                 .create();
 
         buttonSubmitReview.setOnClickListener(v -> {
             String reviewText = editTextReview.getText().toString().trim();
-            if (!reviewText.isEmpty() && product != null && product.getId() != null) {
-                submitReview(reviewText, product.getId());
+            float rating = ratingBar.getRating();
+
+            if (!reviewText.isEmpty() && rating > 0 && product != null && product.getId() != null && product.getSellerId() != null) {
+                submitReview(reviewText, rating, product.getId(), product.getSellerId());
                 dialog.dismiss();
             } else {
-                Toast.makeText(this, "Please enter a review", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please enter a review and select a rating", Toast.LENGTH_SHORT).show();
             }
         });
 
         dialog.show();
     }
 
-    private void submitReview(String reviewText, String productId) {
-        if (productId == null || productId.isEmpty()) {
-            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
+    private void submitReview(String reviewText, float rating, String productId, String sellerId) {
+        if (productId == null || productId.isEmpty() || sellerId == null || sellerId.isEmpty()) {
+            Toast.makeText(this, "Invalid product or seller ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // First, get the user profile information before creating the review
-        getUserProfileInfoForReview(reviewText, productId);
+        getUserProfileInfoForReview(reviewText, rating, productId, sellerId);
     }
 
-    private void getUserProfileInfoForReview(final String reviewText, final String productId) {
-        // Retrieve the current user's ID
+    private void getUserProfileInfoForReview(final String reviewText, final float rating, final String productId, final String sellerId) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // First, check if the user is a buyer
         db.collection("buyers").document(userId).get()
                 .addOnSuccessListener(buyerDoc -> {
                     if (buyerDoc.exists()) {
-                        // If the user is a buyer, retrieve their firstName, lastName, and profileImageUrl
                         String firstName = buyerDoc.getString("firstName");
                         String lastName = buyerDoc.getString("lastName");
                         String profileImageUrl = buyerDoc.getString("profileImageUrl");
 
-                        // Create the review with buyer's info
-                        Review review = new Review(reviewText, userId, firstName + " " + lastName, profileImageUrl);
+                        Timestamp timestamp = Timestamp.now();
 
-                        // Submit the review to Firestore
-                        submitReviewToFirestore(review, productId);
+                        Review review = new Review(reviewText, rating, userId, firstName + " " + lastName, profileImageUrl, timestamp);
+                        submitReviewToFirestore(review, productId, sellerId);
                     } else {
-                        // If not a buyer, check if the user is a seller
-                        getSellerProfileInfoForReview(reviewText, productId, userId);
+                        getSellerProfileInfoForReview(reviewText, rating, productId, sellerId, userId);
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -522,22 +354,18 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 });
     }
 
-    private void getSellerProfileInfoForReview(final String reviewText, final String productId, final String userId) {
-        // Check if the user is a seller
+    private void getSellerProfileInfoForReview(final String reviewText, final float rating, final String productId, final String sellerId, final String userId) {
         db.collection("sellers").document(userId).get()
                 .addOnSuccessListener(sellerDoc -> {
                     if (sellerDoc.exists()) {
-                        // If the user is a seller, retrieve their shopName and profileImageUrl
                         String shopName = sellerDoc.getString("shopName");
                         String profileImageUrl = sellerDoc.getString("profileImageUrl");
 
-                        // Create the review with seller's info
-                        Review review = new Review(reviewText, userId, shopName, profileImageUrl);
+                        Timestamp timestamp = Timestamp.now();
 
-                        // Submit the review to Firestore
-                        submitReviewToFirestore(review, productId);
+                        Review review = new Review(reviewText, rating, userId, shopName, profileImageUrl, timestamp);
+                        submitReviewToFirestore(review, productId, sellerId);
                     } else {
-                        // Handle case where the user is neither a buyer nor a seller
                         Toast.makeText(this, "Unable to identify the user as buyer or seller", Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -546,26 +374,119 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 });
     }
 
-    private void submitReviewToFirestore(Review review, String productId) {
-        if (productId == null || productId.isEmpty()) {
-            Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    private void submitReviewToFirestore(final Review review, final String productId, final String sellerId) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        // Store the review in Firestore
-        db.collection("productsreview")  // Correct path to reviews collection
-                .document(productId)
+        DocumentReference reviewRef = db.collection("productsreview").document(productId)
+                .collection("reviews").document(userId);
+
+        reviewRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Update the existing review
+                reviewRef.set(review, SetOptions.merge())
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Review updated successfully!", Toast.LENGTH_SHORT).show();
+                            updateAverageRating(productId, sellerId);
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to update review", Toast.LENGTH_SHORT).show());
+            } else {
+                // Add a new review
+                reviewRef.set(review)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Review submitted successfully!", Toast.LENGTH_SHORT).show();
+                            updateAverageRating(productId, sellerId);
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private void updateAverageRating(String productId, String sellerId) {
+        db.collection("productsreview").document(productId)
                 .collection("reviews")
-                .add(review)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Review submitted successfully", Toast.LENGTH_SHORT).show();
-                    loadReviews(productId);  // Reload reviews after submitting
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    double totalRating = 0;
+                    int count = 0;
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Double rating = document.getDouble("starRating");
+                        Log.d("FirestoreDebug", "Rating found: " + rating); // Debugging log
+                        if (rating != null) {
+                            totalRating += rating;
+                            count++;
+                        }
+                    }
+
+                    if (count > 0) {
+                        double averageRating = totalRating / count;
+                        Log.d("FirestoreDebug", "Calculated average: " + averageRating);
+                        saveAverageRating(productId, sellerId, averageRating);
+                        // Set the average rating to tvAverageRating TextView
+                        tvAverageRating.setText(String.format("%.2f", averageRating));
+                    } else {
+                        Log.d("FirestoreDebug", "No ratings found");
+                        tvAverageRating.setText("No ratings yet");
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to submit review", Toast.LENGTH_SHORT).show();
+                    Log.e("FirestoreDebug", "Failed to calculate average rating", e);
                 });
     }
 
+    private void saveAverageRating(String productId, String sellerId, double averageRating) {
+        String sellerPath = "users/" + sellerId + "/products/" + productId;
+        Log.d("FirestoreDebug", "Updating stars in path: " + sellerPath + " with " + averageRating);
+
+        db.document(sellerPath)
+                .update("stars", averageRating)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("FirestoreDebug", "Rating successfully updated: " + averageRating);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreDebug", "Failed to update rating", e);
+                });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (product != null && product.getId() != null) {
+            loadAverageRating(product.getId());  // Reload average rating
+        }
+    }
+
+    private void loadAverageRating(String productId) {
+        db.collection("productsreview")
+                .document(productId)  // This points to the product document
+                .collection("reviews")  // This points to the reviews collection
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    double totalRating = 0;
+                    int count = 0;
+
+                    // Loop through all reviews to calculate the total rating
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Double rating = document.getDouble("starRating");
+                        if (rating != null) {
+                            totalRating += rating;
+                            count++;
+                        }
+                    }
+
+                    // Calculate and display the average rating
+                    if (count > 0) {
+                        double averageRating = totalRating / count;
+                        tvAverageRating.setText(String.format("%.2f", averageRating));
+                    } else {
+                        tvAverageRating.setText("No ratings yet");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to load average rating", Toast.LENGTH_SHORT).show();
+                });
+    }
 
     private void loadReviews(String productId) {
         if (productId == null || productId.isEmpty()) {
