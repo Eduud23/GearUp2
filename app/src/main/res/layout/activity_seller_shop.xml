@@ -120,6 +120,10 @@
                 android:layout_height="wrap_content"
                 android:text="Tech City"
                 android:textSize="18sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColorLink="#3153fd"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tv_address_label"
                 app:layout_constraintTop_toBottomOf="@id/tv_shop_name" />
@@ -147,6 +151,50 @@
                 android:textColor="@color/black"
                 app:layout_constraintStart_toEndOf="@id/tv_phone_number_label"
                 app:layout_constraintTop_toBottomOf="@id/tv_address"/>
+            <!-- Sold Products Count -->
+            <TextView
+                android:id="@+id/tv_sold_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sold:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_number" />
+
+            <TextView
+                android:id="@+id/tv_sold_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/tv_sold_label"
+                app:layout_constraintTop_toBottomOf="@id/tv_phone_number" />
+
+            <!-- Review Count -->
+            <TextView
+                android:id="@+id/tv_review_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reviews:"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_sold_count" />
+
+            <TextView
+                android:id="@+id/tv_review_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toEndOf="@id/tv_review_label"
+                app:layout_constraintTop_toBottomOf="@id/tv_sold_count" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -132,6 +132,8 @@ public class SellerRegister extends AppCompatActivity {
                         user.put("latitude", selectedLatitude);
                         user.put("longitude", selectedLongitude);
                         user.put("role", "seller");
+                        user.put("sold", 0);
+                        user.put("review", 0.0);
 
                         db.collection("sellers").document(userId).set(user)
                                 .addOnCompleteListener(task1 -> {

@@ -150,31 +150,51 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // Set shop name
-                        String shopName = documentSnapshot.getString("shopName");
-                        shopNameTextView.setText(shopName != null ? shopName : "Shop name not found");
-
-                        // Set profile image
-                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
-                        Glide.with(this)
-                                .load(profileImageUrl)
-                                .placeholder(R.drawable.gear)
-                                .into(profileImageView);
-
-                        // Set phone number
+                        shopNameTextView.setText(documentSnapshot.getString("shopName"));
                         phoneNumberTextView.setText(documentSnapshot.getString("phone"));
-
-                        // Set address
                         addressTextView.setText(documentSnapshot.getString("address"));
+
+                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                        Glide.with(this).load(profileImageUrl).placeholder(R.drawable.gear).into(profileImageView);
+
+                        // Get latitude & longitude
+                        Double latitude = documentSnapshot.getDouble("latitude");
+                        Double longitude = documentSnapshot.getDouble("longitude");
+
+                        // Set click listener on address to open map
+                        addressTextView.setOnClickListener(v -> {
+                            Intent intent = new Intent(SellerShopActivity.this, ShopPinLocation.class);
+                            intent.putExtra("latitude", latitude);
+                            intent.putExtra("longitude", longitude);
+                            startActivity(intent);
+                        });
+
+                        // Sold & Review Count
+                        Long soldCount = documentSnapshot.getLong("sold");
+                        TextView soldCountTextView = findViewById(R.id.tv_sold_count);
+                        soldCountTextView.setText(soldCount != null ? String.valueOf(soldCount) : "0");
+
+                        db.collection("sellers").document(sellerId).collection("review")
+                                .get()
+                                .addOnSuccessListener(reviewSnapshots -> {
+                                    int reviewCount = reviewSnapshots.size();
+                                    TextView reviewCountTextView = findViewById(R.id.tv_review_count);
+                                    reviewCountTextView.setText(String.valueOf(reviewCount));
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
+                                });
+
                     } else {
                         Toast.makeText(this, "Shop not found", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error getting shop info", Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
                 });
     }
+
+
 
     private void loadSellerProducts(String sellerId, String category) {
         if (category.equals("All")) {

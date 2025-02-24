@@ -60,8 +60,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         }
     }
     public void updateList(List<Product> updatedList) {
-        this.productList = updatedList; // Replace the current list
-        notifyDataSetChanged(); // Notify adapter about the data change
+        this.productList = updatedList;
+        notifyDataSetChanged();
     }
 
 
