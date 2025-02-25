@@ -8,4 +8,37 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         class="com.google.android.gms.maps.SupportMapFragment" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:elevation="8dp">
+
+        <TextView
+            android:id="@+id/distance_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Distance: "
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:padding="8dp"
+            android:gravity="center" />
+
+        <Button
+            android:id="@+id/go_now_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go Now"
+            android:textSize="18sp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:textColor="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
 </RelativeLayout>
