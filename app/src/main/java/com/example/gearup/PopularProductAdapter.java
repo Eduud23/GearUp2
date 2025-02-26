@@ -60,6 +60,13 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
             holder.productContainer2.setVisibility(View.INVISIBLE);
         }
     }
+    public void updateProducts(List<PopularProduct> newProducts) {
+        this.productList.clear();
+        this.productList.addAll(newProducts);
+        notifyDataSetChanged();
+    }
+
+
 
     @Override
     public int getItemCount() {

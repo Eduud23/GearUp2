@@ -69,6 +69,7 @@
             android:textSize="16sp"
             android:padding="4dp" />
 
+        <!-- View on eBay Button -->
         <Button
             android:id="@+id/view_on_ebay_button"
             android:layout_width="wrap_content"
@@ -80,6 +81,24 @@
             android:backgroundTint="@android:color/holo_blue_dark"
             android:textColor="@android:color/white"
             android:layout_gravity="center" />
+
+        <!-- Similar Products Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Similar Products"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingTop="24dp"
+            android:paddingBottom="8dp"
+            android:textAlignment="center" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/similar_products_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:scrollbars="none" />
 
     </LinearLayout>
 </ScrollView>
