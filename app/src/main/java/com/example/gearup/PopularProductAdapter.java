@@ -16,9 +16,15 @@ import java.util.List;
 public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAdapter.ProductViewHolder> {
 
     private List<PopularProduct> productList;
+    private OnItemClickListener onItemClickListener;
 
-    public PopularProductAdapter(List<PopularProduct> products) {
+    public interface OnItemClickListener {
+        void onItemClick(PopularProduct product);
+    }
+
+    public PopularProductAdapter(List<PopularProduct> products, OnItemClickListener listener) {
         this.productList = products;
+        this.onItemClickListener = listener;
     }
 
     @NonNull
@@ -30,7 +36,6 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        // Each page holds TWO products
         int firstIndex = position * 2;
         int secondIndex = firstIndex + 1;
 
@@ -39,21 +44,26 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         holder.priceTextView1.setText(firstProduct.getPrice());
         Glide.with(holder.itemView.getContext()).load(firstProduct.getImageUrl()).into(holder.productImageView1);
 
-        // Check if there's a second product to display
+        // Click listener for the first product
+        holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(firstProduct));
+
         if (secondIndex < productList.size()) {
             PopularProduct secondProduct = productList.get(secondIndex);
             holder.titleTextView2.setText(secondProduct.getTitle());
             holder.priceTextView2.setText(secondProduct.getPrice());
             Glide.with(holder.itemView.getContext()).load(secondProduct.getImageUrl()).into(holder.productImageView2);
+
+            // Click listener for the second product
+            holder.productContainer2.setVisibility(View.VISIBLE);
+            holder.productContainer2.setOnClickListener(v -> onItemClickListener.onItemClick(secondProduct));
         } else {
-            // Hide the second product if there's only one left
             holder.productContainer2.setVisibility(View.INVISIBLE);
         }
     }
 
     @Override
     public int getItemCount() {
-        return (int) Math.ceil(productList.size() / 2.0); // Divide total products by 2 for pages
+        return (int) Math.ceil(productList.size() / 2.0);
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
@@ -70,7 +80,6 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
             titleTextView2 = itemView.findViewById(R.id.product_title_2);
             priceTextView2 = itemView.findViewById(R.id.product_price_2);
             productImageView2 = itemView.findViewById(R.id.product_image_2);
-
             productContainer2 = itemView.findViewById(R.id.product_container_2);
         }
     }
