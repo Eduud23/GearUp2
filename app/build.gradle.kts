@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.firebase.messaging)
     implementation(libs.play.services.maps)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -56,6 +57,11 @@ dependencies {
     implementation ("com.stripe:stripe-java:22.2.0")
     implementation ("com.stripe:stripe-android:17.2.0")
     implementation ("com.android.volley:volley:1.2.1")
+
+
+    implementation ("com.google.firebase:firebase-database:20.3.0")
+    implementation ("com.google.firebase:firebase-auth:22.1.2")
+
 
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -68,7 +74,6 @@ dependencies {
 
     implementation ("com.google.android.gms:play-services-maps:18.1.0")
     implementation ("com.google.android.gms:play-services-location:21.0.1")
-
     implementation ("com.google.maps.android:android-maps-utils:2.3.0")
 
 

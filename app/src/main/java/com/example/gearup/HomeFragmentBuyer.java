@@ -15,6 +15,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -303,7 +306,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     public void onProductClick(int position, String category) {
         Product clickedProduct;
 
-        // Determine which list the clicked product belongs to
         if (category.equals("Central Components")) {
             clickedProduct = centralComponentsList.get(position);
         } else if (category.equals("Body")) {
@@ -314,14 +316,27 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             clickedProduct = peripheralsList.get(position);
         }
 
-        // Start ProductDetailsBuyerActivity with the clicked product
+        // Get current user ID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            UserInteractionLogger.logProductClick(
+                    userId,
+                    clickedProduct.getId(),
+                    clickedProduct.getName(),
+                    clickedProduct.getCategory()
+            );
+        } else {
+            Log.e("FirebaseDebug", "❌ User not authenticated. Cannot log interaction.");
+        }
+
+        // Open product details
         Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
-
-        // Pass the clicked product to the activity
-        intent.putExtra("PRODUCT", clickedProduct);  // Assuming Product implements Parcelable
-
-        // Start the activity
+        intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }
+
+
+
 
 }
