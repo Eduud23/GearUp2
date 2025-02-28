@@ -25,29 +25,51 @@ public class UserInteractionLogger {
             return;
         }
 
-        // Ensure Firebase is initialized
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://gearup-df833-default-rtdb.asia-southeast1.firebasedatabase.app/");
-        DatabaseReference dbRef = database.getReference("user_interactions");
+        DatabaseReference dbRef = database.getReference("user_interactions").child(userId).child(productId);
 
         Log.d(TAG, "🔥 Database Path: " + dbRef.toString());
 
-        // Generate timestamp
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Create interaction object
         Map<String, Object> interaction = new HashMap<>();
         interaction.put("productId", productId);
         interaction.put("productName", productName);
         interaction.put("category", category);
         interaction.put("timestamp", timestamp);
 
-        // Save to Firebase
-        dbRef.child(userId).push().setValue(interaction)
+        dbRef.setValue(interaction)  // Overwrites existing data for the same productId
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Interaction logged successfully!"))
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to log interaction: " + e.getMessage(), e));
     }
 
-    // Helper method to log the current user ID
+    public static void logReviewInteraction(String userId, String productId, String sellerId, String reviewText, float rating) {
+        if (userId == null || userId.isEmpty()) {
+            Log.e(TAG, "❌ Error: User ID is null or empty. Cannot log review.");
+            return;
+        }
+        if (productId == null || productId.isEmpty()) {
+            Log.e(TAG, "❌ Error: Product ID is null or empty. Cannot log review.");
+            return;
+        }
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://gearup-df833-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        DatabaseReference dbRef = database.getReference("user_reviews").child(userId).child(productId);
+
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        Map<String, Object> reviewData = new HashMap<>();
+        reviewData.put("productId", productId);
+        reviewData.put("sellerId", sellerId);
+        reviewData.put("reviewText", reviewText);
+        reviewData.put("rating", rating);
+        reviewData.put("timestamp", timestamp);
+
+        dbRef.setValue(reviewData)  // Overwrites existing review for the same productId
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Review interaction logged successfully!"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to log review interaction: " + e.getMessage(), e));
+    }
+
     public static String getCurrentUserId() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {

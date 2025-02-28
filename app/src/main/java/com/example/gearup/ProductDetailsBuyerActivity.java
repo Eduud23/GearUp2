@@ -339,6 +339,12 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             return;
         }
 
+        // Log the review interaction
+        String userId = UserInteractionLogger.getCurrentUserId();
+        if (userId != null) {
+            UserInteractionLogger.logReviewInteraction(userId, productId, sellerId, reviewText, rating);
+        }
+
         getUserProfileInfoForReview(reviewText, rating, productId, sellerId);
     }
 
