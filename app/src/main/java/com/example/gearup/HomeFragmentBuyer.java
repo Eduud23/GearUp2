@@ -97,8 +97,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             transaction.addToBackStack(null); // Optional, allows user to go back to the HomeFragment
             transaction.commit();
         });
-
-        // Click listeners for See All buttons
+        
         // Click listeners for See All buttons
         textSeeAllConnectors.setOnClickListener(v -> {
             // Pass the connectors list to ConnectorsActivity
