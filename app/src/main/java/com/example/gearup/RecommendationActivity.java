@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecommendationActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;
+  /*  private RecyclerView recyclerView;
     private RecommendationAdapter recommendationAdapter;
     private static final String TAG = "RecommendationActivity";
     private FirebaseFirestore db;
@@ -84,5 +84,5 @@ public class RecommendationActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error fetching products", e));
     }
-
+*/
 }
