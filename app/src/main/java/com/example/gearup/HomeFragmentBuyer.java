@@ -259,42 +259,6 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         Log.d("HomeFragmentBuyer", "Total products loaded: " + (centralComponentsList.size() + bodyList.size() + connectorsList.size() + peripheralsList.size()));
     }
 
-    private void filterProducts(String query) {
-        List<Product> filteredCentralComponents = new ArrayList<>();
-        List<Product> filteredBody = new ArrayList<>();
-        List<Product> filteredConnectors = new ArrayList<>();
-        List<Product> filteredPeripherals = new ArrayList<>();
-
-        for (Product product : centralComponentsList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredCentralComponents.add(product);
-            }
-        }
-
-        for (Product product : bodyList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredBody.add(product);
-            }
-        }
-
-        for (Product product : connectorsList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredConnectors.add(product);
-            }
-        }
-
-        for (Product product : peripheralsList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredPeripherals.add(product);
-            }
-        }
-
-        adapterCentralComponents.updateProductList(filteredCentralComponents);
-        adapterBody.updateProductList(filteredBody);
-        adapterConnectors.updateProductList(filteredConnectors);
-        adapterPeripherals.updateProductList(filteredPeripherals);
-    }
-
     private void loadSellerProfile(Product product) {
         String sellerId = product.getSellerId();
         if (sellerId != null) {

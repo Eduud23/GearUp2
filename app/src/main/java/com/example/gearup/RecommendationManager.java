@@ -1,7 +1,6 @@
 package com.example.gearup;
 
 import android.util.Log;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
@@ -52,8 +51,10 @@ public class RecommendationManager {
                             Double priceValue = productDoc.getDouble("price");
                             double price = (priceValue != null) ? priceValue : 0.0;
                             String description = productDoc.getString("description");
+                            String brand = productDoc.getString("brand");
+                            String yearModel = productDoc.getString("yearModel");
                             List<String> imageUrls = (List<String>) productDoc.get("imageUrls");
-                            String sellerId = productDoc.getString("sellerId"); // Assuming sellerId is stored in product
+                            String sellerId = productDoc.getString("sellerId");
 
                             if (name != null && description != null && imageUrls != null && !imageUrls.isEmpty() && sellerId != null) {
                                 Product product = new Product();
@@ -61,6 +62,8 @@ public class RecommendationManager {
                                 product.setName(name);
                                 product.setPrice(price);
                                 product.setDescription(description);
+                                product.setBrand(brand);
+                                product.setYearModel(yearModel);
                                 product.setImageUrls(imageUrls);
                                 product.setSellerId(sellerId);
 
@@ -88,7 +91,7 @@ public class RecommendationManager {
         int[] remainingRequests = {products.size()};
 
         for (Product product : products) {
-            db.collection("sellers").document(product.getSellerId()) // Fetch seller data from "sellers"
+            db.collection("sellers").document(product.getSellerId())
                     .get()
                     .addOnSuccessListener(userDoc -> {
                         if (userDoc.exists()) {
@@ -116,5 +119,4 @@ public class RecommendationManager {
                     });
         }
     }
-
 }

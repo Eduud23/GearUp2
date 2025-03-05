@@ -1,5 +1,7 @@
 package com.example.gearup;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -37,12 +39,15 @@ import java.util.List;
 public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.OnProductClickListener {
 
     private FirebaseFirestore db;
-    private ViewPager2 viewPagerCentralComponents, viewPagerBody, viewPagerConnectors, viewPagerPeripherals;
+    private ViewPager2 viewPagerCentralComponents, viewPagerBody, viewPagerConnectors, viewPagerPeripherals, viewPagerRecommended;
     private ProductAdapterBuyer adapterCentralComponents, adapterBody, adapterConnectors, adapterPeripherals;
     private List<Product> centralComponentsList = new ArrayList<>();
     private List<Product> bodyList = new ArrayList<>();
     private List<Product> connectorsList = new ArrayList<>();
     private List<Product> peripheralsList = new ArrayList<>();
+    private List<Product> recommendedProductsList = new ArrayList<>();
+
+    private RecommendationAdapter recommendationAdapter;
     private EditText searchBar;
 
     @SuppressLint("MissingInflatedId")
@@ -57,6 +62,12 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
         viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
         searchBar = view.findViewById(R.id.search_bar);
+        viewPagerRecommended = view.findViewById(R.id.viewPager_recommended_products);
+        recommendationAdapter = new RecommendationAdapter(this::onRecommendedProductClick);
+        viewPagerRecommended.setAdapter(recommendationAdapter);
+        viewPagerRecommended.setVisibility(View.GONE);
+        loadRecommendations();
+
 
         // Unread message count text view
         TextView unreadMessageTextView = view.findViewById(R.id.unread_message_count);
@@ -368,6 +379,54 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
                 .update("views", FieldValue.increment(1)) // Atomically increment the "views" field
                 .addOnSuccessListener(aVoid -> Log.d("HomeFragmentSeller", "Views incremented for product: " + productId))
                 .addOnFailureListener(e -> Log.e("HomeFragmentSeller", "Failed to increment views", e));
+    }
+    private void loadRecommendations() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "User not authenticated. Cannot load recommendations.");
+            return;
+        }
+
+        String currentUserId = currentUser.getUid();
+        RecommendationManager recommendationManager = new RecommendationManager();
+
+        recommendationManager.loadRecommendations(currentUserId, recommendedProducts -> {
+            getActivity().runOnUiThread(() -> {
+                if (!recommendedProducts.isEmpty()) {
+                    recommendedProductsList.clear();
+                    recommendedProductsList.addAll(recommendedProducts);
+                    recommendationAdapter.setProductList(recommendedProductsList);
+                    viewPagerRecommended.setVisibility(View.VISIBLE);
+                } else {
+                    viewPagerRecommended.setVisibility(View.GONE);
+                }
+            });
+        });
+    }
+    public void onRecommendedProductClick(Product clickedProduct) {
+        if (clickedProduct == null) {
+            Log.e("RecommendationClick", "❌ Clicked product is null");
+            return;
+        }
+
+        // Get current user ID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            UserInteractionLogger.logProductClick(
+                    userId,
+                    clickedProduct.getId(),
+                    clickedProduct.getName(),
+                    "Recommended" // Logging as a recommended product
+            );
+        } else {
+            Log.e("FirebaseDebug", "❌ User not authenticated. Cannot log interaction.");
+        }
+
+        // Open product details
+        Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
+        intent.putExtra("PRODUCT", clickedProduct);
+        startActivity(intent);
     }
 
 
