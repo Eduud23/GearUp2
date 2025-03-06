@@ -2,6 +2,8 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -13,10 +15,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CheckoutFormActivity extends AppCompatActivity {
 
-    private TextView productName, productBrand, productYear, productPrice, productQuantity;
+    private TextView productName, productBrand, productYear, productPrice, productQuantity, cardTypeTextView;
     private EditText shippingAddress, cardName, cardNumber, expiryDate, cvv, riderMessage;
     private RadioGroup deliveryOption;
     private Button confirmPayment;
@@ -41,8 +49,10 @@ public class CheckoutFormActivity extends AppCompatActivity {
         expiryDate = findViewById(R.id.expiry_date);
         cvv = findViewById(R.id.cvv);
         riderMessage = findViewById(R.id.rider_message);
-        deliveryOption = findViewById(R.id.delivery_option);
         confirmPayment = findViewById(R.id.confirm_payment);
+        cardTypeTextView = findViewById(R.id.card_type);
+
+        deliveryOption = findViewById(R.id.delivery_option);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,6 +79,117 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
         confirmPayment.setText("Confirm Payment ( ₱" + finalPrice + ")");
         confirmPayment.setOnClickListener(v -> processPayment());
+
+        // Add TextWatcher for card number formatting
+        cardNumber.addTextChangedListener(new TextWatcher() {
+            private boolean isFormatting;
+            private int beforeLength;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                beforeLength = s.length();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+
+                isFormatting = true;
+
+                String input = s.toString().replaceAll("\\s", ""); // Remove existing spaces
+                StringBuilder formatted = new StringBuilder();
+
+                for (int i = 0; i < input.length(); i++) {
+                    if (i > 0 && i % 4 == 0) {
+                        formatted.append(" "); // Insert space after every 4 digits
+                    }
+                    formatted.append(input.charAt(i));
+                }
+
+                cardNumber.removeTextChangedListener(this);
+                cardNumber.setText(formatted.toString());
+                cardNumber.setSelection(formatted.length()); // Move cursor to the end
+                cardNumber.addTextChangedListener(this);
+
+                isFormatting = false;
+            }
+        });
+        // Expiry Date Formatting (MM/YY)
+        expiryDate.addTextChangedListener(new TextWatcher() {
+            private boolean isFormatting;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+                isFormatting = true;
+
+                String input = s.toString().replaceAll("[^\\d]", ""); // Remove non-numeric
+                StringBuilder formatted = new StringBuilder();
+
+                if (input.length() > 2) {
+                    formatted.append(input.substring(0, 2)).append("/");
+                    if (input.length() > 4) {
+                        formatted.append(input.substring(2, 4)); // MM/YY
+                    } else {
+                        formatted.append(input.substring(2));
+                    }
+                } else {
+                    formatted.append(input);
+                }
+
+                expiryDate.removeTextChangedListener(this);
+                expiryDate.setText(formatted.toString());
+                expiryDate.setSelection(formatted.length());
+                expiryDate.addTextChangedListener(this);
+
+                isFormatting = false;
+            }
+        });
+
+// CVV Formatting (Restrict to 3-4 digits based on card type)
+        cvv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String cardType = identifyCardType(cardNumber.getText().toString());
+                int maxLength = cardType.equals("American Express") ? 4 : 3;
+
+                if (s.length() > maxLength) {
+                    cvv.setText(s.subSequence(0, maxLength));
+                    cvv.setSelection(maxLength);
+                }
+            }
+        });
+
+
+        // Add listener to detect card type dynamically
+        cardNumber.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String cardType = identifyCardType(s.toString());
+                cardTypeTextView.setText("Card Type: " + cardType);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void processPayment() {
@@ -82,12 +203,80 @@ public class CheckoutFormActivity extends AppCompatActivity {
         int selectedOption = deliveryOption.getCheckedRadioButtonId();
         String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
 
-        if (cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty() || nameOnCard.isEmpty() || (selectedOption == R.id.radio_delivery && address.isEmpty())) {
+        if (cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty() || nameOnCard.isEmpty() ||
+                (selectedOption == R.id.radio_delivery && address.isEmpty())) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Payment Successful! Order Confirmed.", Toast.LENGTH_LONG).show();
-        finish();
+        // Identify card type
+        String cardType = identifyCardType(cardNum);
+        if (cardType.equals("Unknown")) {
+            Toast.makeText(this, "Invalid card number", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get user and seller IDs
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String userId = currentUser.getUid();
+        String sellerId = getIntent().getStringExtra("SELLER_ID");
+
+        // Create Firestore reference
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Map<String, Object> orderDetails = new HashMap<>();
+        orderDetails.put("userId", userId);
+        orderDetails.put("sellerId", sellerId);
+        orderDetails.put("productName", productName.getText().toString());
+        orderDetails.put("quantity", Integer.parseInt(productQuantity.getText().toString().replace("Quantity: ", "")));
+        orderDetails.put("totalPrice", finalPrice);
+        orderDetails.put("deliveryType", deliveryType);
+
+        if (deliveryType.equals("Delivery")) {
+            orderDetails.put("shippingAddress", address);
+        }
+
+        // Store payment details
+        orderDetails.put("payment", new HashMap<String, Object>() {{
+            put("cardName", nameOnCard);
+            put("cardNumber", cardNum);
+            put("expiryDate", expiry);
+            put("cvv", cvvCode);
+            put("cardType", cardType);
+        }});
+
+        // Save to Firestore
+        db.collection("orders")
+                .add(orderDetails)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(CheckoutFormActivity.this, "Payment Successful! Order Confirmed.", Toast.LENGTH_LONG).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(CheckoutFormActivity.this, "Payment failed. Try again!", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+    private String identifyCardType(String cardNum) {
+        String cleanCardNum = cardNum.replaceAll("\\s", ""); // Remove spaces for validation
+
+        if (cleanCardNum.startsWith("4")) {
+            return "Visa";
+        } else if (cleanCardNum.matches("^5[1-5].*") || cleanCardNum.matches("^222[1-9].*") ||
+                cleanCardNum.matches("^22[3-9].*") || cleanCardNum.matches("^2[3-6].*") ||
+                cleanCardNum.matches("^27[01].*") || cleanCardNum.matches("^2720.*")) {
+            return "MasterCard";
+        } else if (cleanCardNum.startsWith("34") || cleanCardNum.startsWith("37")) {
+            return "American Express";
+        } else if (cleanCardNum.startsWith("6011") || cleanCardNum.matches("^622(12[6-9]|1[3-9]\\d|[2-8]\\d\\d|9[01]\\d|92[0-5]).*") ||
+                cleanCardNum.matches("^64[4-9].*") || cleanCardNum.startsWith("65")) {
+            return "Discover";
+        } else {
+            return "Unknown";
+        }
     }
 }

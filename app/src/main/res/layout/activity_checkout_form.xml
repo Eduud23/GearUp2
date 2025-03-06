@@ -37,31 +37,48 @@
             android:padding="20dp"
             android:background="@drawable/rounded_bg">
 
-            <ImageView
-                android:id="@+id/product_image"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:scaleType="centerCrop"
-                android:background="@drawable/rounded_corner" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/product_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="10dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/rounded_corner" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black"
-                    android:text="Product Name: " />
-                <TextView
-                    android:id="@+id/product_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/product_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/black"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/product_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/product_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/primary"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -100,44 +117,6 @@
                     android:textColor="@color/black" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/primary"
-                    android:text="Price: " />
-                <TextView
-                    android:id="@+id/product_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textColor="@color/primary" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textColor="@color/black"
-                    android:text="Quantity: " />
-                <TextView
-                    android:id="@+id/product_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="18sp"
-                    android:textColor="@color/black" />
-            </LinearLayout>
-
-
             <RadioGroup
                 android:id="@+id/delivery_option"
                 android:layout_width="wrap_content"
@@ -162,44 +141,112 @@
                     android:layout_marginStart="20dp" />
             </RadioGroup>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Shipping Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp" />
+
+            <EditText
+                android:id="@+id/email"
+                style="@style/CustomInputField"
+                android:hint="Email" />
+
+            <EditText
+                android:id="@+id/phone_number"
+                style="@style/CustomInputField"
+                android:hint="Phone Number" />
+
             <EditText
                 android:id="@+id/shipping_address"
                 style="@style/CustomInputField"
-                android:hint="Shipping Address"
-                android:textColorHint="@color/dark_gray" />
+                android:hint="Shipping Address" />
 
             <EditText
-                android:id="@+id/card_name"
+                android:id="@+id/zip_code"
                 style="@style/CustomInputField"
-                android:hint="Name on Card"
-                android:textColorHint="@color/dark_gray" />
-
-            <EditText
-                android:id="@+id/card_number"
-                style="@style/CustomInputField"
-                android:hint="Card Number"
-                android:inputType="number"
-                android:textColorHint="@color/dark_gray" />
-
-            <EditText
-                android:id="@+id/expiry_date"
-                style="@style/CustomInputField"
-                android:hint="Expiry Date (MM/YY)"
-                android:inputType="datetime"
-                android:textColorHint="@color/dark_gray" />
-
-            <EditText
-                android:id="@+id/cvv"
-                style="@style/CustomInputField"
-                android:hint="CVV"
-                android:inputType="numberPassword"
-                android:textColorHint="@color/dark_gray" />
+                android:hint="Zip Code" />
 
             <EditText
                 android:id="@+id/rider_message"
                 style="@style/CustomInputField"
-                android:hint="Message to Rider (Optional)"
-                android:textColorHint="@color/dark_gray" />
+                android:hint="Message to Rider (Optional)" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Payment Details"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_bg"
+                android:padding="10dp"
+                android:layout_marginTop="10dp">
+
+                <EditText
+                    android:id="@+id/card_name"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:hint="Name on card"
+                    />
+
+
+                <EditText
+                    android:id="@+id/card_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Card Number"
+                    android:inputType="number"
+                    android:maxLength="19"
+                    android:drawableEnd="@drawable/credit_card" />
+
+                <TextView
+                    android:id="@+id/card_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Card Type: "
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:paddingStart="5dp"
+                    android:layout_marginTop="5dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="5dp">
+
+
+
+                    <EditText
+                        android:id="@+id/expiry_date"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:hint="MM / YY"
+                        android:inputType="number" />
+
+                    <EditText
+                        android:id="@+id/cvv"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:hint="CVC"
+                        android:inputType="number"
+                        android:drawableEnd="@drawable/lock" />
+                </LinearLayout>
+            </LinearLayout>
+
 
             <Button
                 android:id="@+id/confirm_payment"
