@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,9 +32,11 @@ public class SellerShopsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         shopList = new ArrayList<>();
-        shopAdapter = new ShopAdapter(shopList, position -> {
-            // Handle shop click here, you can navigate to shop details or any other action
-        }, requireContext());  // Use requireContext() instead of getContext()
+        shopAdapter = new ShopAdapter(shopList, sellerId -> {
+            Intent intent = new Intent(getContext(), SellerShopActivity.class);
+            intent.putExtra("SELLER_ID", sellerId); // Pass seller ID to new activity
+            startActivity(intent);
+        }, requireContext());
 
         recyclerView.setAdapter(shopAdapter);
         loadShopsFromFirestore();
@@ -48,11 +51,11 @@ public class SellerShopsFragment extends Fragment {
                     String shopName = document.getString("shopName");
                     String address = document.getString("address");
                     String phone = document.getString("phone");
-                    String sellerId = document.getId();
+                    String sellerId = document.getId(); // Get seller ID from Firestore
                     String profileImageUrl = document.getString("profileImageUrl");
 
                     if (profileImageUrl == null) {
-                        profileImageUrl = "default_image_url_here"; // Replace with an actual default image URL
+                        profileImageUrl = "default_image_url_here"; // Replace with actual default image URL
                     }
 
                     shopList.add(new Shop(shopName, address, phone, sellerId, profileImageUrl));

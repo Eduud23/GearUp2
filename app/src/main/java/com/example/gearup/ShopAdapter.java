@@ -6,13 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-
 import java.util.List;
 
 public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder> {
@@ -41,17 +38,16 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.address.setText(shop.getAddress());
         holder.phone.setText(shop.getPhone());
 
-        // Load the profile image using Glide with error handling
+        // Load shop image with Glide (handling errors)
         Glide.with(context)
                 .load(shop.getProfileImageUrl() != null ? shop.getProfileImageUrl() : R.drawable.gear)
                 .apply(new RequestOptions()
-                        .placeholder(R.drawable.gear) // Placeholder if no image is available
-                        .error(R.drawable.gear) // Show an error image if the URL is invalid
-                )
+                        .placeholder(R.drawable.gear)
+                        .error(R.drawable.gear))
                 .into(holder.shopImage);
 
-        // Set click listener for the shop item
-        holder.itemView.setOnClickListener(v -> listener.onShopClick(position));
+        // Set click listener to open SellerShopActivity
+        holder.itemView.setOnClickListener(v -> listener.onShopClick(shop.getSellerId()));
     }
 
     @Override
@@ -60,7 +56,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     }
 
     public interface OnShopClickListener {
-        void onShopClick(int position);
+        void onShopClick(String sellerId);
     }
 
     public static class ShopViewHolder extends RecyclerView.ViewHolder {

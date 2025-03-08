@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,16 @@ public class LocalShopAdapter extends RecyclerView.Adapter<LocalShopAdapter.Shop
 
     private List<LocalShop> shopList;
     private Context context;
+    private OnItemClickListener listener;
 
-    public LocalShopAdapter(List<LocalShop> shopList, Context context) {
+    public interface OnItemClickListener {
+        void onItemClick(LocalShop shop);
+    }
+
+    public LocalShopAdapter(List<LocalShop> shopList, Context context, OnItemClickListener listener) {
         this.shopList = shopList;
         this.context = context;
+        this.listener = listener;
     }
 
     @NonNull
@@ -44,6 +51,13 @@ public class LocalShopAdapter extends RecyclerView.Adapter<LocalShopAdapter.Shop
                 .placeholder(R.drawable.gear)
                 .error(R.drawable.gear)
                 .into(holder.shopImage);
+
+        // Handle item click
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(shop);
+            }
+        });
     }
 
     @Override
