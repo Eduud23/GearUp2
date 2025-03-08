@@ -35,9 +35,7 @@ public class LocalShopAdapter extends RecyclerView.Adapter<LocalShopAdapter.Shop
         holder.kindOfRepair.setText(shop.getKindOfRepair());
         holder.timeSchedule.setText(shop.getTimeSchedule());
         holder.place.setText(shop.getPlace());
-        holder.contactNumber.setText(shop.getContactNumber());
         holder.ratings.setText("Ratings: " + shop.getRatings());
-        holder.website.setText(shop.getWebsite());
         holder.distance.setText(String.format("Distance: %.2f km", shop.getDistance()));
 
         // Load image using Glide
@@ -54,7 +52,7 @@ public class LocalShopAdapter extends RecyclerView.Adapter<LocalShopAdapter.Shop
     }
 
     public static class ShopViewHolder extends RecyclerView.ViewHolder {
-        TextView shopName, kindOfRepair, timeSchedule, place, contactNumber, ratings, website, distance;
+        TextView shopName, kindOfRepair, timeSchedule, place, ratings, distance;
         ImageView shopImage;
 
         public ShopViewHolder(@NonNull View itemView) {
@@ -63,9 +61,7 @@ public class LocalShopAdapter extends RecyclerView.Adapter<LocalShopAdapter.Shop
             kindOfRepair = itemView.findViewById(R.id.kindOfRepair);
             timeSchedule = itemView.findViewById(R.id.timeSchedule);
             place = itemView.findViewById(R.id.place);
-            contactNumber = itemView.findViewById(R.id.contactNumber);
             ratings = itemView.findViewById(R.id.ratings);
-            website = itemView.findViewById(R.id.website);
             distance = itemView.findViewById(R.id.distance);
             shopImage = itemView.findViewById(R.id.shopImage);
         }
