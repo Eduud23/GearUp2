@@ -1,146 +1,41 @@
 package com.example.gearup;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+public class ShopsFragment extends Fragment {
 
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+    private ShopsPagerAdapter adapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ShopsFragment extends Fragment implements ShopAdapter.OnShopClickListener {
-
-    private RecyclerView recyclerView;
-    private ShopAdapter shopAdapter;
-    private List<Shop> shopList;
-    private List<Shop> filteredShopList;
-    private FirebaseFirestore db;
-    private EditText searchBar;
-    private ImageView backIcon;
-
-    public ShopsFragment() {
-        // Required empty public constructor
-    }
-
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_shops, container, false);
 
-        // Initialize Firebase Firestore
-        db = FirebaseFirestore.getInstance();
+        tabLayout = view.findViewById(R.id.tabLayout);
+        viewPager = view.findViewById(R.id.viewPager);
 
-        // Initialize RecyclerView
-        recyclerView = view.findViewById(R.id.recyclerViewShops);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ShopsPagerAdapter(this);
+        viewPager.setAdapter(adapter);
 
-        // Initialize the search bar and back icon
-        searchBar = view.findViewById(R.id.et_search);
-        backIcon = view.findViewById(R.id.btn_back);
-
-        // Initialize lists
-        shopList = new ArrayList<>();
-        filteredShopList = new ArrayList<>();
-
-        // Set up the adapter
-        shopAdapter = new ShopAdapter(filteredShopList, this, getContext());  // Pass context here
-        recyclerView.setAdapter(shopAdapter);
-
-        // Set up the back icon click listener
-        backIcon.setOnClickListener(v -> {
-            getActivity().onBackPressed();
-        });
-
-        // Load data from Firestore
-        loadShopsFromFirestore();
-
-        // Set up the search bar functionality
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
-                filterShops(charSequence.toString());
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            if (position == 0) {
+                tab.setText("Seller Shops");
+            } else {
+                tab.setText("Local Shops");
             }
-
-            @Override
-            public void afterTextChanged(Editable editable) {}
-        });
+        }).attach();
 
         return view;
-    }
-
-    private void loadShopsFromFirestore() {
-        db.collection("sellers")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            String shopName = document.getString("shopName");
-                            String address = document.getString("address");
-                            String phone = document.getString("phone");
-                            String sellerId = document.getId();
-                            String profileImageUrl = document.getString("profileImageUrl"); // Retrieve profile image URL
-
-                            // If profile image URL is not available, use a default image or a placeholder
-                            if (profileImageUrl == null) {
-                                profileImageUrl = "default_image_url_here"; // Replace with your default image URL
-                            }
-
-                            if (shopName != null && address != null && phone != null) {
-                                Shop shop = new Shop(shopName, address, phone, sellerId, profileImageUrl);
-                                shopList.add(shop);
-                            }
-                        }
-
-                        filteredShopList.clear();
-                        filteredShopList.addAll(shopList);
-                        shopAdapter.notifyDataSetChanged();
-                    } else {
-                        Toast.makeText(getContext(), "Failed to load shops", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    private void filterShops(String query) {
-        filteredShopList.clear();
-        if (query.isEmpty()) {
-            filteredShopList.addAll(shopList);
-        } else {
-            for (Shop shop : shopList) {
-                String shopName = shop.getShopName().toLowerCase();
-                String address = shop.getAddress().toLowerCase();
-                String searchQuery = query.toLowerCase();
-
-                // Check if either shopName or address contains the search query
-                if (shopName.contains(searchQuery) || address.contains(searchQuery)) {
-                    filteredShopList.add(shop);
-                }
-            }
-        }
-        shopAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onShopClick(int position) {
-        Shop clickedShop = filteredShopList.get(position);
-
-        // Pass the seller's ID to the SellerShopActivity to view the seller's shop details
-        Intent intent = new Intent(getContext(), SellerShopActivity.class);
-        intent.putExtra("SELLER_ID", clickedShop.getSellerId());
-        startActivity(intent);
     }
 }

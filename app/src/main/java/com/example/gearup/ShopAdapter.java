@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     @NonNull
     @Override
     public ShopViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_shop, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_shop, parent, false);
         return new ShopViewHolder(view);
     }
 
@@ -40,20 +41,22 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
         holder.address.setText(shop.getAddress());
         holder.phone.setText(shop.getPhone());
 
-        // Load the profile image using Glide
+        // Load the profile image using Glide with error handling
         Glide.with(context)
-                .load(shop.getProfileImageUrl()) // Load the profile image URL
-                .placeholder(R.drawable.gear) // Show a placeholder if no image is available
-                .error(R.drawable.gear) // Show an error image if the URL is invalid
-                .into(holder.shopImage); // Bind the image to the ImageView
+                .load(shop.getProfileImageUrl() != null ? shop.getProfileImageUrl() : R.drawable.gear)
+                .apply(new RequestOptions()
+                        .placeholder(R.drawable.gear) // Placeholder if no image is available
+                        .error(R.drawable.gear) // Show an error image if the URL is invalid
+                )
+                .into(holder.shopImage);
 
-        // Set the click listener for the item
+        // Set click listener for the shop item
         holder.itemView.setOnClickListener(v -> listener.onShopClick(position));
     }
 
     @Override
     public int getItemCount() {
-        return shopList.size();
+        return shopList != null ? shopList.size() : 0;
     }
 
     public interface OnShopClickListener {
@@ -69,7 +72,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             shopName = itemView.findViewById(R.id.shopName);
             address = itemView.findViewById(R.id.address);
             phone = itemView.findViewById(R.id.phone);
-            shopImage = itemView.findViewById(R.id.shopImage); // Profile image view
+            shopImage = itemView.findViewById(R.id.shopImage);
         }
     }
 }
