@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductFetcher {
-    private static final String TAG = "ProductFetcher";
+   /* private static final String TAG = "ProductFetcher";
 
     public static List<PopularProduct> fetchProducts() {
         List<PopularProduct> products = new ArrayList<>();
@@ -125,5 +125,5 @@ public class ProductFetcher {
             Log.e(TAG, "Error parsing JSON", e);
         }
         return products;
-    }
+    }*/
 }

@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 
 public class TrendsFragmentSeller extends Fragment implements PopularProductAdapter.OnItemClickListener {
 
-    private static final String TAG = "TrendsFragmentSeller";
+  /*  private static final String TAG = "TrendsFragmentSeller";
     private ViewPager2 viewPager;
     private PopularProductAdapter adapter;
     private List<PopularProduct> productList = new ArrayList<>();
@@ -60,7 +60,7 @@ public class TrendsFragmentSeller extends Fragment implements PopularProductAdap
     public void onDestroy() {
         super.onDestroy();
         executorService.shutdown();
-    }
+    }*/
 
     @Override
     public void onItemClick(PopularProduct product) {

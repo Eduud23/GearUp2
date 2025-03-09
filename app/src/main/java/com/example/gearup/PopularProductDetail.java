@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 
 public class PopularProductDetail extends AppCompatActivity {
 
-    private RecyclerView similarProductsRecyclerView;
+   /* private RecyclerView similarProductsRecyclerView;
     private PopularProductAdapter adapter;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private static final String TAG = "PopularProductDetail";
@@ -103,6 +103,6 @@ public class PopularProductDetail extends AppCompatActivity {
                 Log.e(TAG, "Error fetching similar products", e);
             }
         });
-    }
+    }*/
 
 }

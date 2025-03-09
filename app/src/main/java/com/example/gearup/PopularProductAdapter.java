@@ -36,58 +36,47 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
 
     @Override
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-        int firstIndex = position * 2;
-        int secondIndex = firstIndex + 1;
+        PopularProduct product = productList.get(position);
 
-        PopularProduct firstProduct = productList.get(firstIndex);
-        holder.titleTextView1.setText(firstProduct.getTitle());
-        holder.priceTextView1.setText(firstProduct.getPrice());
-        Glide.with(holder.itemView.getContext()).load(firstProduct.getImageUrl()).into(holder.productImageView1);
+        // Setting the data first
+        holder.titleTextView.setText(product.getTitle());
+        holder.priceTextView.setText(product.getPrice());
+        holder.conditionTextView.setText("Condition: " + (product.getCondition() != null ? product.getCondition() : "N/A"));
+        holder.ratedTextView.setText("Rated: " + (product.getRated() != null ? product.getRated() : "N/A"));
+        holder.discountTextView.setText("Discount: " + (product.getDiscount() != null ? product.getDiscount() : "N/A"));
 
-        // Click listener for the first product
-        holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(firstProduct));
+        // Load product image
+        Glide.with(holder.itemView.getContext()).load(product.getImageUrl()).into(holder.productImageView);
 
-        if (secondIndex < productList.size()) {
-            PopularProduct secondProduct = productList.get(secondIndex);
-            holder.titleTextView2.setText(secondProduct.getTitle());
-            holder.priceTextView2.setText(secondProduct.getPrice());
-            Glide.with(holder.itemView.getContext()).load(secondProduct.getImageUrl()).into(holder.productImageView2);
-
-            // Click listener for the second product
-            holder.productContainer2.setVisibility(View.VISIBLE);
-            holder.productContainer2.setOnClickListener(v -> onItemClickListener.onItemClick(secondProduct));
-        } else {
-            holder.productContainer2.setVisibility(View.INVISIBLE);
+        // Set the click listener last
+        if (onItemClickListener != null) {
+            holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(product));
         }
     }
+
     public void updateProducts(List<PopularProduct> newProducts) {
         this.productList.clear();
         this.productList.addAll(newProducts);
         notifyDataSetChanged();
     }
 
-
-
     @Override
     public int getItemCount() {
-        return (int) Math.ceil(productList.size() / 2.0);
+        return productList.size();
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView1, priceTextView1, titleTextView2, priceTextView2;
-        ImageView productImageView1, productImageView2;
-        View productContainer2;
+        TextView titleTextView, priceTextView, conditionTextView, ratedTextView, discountTextView;
+        ImageView productImageView;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTextView1 = itemView.findViewById(R.id.product_title_1);
-            priceTextView1 = itemView.findViewById(R.id.product_price_1);
-            productImageView1 = itemView.findViewById(R.id.product_image_1);
-
-            titleTextView2 = itemView.findViewById(R.id.product_title_2);
-            priceTextView2 = itemView.findViewById(R.id.product_price_2);
-            productImageView2 = itemView.findViewById(R.id.product_image_2);
-            productContainer2 = itemView.findViewById(R.id.product_container_2);
+            titleTextView = itemView.findViewById(R.id.product_title);
+            priceTextView = itemView.findViewById(R.id.product_price);
+            conditionTextView = itemView.findViewById(R.id.product_condition);
+            ratedTextView = itemView.findViewById(R.id.product_rated);
+            discountTextView = itemView.findViewById(R.id.product_discount);
+            productImageView = itemView.findViewById(R.id.product_image);
         }
     }
 }

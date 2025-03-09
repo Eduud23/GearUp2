@@ -13,13 +13,25 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Unique Firebase app name
-        String uniqueFirebaseName = "gearupdataSecondApp";
+        // Initialize First Firebase App (Default)
+        if (FirebaseApp.getApps(this).isEmpty()) {
+            FirebaseApp.initializeApp(this);
+            Log.d(TAG, "Default FirebaseApp initialized");
+        }
 
-        // Check if the second Firebase app is already initialized
+        // Initialize Second Firebase App
+        initializeSecondFirebaseApp();
+
+        // Initialize Third Firebase App
+        initializeThirdFirebaseApp();
+    }
+
+    private void initializeSecondFirebaseApp() {
+        String secondAppName = "gearupdataSecondApp";
         boolean isInitialized = false;
+
         for (FirebaseApp app : FirebaseApp.getApps(this)) {
-            if (app.getName().equals(uniqueFirebaseName)) {
+            if (app.getName().equals(secondAppName)) {
                 isInitialized = true;
                 break;
             }
@@ -34,14 +46,37 @@ public class MyApp extends Application {
                     .setGcmSenderId("368644301658")
                     .build();
 
-            FirebaseApp.initializeApp(this, options, uniqueFirebaseName);
-            Log.d(TAG, "Firebase app initialized with name: " + uniqueFirebaseName);
+            FirebaseApp.initializeApp(this, options, secondAppName);
+            Log.d(TAG, "Second Firebase app initialized: " + secondAppName);
         } else {
-            Log.d(TAG, "Firebase app already initialized with name: " + uniqueFirebaseName);
+            Log.d(TAG, "Second Firebase app already initialized: " + secondAppName);
+        }
+    }
+
+    private void initializeThirdFirebaseApp() {
+        String thirdAppName = "gearupdataThirdApp";
+        boolean isInitialized = false;
+
+        for (FirebaseApp app : FirebaseApp.getApps(this)) {
+            if (app.getName().equals(thirdAppName)) {
+                isInitialized = true;
+                break;
+            }
         }
 
-        // Get Firestore instance from the second Firebase app
-        FirebaseApp secondApp = FirebaseApp.getInstance(uniqueFirebaseName);
-        FirebaseFirestore db = FirebaseFirestore.getInstance(secondApp);
+        if (!isInitialized) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId("1:500523403445:android:7a0241f487ed8a24e556fc") // Replace with actual Firebase App ID
+                    .setApiKey("AIzaSyAtej_Uj9kfPQTCZaK2bIpNzkjCFVzu0qQ") // Replace with your actual API Key
+                    .setProjectId("populardata-95ea7") // Replace with your Project ID
+                    .setStorageBucket("populardata-95ea7.appspot.com") // Replace with your Storage Bucket
+                    .setGcmSenderId("998782782083")
+                    .build();
+
+            FirebaseApp.initializeApp(this, options, thirdAppName);
+            Log.d(TAG, "Third Firebase app initialized: " + thirdAppName);
+        } else {
+            Log.d(TAG, "Third Firebase app already initialized: " + thirdAppName);
+        }
     }
 }
