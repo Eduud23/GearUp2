@@ -41,6 +41,9 @@ public class CollaborativeFilteringRecommender {
             Map<String, Integer> popularProducts = new HashMap<>();
             Set<String> otherUserProducts = new HashSet<>();
 
+            double totalSimilarity = 0.0;
+            int userComparisons = 0;
+
             for (String userId : allUsers.keySet()) {
                 if (userId.equals(currentUserId)) continue; // Skip self
 
@@ -57,7 +60,28 @@ public class CollaborativeFilteringRecommender {
                 double similarity = jaccardSimilarity(currentUserProducts, otherUserProductSet);
                 Log.d(TAG, "🔗 Similarity with user " + userId + ": " + similarity);
 
-                if (similarity > 0.01) { // SUPER LOW THRESHOLD
+                if (similarity > 0.0) {
+                    totalSimilarity += similarity;
+                    userComparisons++;
+                }
+            }
+
+            // Calculate dynamic similarity threshold
+            double averageSimilarity = (userComparisons > 0) ? totalSimilarity / userComparisons : 0.0;
+            double similarityThreshold = Math.max(averageSimilarity * 0.5, 0.05);
+            Log.d(TAG, "📊 Avg Similarity: " + averageSimilarity + " | Dynamic Threshold: " + similarityThreshold);
+
+            // Second pass to collect recommendations based on dynamic threshold
+            for (String userId : allUsers.keySet()) {
+                if (userId.equals(currentUserId)) continue;
+
+                Map<String, Object> userProducts = (Map<String, Object>) allUsers.get(userId);
+                if (userProducts == null || userProducts.isEmpty()) continue;
+
+                Set<String> otherUserProductSet = userProducts.keySet();
+                double similarity = jaccardSimilarity(currentUserProducts, otherUserProductSet);
+
+                if (similarity >= similarityThreshold) {
                     for (String productId : otherUserProductSet) {
                         if (!currentUserProducts.contains(productId)) {
                             recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 1);
@@ -70,7 +94,6 @@ public class CollaborativeFilteringRecommender {
                     .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
-
 
             // If no recommendations but only one other user exists, recommend all their products
             if (sortedRecommendations.isEmpty() && allUsers.size() == 2) {

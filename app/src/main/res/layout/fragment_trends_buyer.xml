@@ -33,7 +33,7 @@
             android:id="@+id/et_search"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Search Municipality"
+            android:hint="Search Popular Product"
             android:inputType="text"
             android:padding="8dp"
             android:textSize="14sp"

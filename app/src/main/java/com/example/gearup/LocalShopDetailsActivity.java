@@ -7,9 +7,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
+
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
+
+import java.util.Objects;
 
 public class LocalShopDetailsActivity extends AppCompatActivity {
 
@@ -31,6 +36,12 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
         callButton = findViewById(R.id.callButton);
         websiteButton = findViewById(R.id.websiteButton);
         navigateButton = findViewById(R.id.navigateButton);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
 
         // Get data from intent
         Intent intent = getIntent();

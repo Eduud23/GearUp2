@@ -1,104 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:background="@color/white">
 
-    <LinearLayout
+    <!-- Toolbar with Back Button -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/ic_back"
+        app:titleTextColor="@android:color/black"
+        app:title="             Product Details" />
 
-        <!-- Product Image -->
-        <ImageView
-            android:id="@+id/product_image"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:scaleType="fitCenter"
-            android:contentDescription="Product Image"
-            android:layout_marginBottom="16dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <!-- Product Title -->
-        <TextView
-            android:id="@+id/product_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textAlignment="center"
-            android:padding="8dp"
-            android:text="Product Title" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <!-- Price -->
-        <TextView
-            android:id="@+id/product_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_red_dark"
-            android:textAlignment="center"
-            android:text="₱0.00"
-            android:layout_marginBottom="8dp" />
+            <!-- Product Image -->
+            <ImageView
+                android:id="@+id/productImage"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:background="@color/light_gray"
+                android:contentDescription="Product Image" />
 
-        <!-- Condition -->
-        <TextView
-            android:id="@+id/product_condition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Condition: N/A"
-            android:textSize="16sp"
-            android:padding="4dp" />
+            <!-- Product Title -->
+            <TextView
+                android:id="@+id/productTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Product Title"
+                android:textSize="22sp"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
 
-        <!-- Location -->
-        <TextView
-            android:id="@+id/product_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Location: N/A"
-            android:textSize="16sp"
-            android:padding="4dp" />
+            <!-- Price Section -->
+            <TextView
+                android:id="@+id/productPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="20sp"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
 
-        <!-- Shipping Cost -->
-        <TextView
-            android:id="@+id/product_shipping_cost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Shipping Cost: N/A"
-            android:textSize="16sp"
-            android:padding="4dp" />
+            <!-- Seller Information -->
+            <TextView
+                android:id="@+id/productSeller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Seller: Unknown"
+                android:textSize="16sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp" />
 
-        <!-- View on eBay Button -->
-        <Button
-            android:id="@+id/view_on_ebay_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View on eBay"
-            android:layout_marginTop="16dp"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:backgroundTint="@android:color/holo_blue_dark"
-            android:textColor="@android:color/white"
-            android:layout_gravity="center" />
+            <!-- Product Condition -->
+            <TextView
+                android:id="@+id/productCondition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Condition: New"
+                android:textSize="16sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp" />
 
-        <!-- Similar Products Section -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Similar Products"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingTop="24dp"
-            android:paddingBottom="8dp"
-            android:textAlignment="center" />
+            <!-- Location -->
+            <TextView
+                android:id="@+id/productLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ships from: Location"
+                android:textSize="16sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/similar_products_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:nestedScrollingEnabled="false"
-            android:scrollbars="none" />
+            <!-- Shipping -->
+            <TextView
+                android:id="@+id/productShipping"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shipping: Free"
+                android:textSize="16sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp" />
 
-    </LinearLayout>
-</ScrollView>
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"
+                android:layout_marginTop="12dp" />
+
+            <Button
+                android:id="@+id/openItemButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Buy Now"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
