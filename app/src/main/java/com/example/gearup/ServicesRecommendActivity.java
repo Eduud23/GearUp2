@@ -67,25 +67,39 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         String prediction = askGemini(userQuery).trim();
                         runOnUiThread(() -> {
                             resultView.setText(prediction);
-                            DisplayMethodServices.getAutoPartsShops(ServicesRecommendActivity.this, shops -> {
-                                List<RecommendLocalShop> filteredShops = new ArrayList<>();
-                                for (RecommendLocalShop shop : shops) {
-                                    if (shop.getKindOfService().equalsIgnoreCase(prediction)) {
-                                        Object websiteField = shop.getWebsite();
-                                        if (websiteField != null) {
-                                            shop.setWebsite(websiteField.toString());
+                            List<RecommendLocalShop> combinedShops = new ArrayList<>();
+
+                            DisplayMethodServices.getAutoPartsShops(ServicesRecommendActivity.this, autoPartsShops -> {
+                                combinedShops.addAll(autoPartsShops);
+                                DisplayMethodServices.getLocalRepair(ServicesRecommendActivity.this, localRepairShops -> {
+                                    combinedShops.addAll(localRepairShops);
+
+                                    List<RecommendLocalShop> filteredShops = new ArrayList<>();
+                                    String[] predictedServices = prediction.split(",");
+                                    for (RecommendLocalShop shop : combinedShops) {
+                                        String kindOfService = shop.getKindOfService();
+                                        if (kindOfService != null) {
+                                            for (String service : predictedServices) {
+                                                if (kindOfService.equalsIgnoreCase(service.trim())) {
+                                                    Object websiteField = shop.getWebsite();
+                                                    if (websiteField != null) {
+                                                        shop.setWebsite(websiteField.toString());
+                                                    }
+                                                    // Calculate distance
+                                                    float[] results = new float[1];
+                                                    Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
+                                                    shop.setDistance(results[0]);
+                                                    filteredShops.add(shop);
+                                                    break;
+                                                }
+                                            }
                                         }
-                                        // Calculate distance
-                                        float[] results = new float[1];
-                                        Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
-                                        shop.setDistance(results[0]);
-                                        filteredShops.add(shop);
                                     }
-                                }
-                                // Sort by distance
-                                Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
-                                RecommendLocalShopAdapter newAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
-                                recyclerView.setAdapter(newAdapter);
+                                    // Sort by distance
+                                    Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
+                                    RecommendLocalShopAdapter newAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
+                                    recyclerView.setAdapter(newAdapter);
+                                });
                             });
                         });
                     }).start();
@@ -109,13 +123,14 @@ public class ServicesRecommendActivity extends AppCompatActivity {
 
     private String askGemini(String prompt) {
         String formattedPrompt = String.format(
-                "The user describes a vehicle-related issue. Categorize it into one of these services:\n" +
-                        "- Car Repair\n" +
+                "The user describes a vehicle-related issue. Categorize it into one or more of these services, separated by commas if multiple:\n" +
+                        "- Auto repair shop\n" +
                         "- Auto Parts Store\n" +
                         "- Fuel Station\n" +
                         "- Towing Services\n" +
                         "If unrelated, respond with 'Error: No relevant services found.'\n" +
-                        "User Query: \"%s\"\nProvide only the service category.",
+                        "User Query: \"%s\"\n" +
+                        "Provide only the service category or categories, separated by commas.",
                 prompt
         );
 
@@ -134,4 +149,5 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             return "Error: " + e.getMessage();
         }
     }
+
 }

@@ -40,6 +40,7 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
         holder.shopName.setText(shop.getShopName());
         holder.place.setText(shop.getPlace());
         holder.ratings.setText(String.valueOf(shop.getRatings()));
+        holder.kindOfService.setText(shop.getKindOfService());
 
         // Load image using Glide
         Glide.with(context).load(shop.getImage()).into(holder.shopImage);
@@ -54,12 +55,13 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView shopImage;
-        TextView shopName, place, ratings;
+        TextView shopName, place, ratings, kindOfService;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             shopImage = itemView.findViewById(R.id.shopImage);
             shopName = itemView.findViewById(R.id.shopName);
+            kindOfService = itemView.findViewById(R.id.kindOfService);
             place = itemView.findViewById(R.id.shopPlace);
             ratings = itemView.findViewById(R.id.ratings);
         }
