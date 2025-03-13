@@ -3,6 +3,7 @@ package com.example.gearup;
 public class RecommendLocalShop {
     private String image, shopName, kindOfService, timeSchedule, place, contactNumber, website;
     private double ratings, latitude, longitude;
+    private float distance;  // Added distance field
 
     public RecommendLocalShop() {
         // No-argument constructor required by Firestore
@@ -50,4 +51,7 @@ public class RecommendLocalShop {
 
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    public float getDistance() { return distance; }
+    public void setDistance(float distance) { this.distance = distance; }
 }
