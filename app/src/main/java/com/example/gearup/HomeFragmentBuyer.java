@@ -98,12 +98,17 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
 
 
 
-        // Click listeners for See All buttons
+        TextView find_services = view.findViewById(R.id.find_services);
         TextView textSeeAllCentral = view.findViewById(R.id.text_see_all_central);
         TextView textSeeAllBody = view.findViewById(R.id.text_see_all_body);
         TextView textSeeAllConnectors = view.findViewById(R.id.text_see_all_connectors);
         TextView textSeeAllPeripherals = view.findViewById(R.id.text_see_all_peripherals);
         TextView textShops = view.findViewById(R.id.text_shops);  // Assuming you have a TextView for Shops
+
+        find_services.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ServicesRecommendActivity.class);
+            startActivity(intent);
+        });
 
         // Set click listener for Shops button
         textShops.setOnClickListener(v -> {

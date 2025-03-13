@@ -79,6 +79,7 @@
             android:textColor="@android:color/black"
             android:padding="10dp"
             android:textSize="16sp"
+            android:gravity="center"
             android:clickable="true"
             android:focusable="true" />
 
@@ -93,6 +94,19 @@
             android:padding="10dp"
             android:textSize="16sp"
             android:clickable="true"
+            android:gravity="center"
+            android:focusable="true" />
+        <TextView
+            android:id="@+id/find_services"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="WTF IS THIS"
+            android:textColor="@android:color/black"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:clickable="true"
+            android:gravity="center"
             android:focusable="true" />
 
     </LinearLayout>
