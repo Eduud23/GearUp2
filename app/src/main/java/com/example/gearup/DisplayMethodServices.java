@@ -20,6 +20,10 @@ public class DisplayMethodServices {
     public interface FirestoreCallback {
         void onCallback(List<RecommendLocalShop> shops);
     }
+    public interface FirestoreGasStationCallback {
+        void onCallback(List<RecommendGasStation> gasStationList);
+    }
+
 
     @SuppressLint("MissingPermission")
     public static Location getUserLocation(Context context) {
@@ -153,4 +157,59 @@ public class DisplayMethodServices {
                     }
                 });
     }
+    public static void getGasStation(Context context, FirestoreGasStationCallback callback) {
+        FirebaseApp secondApp = FirebaseApp.getInstance("gearupdataSecondApp");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance(secondApp);
+
+        firestore.collection("gas_stations").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<RecommendGasStation> gasStationList = new ArrayList<>();
+                        QuerySnapshot result = task.getResult();
+                        if (result != null) {
+                            for (QueryDocumentSnapshot document : result) {
+                                RecommendGasStation gasStation = new RecommendGasStation();
+                                gasStation.setName(document.getString("name"));
+                                gasStation.setKindOfService(document.getString("kind_of_service"));
+                                gasStation.setPlace(document.getString("place"));
+                                gasStation.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
+                                gasStation.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
+                                gasStation.setWebsite(document.get("website") != null ? document.get("website").toString() : "");
+
+                                try {
+                                    gasStation.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
+                                    gasStation.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid latitude/longitude format", e);
+                                    gasStation.setLatitude(0.0);
+                                    gasStation.setLongitude(0.0);
+                                }
+
+                                gasStationList.add(gasStation);
+                            }
+
+                            // Get user location
+                            Location userLocation = getUserLocation(context);
+                            if (userLocation != null) {
+                                for (RecommendGasStation gasStation : gasStationList) {
+                                    Location stationLocation = new Location("");
+                                    stationLocation.setLatitude(gasStation.getLatitude());
+                                    stationLocation.setLongitude(gasStation.getLongitude());
+                                    float distance = userLocation.distanceTo(stationLocation);
+                                    // You can add a method in RecommendGasStation to set distance if needed.
+                                }
+                                // Sort by distance if needed (add a getDistance method in RecommendGasStation if you do this)
+                            } else {
+                                Log.e(TAG, "User location is null");
+                            }
+                            callback.onCallback(gasStationList);
+                        } else {
+                            Log.e(TAG, "No data found in gas_stations");
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
 }
