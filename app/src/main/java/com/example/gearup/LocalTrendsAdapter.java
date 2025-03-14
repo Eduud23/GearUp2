@@ -1,8 +1,6 @@
 package com.example.gearup;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +8,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
 import java.util.List;
 
 public class LocalTrendsAdapter extends RecyclerView.Adapter<LocalTrendsAdapter.ViewHolder> {
 
     private List<LocalTrendsData> localTrendsList;
+    private OnItemClickListener onItemClickListener;
 
-    public LocalTrendsAdapter(List<LocalTrendsData> localTrendsList) {
+    public interface OnItemClickListener {
+        void onItemClick(LocalTrendsData data);
+    }
+
+    public LocalTrendsAdapter(List<LocalTrendsData> localTrendsList, OnItemClickListener onItemClickListener) {
         this.localTrendsList = localTrendsList;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -40,10 +42,7 @@ public class LocalTrendsAdapter extends RecyclerView.Adapter<LocalTrendsAdapter.
         holder.ratingsTextView.setText("Ratings: " + data.getRatings());
         holder.soldTextView.setText("Sold: " + data.getSold());
 
-        holder.itemView.setOnClickListener(v -> {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(data.getLink()));
-            v.getContext().startActivity(browserIntent);
-        });
+        holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(data));
     }
 
     @Override

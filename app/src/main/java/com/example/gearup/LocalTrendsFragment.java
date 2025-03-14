@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,15 +33,29 @@ public class LocalTrendsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_local_trends, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_local_trends);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        adapter = new LocalTrendsAdapter(localTrendsList);
+
+        // Initialize the adapter with the click listener
+        adapter = new LocalTrendsAdapter(localTrendsList, this::onItemClick);
         recyclerView.setAdapter(adapter);
 
         fetchLocalTrendsData();
         return view;
     }
 
+    private void onItemClick(LocalTrendsData data) {
+        Intent intent = new Intent(getContext(), LocalTrendsDetails.class);
+        intent.putExtra("image", data.getImage());
+        intent.putExtra("name", data.getName());
+        intent.putExtra("place", data.getPlace());
+        intent.putExtra("price", data.getPrice());
+        intent.putExtra("ratings", data.getRatings());
+        intent.putExtra("sold", data.getSold());
+        intent.putExtra("promo", data.getPromo());
+        intent.putExtra("link", data.getLink());
+        startActivity(intent);
+    }
+
     private void fetchLocalTrendsData() {
-        // Access the third Firebase app
         FirebaseApp thirdApp = FirebaseApp.getInstance("gearupdataThirdApp");
         FirebaseFirestore db = FirebaseFirestore.getInstance(thirdApp);
 
@@ -58,7 +73,7 @@ public class LocalTrendsFragment extends Fragment {
                                 data.setName(document.getString("name"));
                                 data.setPlace(document.getString("place"));
 
-                                // Handle price - check for Number or String
+                                // Handle price
                                 Object priceObj = document.get("price");
                                 if (priceObj instanceof Number) {
                                     data.setPrice(((Number) priceObj).doubleValue());
@@ -73,17 +88,7 @@ public class LocalTrendsFragment extends Fragment {
                                     data.setPrice(0.0);
                                 }
 
-                                // Handle promo - check for String or other types
-                                Object promoObj = document.get("promo");
-                                if (promoObj instanceof String) {
-                                    data.setPromo((String) promoObj);
-                                } else if (promoObj != null) {
-                                    data.setPromo(promoObj.toString());
-                                } else {
-                                    data.setPromo("");
-                                }
-
-                                // Handle ratings - check for Number or String
+                                // Handle ratings
                                 Object ratingsObj = document.get("ratings");
                                 if (ratingsObj instanceof Number) {
                                     data.setRatings(((Number) ratingsObj).doubleValue());
@@ -98,7 +103,17 @@ public class LocalTrendsFragment extends Fragment {
                                     data.setRatings(0.0);
                                 }
 
-                                // Handle sale - check for Number or String
+                                // Handle promo
+                                Object promoObj = document.get("promo");
+                                if (promoObj instanceof String) {
+                                    data.setPromo((String) promoObj);
+                                } else if (promoObj != null) {
+                                    data.setPromo(promoObj.toString());
+                                } else {
+                                    data.setPromo("");  // Default value if promo is null
+                                }
+
+                                // Handle sale
                                 Object saleObj = document.get("sale");
                                 if (saleObj instanceof Number) {
                                     data.setSale(((Number) saleObj).intValue());
@@ -110,7 +125,7 @@ public class LocalTrendsFragment extends Fragment {
                                         data.setSale(0);
                                     }
                                 } else {
-                                    data.setSale(0);
+                                    data.setSale(0);  // Default if sale is null or unexpected type
                                 }
 
                                 data.setSold(document.getString("sold") != null ? document.getString("sold") : "0");
