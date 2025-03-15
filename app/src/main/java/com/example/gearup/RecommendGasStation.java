@@ -9,9 +9,10 @@ public class RecommendGasStation {
     private String timeSchedule;
     private double latitude;
     private double longitude;
+    private String imageUrl;
 
     // Constructor
-    public RecommendGasStation(String name, String kindOfService, String place, String contactNumber, String website, String timeSchedule, double latitude, double longitude) {
+    public RecommendGasStation(String name, String kindOfService, String place, String contactNumber, String website, String timeSchedule, double latitude, double longitude, String imageUrl) {
         this.name = name;
         this.kindOfService = kindOfService;
         this.place = place;
@@ -20,6 +21,7 @@ public class RecommendGasStation {
         this.timeSchedule = timeSchedule;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.imageUrl = imageUrl;
     }
 
     // Default Constructor
@@ -89,5 +91,12 @@ public class RecommendGasStation {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-}
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+}

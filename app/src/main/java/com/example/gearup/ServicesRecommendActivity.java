@@ -32,7 +32,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private Button predictButton;
     private TextView resultView;
     private RecyclerView recyclerView;
-    private RecommendLocalShopAdapter adapter;
+    private RecommendLocalShopAdapter shopAdapter;
+    private RecommendGasStationAdapter gasStationAdapter;
     private List<RecommendLocalShop> shopList = new ArrayList<>();
     private final OkHttpClient client = new OkHttpClient();
     private static final String API_KEY = "AIzaSyAqN2a7lbuzQGe20b8cZ6UhMF2K9jHAIHs";
@@ -52,9 +53,6 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
-        adapter = new RecommendLocalShopAdapter(shopList, this, shop -> {});
-        recyclerView.setAdapter(adapter);
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getUserLocation();
 
@@ -68,37 +66,48 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             resultView.setText(prediction);
                             List<RecommendLocalShop> combinedShops = new ArrayList<>();
+                            List<RecommendGasStation> gasStations = new ArrayList<>();
 
                             DisplayMethodServices.getAutoPartsShops(ServicesRecommendActivity.this, autoPartsShops -> {
                                 combinedShops.addAll(autoPartsShops);
                                 DisplayMethodServices.getLocalRepair(ServicesRecommendActivity.this, localRepairShops -> {
                                     combinedShops.addAll(localRepairShops);
+                                    DisplayMethodServices.getGasStation(ServicesRecommendActivity.this, fetchedGasStations -> {
+                                        gasStations.addAll(fetchedGasStations);
 
-                                    List<RecommendLocalShop> filteredShops = new ArrayList<>();
-                                    String[] predictedServices = prediction.split(",");
-                                    for (RecommendLocalShop shop : combinedShops) {
-                                        String kindOfService = shop.getKindOfService();
-                                        if (kindOfService != null) {
-                                            for (String service : predictedServices) {
-                                                if (kindOfService.equalsIgnoreCase(service.trim())) {
-                                                    Object websiteField = shop.getWebsite();
-                                                    if (websiteField != null) {
-                                                        shop.setWebsite(websiteField.toString());
+                                        List<RecommendLocalShop> filteredShops = new ArrayList<>();
+                                        List<RecommendGasStation> filteredGasStations = new ArrayList<>();
+
+                                        String[] predictedServices = prediction.split(",");
+                                        for (String service : predictedServices) {
+                                            service = service.trim();
+                                            if (service.equalsIgnoreCase("Gas station")) {
+                                                filteredGasStations.addAll(gasStations);
+                                            } else {
+                                                for (RecommendLocalShop shop : combinedShops) {
+                                                    String kindOfService = shop.getKindOfService();
+                                                    if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
+                                                        float[] results = new float[1];
+                                                        Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
+                                                        shop.setDistance(results[0]);
+                                                        filteredShops.add(shop);
                                                     }
-                                                    // Calculate distance
-                                                    float[] results = new float[1];
-                                                    Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
-                                                    shop.setDistance(results[0]);
-                                                    filteredShops.add(shop);
-                                                    break;
                                                 }
                                             }
                                         }
-                                    }
-                                    // Sort by distance
-                                    Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
-                                    RecommendLocalShopAdapter newAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
-                                    recyclerView.setAdapter(newAdapter);
+
+                                        // Sort by distance
+                                        Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
+                                        Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getLatitude));
+
+                                        if (!filteredGasStations.isEmpty()) {
+                                            gasStationAdapter = new RecommendGasStationAdapter(ServicesRecommendActivity.this, filteredGasStations);
+                                            recyclerView.setAdapter(gasStationAdapter);
+                                        } else {
+                                            shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
+                                            recyclerView.setAdapter(shopAdapter);
+                                        }
+                                    });
                                 });
                             });
                         });
@@ -126,7 +135,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 "The user describes a vehicle-related issue. Categorize it into one or more of these services, separated by commas if multiple:\n" +
                         "- Auto repair shop\n" +
                         "- Auto Parts Store\n" +
-                        "- Fuel Station\n" +
+                        "- Gas station\n" +
                         "- Towing Services\n" +
                         "If unrelated, respond with 'Error: No relevant services found.'\n" +
                         "User Query: \"%s\"\n" +
@@ -149,5 +158,4 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             return "Error: " + e.getMessage();
         }
     }
-
 }

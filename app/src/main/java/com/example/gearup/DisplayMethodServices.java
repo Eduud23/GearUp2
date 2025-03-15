@@ -172,6 +172,7 @@ public class DisplayMethodServices {
                                 gasStation.setName(document.getString("name"));
                                 gasStation.setKindOfService(document.getString("kind_of_service"));
                                 gasStation.setPlace(document.getString("place"));
+                                gasStation.setImageUrl(document.getString("image"));
                                 gasStation.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
                                 gasStation.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
                                 gasStation.setWebsite(document.get("website") != null ? document.get("website").toString() : "");
