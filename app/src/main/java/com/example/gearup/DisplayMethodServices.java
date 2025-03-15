@@ -23,6 +23,9 @@ public class DisplayMethodServices {
     public interface FirestoreGasStationCallback {
         void onCallback(List<RecommendGasStation> gasStationList);
     }
+    public interface FirestoreTowingCallback {
+        void onCallback(List<RecommendTowing> towingList);
+    }
 
 
     @SuppressLint("MissingPermission")
@@ -206,6 +209,62 @@ public class DisplayMethodServices {
                             callback.onCallback(gasStationList);
                         } else {
                             Log.e(TAG, "No data found in gas_stations");
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+    public static void getTowing(Context context, FirestoreTowingCallback callback) {
+        FirebaseApp secondApp = FirebaseApp.getInstance("gearupdataSecondApp");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance(secondApp);
+
+        firestore.collection("towing_services").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<RecommendTowing> towingList = new ArrayList<>();
+                        QuerySnapshot result = task.getResult();
+                        if (result != null) {
+                            for (QueryDocumentSnapshot document : result) {
+                                RecommendTowing towing = new RecommendTowing();
+                                towing.setShopName(document.getString("shop_name"));
+                                towing.setKindOfService(document.getString("kind_of_service"));
+                                towing.setPlace(document.getString("place"));
+                                towing.setImage(document.getString("image"));
+                                towing.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
+                                towing.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
+                                towing.setRatings(document.get("ratings") != null ? document.get("ratings").toString() : "");
+                                towing.setWebsite(document.get("website") != null ? document.get("website").toString() : "");
+
+                                try {
+                                    towing.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
+                                    towing.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid latitude/longitude format", e);
+                                    towing.setLatitude(0.0);
+                                    towing.setLongitude(0.0);
+                                }
+
+                                towingList.add(towing);
+                            }
+
+                            // Get user location
+                            Location userLocation = getUserLocation(context);
+                            if (userLocation != null) {
+                                for (RecommendTowing towing : towingList) {
+                                    Location towingLocation = new Location("");
+                                    towingLocation.setLatitude(towing.getLatitude());
+                                    towingLocation.setLongitude(towing.getLongitude());
+                                    float distance = userLocation.distanceTo(towingLocation);
+                                    // Optionally, add a method to set distance if needed.
+                                }
+                                // Sort by distance if required (add a getDistance method in RecommendTowing if needed)
+                            } else {
+                                Log.e(TAG, "User location is null");
+                            }
+                            callback.onCallback(towingList);
+                        } else {
+                            Log.e(TAG, "No data found in towing_services");
                         }
                     } else {
                         Log.e(TAG, "Error getting documents: ", task.getException());

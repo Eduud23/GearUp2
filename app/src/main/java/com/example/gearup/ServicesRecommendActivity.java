@@ -34,6 +34,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecommendLocalShopAdapter shopAdapter;
     private RecommendGasStationAdapter gasStationAdapter;
+    private RecommendTowingAdapter towingAdapter;
     private List<RecommendLocalShop> shopList = new ArrayList<>();
     private final OkHttpClient client = new OkHttpClient();
     private static final String API_KEY = "AIzaSyAqN2a7lbuzQGe20b8cZ6UhMF2K9jHAIHs";
@@ -67,6 +68,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                             resultView.setText(prediction);
                             List<RecommendLocalShop> combinedShops = new ArrayList<>();
                             List<RecommendGasStation> gasStations = new ArrayList<>();
+                            List<RecommendTowing> towingServices = new ArrayList<>();
 
                             DisplayMethodServices.getAutoPartsShops(ServicesRecommendActivity.this, autoPartsShops -> {
                                 combinedShops.addAll(autoPartsShops);
@@ -74,39 +76,49 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                     combinedShops.addAll(localRepairShops);
                                     DisplayMethodServices.getGasStation(ServicesRecommendActivity.this, fetchedGasStations -> {
                                         gasStations.addAll(fetchedGasStations);
+                                        DisplayMethodServices.getTowing(ServicesRecommendActivity.this, fetchedTowing -> {
+                                            towingServices.addAll(fetchedTowing);
 
-                                        List<RecommendLocalShop> filteredShops = new ArrayList<>();
-                                        List<RecommendGasStation> filteredGasStations = new ArrayList<>();
+                                            List<RecommendLocalShop> filteredShops = new ArrayList<>();
+                                            List<RecommendGasStation> filteredGasStations = new ArrayList<>();
+                                            List<RecommendTowing> filteredTowing = new ArrayList<>();
 
-                                        String[] predictedServices = prediction.split(",");
-                                        for (String service : predictedServices) {
-                                            service = service.trim();
-                                            if (service.equalsIgnoreCase("Gas station")) {
-                                                filteredGasStations.addAll(gasStations);
-                                            } else {
-                                                for (RecommendLocalShop shop : combinedShops) {
-                                                    String kindOfService = shop.getKindOfService();
-                                                    if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
-                                                        float[] results = new float[1];
-                                                        Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
-                                                        shop.setDistance(results[0]);
-                                                        filteredShops.add(shop);
+                                            String[] predictedServices = prediction.split(",");
+                                            for (String service : predictedServices) {
+                                                service = service.trim();
+                                                if (service.equalsIgnoreCase("Gas station")) {
+                                                    filteredGasStations.addAll(gasStations);
+                                                } else if (service.equalsIgnoreCase("Towing service")) {
+                                                    filteredTowing.addAll(towingServices);
+                                                } else {
+                                                    for (RecommendLocalShop shop : combinedShops) {
+                                                        String kindOfService = shop.getKindOfService();
+                                                        if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
+                                                            float[] results = new float[1];
+                                                            Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
+                                                            shop.setDistance(results[0]);
+                                                            filteredShops.add(shop);
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        // Sort by distance
-                                        Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
-                                        Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getLatitude));
+                                            // Sort by distance
+                                            Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
+                                            Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getLatitude));
+                                            Collections.sort(filteredTowing, Comparator.comparingDouble(RecommendTowing::getLatitude));
 
-                                        if (!filteredGasStations.isEmpty()) {
-                                            gasStationAdapter = new RecommendGasStationAdapter(ServicesRecommendActivity.this, filteredGasStations);
-                                            recyclerView.setAdapter(gasStationAdapter);
-                                        } else {
-                                            shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
-                                            recyclerView.setAdapter(shopAdapter);
-                                        }
+                                            if (!filteredGasStations.isEmpty()) {
+                                                gasStationAdapter = new RecommendGasStationAdapter(ServicesRecommendActivity.this, filteredGasStations);
+                                                recyclerView.setAdapter(gasStationAdapter);
+                                            } else if (!filteredTowing.isEmpty()) {
+                                                towingAdapter = new RecommendTowingAdapter(ServicesRecommendActivity.this, filteredTowing);
+                                                recyclerView.setAdapter(towingAdapter);
+                                            } else {
+                                                shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
+                                                recyclerView.setAdapter(shopAdapter);
+                                            }
+                                        });
                                     });
                                 });
                             });
@@ -136,7 +148,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         "- Auto repair shop\n" +
                         "- Auto Parts Store\n" +
                         "- Gas station\n" +
-                        "- Towing Services\n" +
+                        "- Towing Service\n" +
                         "If unrelated, respond with 'Error: No relevant services found.'\n" +
                         "User Query: \"%s\"\n" +
                         "Provide only the service category or categories, separated by commas.",

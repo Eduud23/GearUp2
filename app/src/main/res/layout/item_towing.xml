@@ -1,0 +1,60 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/card_background"
+    android:layout_margin="8dp">
+
+    <ImageView
+        android:id="@+id/towingImage"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+       />
+
+    <TextView
+        android:id="@+id/towingShopName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:maxLines="2"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/towingKindOfService"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/towingPlace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:paddingTop="4dp"
+        android:maxLines="2"
+        android:paddingBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/towingContactNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/towingRatings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/holo_orange_dark"/>
+
+</LinearLayout>
