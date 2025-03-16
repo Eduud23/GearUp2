@@ -101,6 +101,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                             DisplayMethodServices.getTowing(ServicesRecommendActivity.this, fetchedTowing -> {
                                 towingServices.addAll(fetchedTowing);
 
+                                List<String> addedNames = new ArrayList<>();
                                 List<RecommendLocalShop> filteredShops = new ArrayList<>();
                                 List<RecommendGasStation> filteredGasStations = new ArrayList<>();
                                 List<RecommendTowing> filteredTowing = new ArrayList<>();
@@ -110,26 +111,35 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                     service = service.trim();
                                     if (service.equalsIgnoreCase("Gas station")) {
                                         for (RecommendGasStation station : gasStations) {
-                                            float[] results = new float[1];
-                                            Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
-                                            station.setDistance(results[0]);
-                                            filteredGasStations.add(station);
+                                            if (!addedNames.contains(station.getName())) {
+                                                float[] results = new float[1];
+                                                Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
+                                                station.setDistance(results[0]);
+                                                filteredGasStations.add(station);
+                                                addedNames.add(station.getName());
+                                            }
                                         }
                                     } else if (service.equalsIgnoreCase("Towing service")) {
                                         for (RecommendTowing towing : towingServices) {
-                                            float[] results = new float[1];
-                                            Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
-                                            towing.setDistance(results[0]);
-                                            filteredTowing.add(towing);
+                                            if (!addedNames.contains(towing.getShopName())) {
+                                                float[] results = new float[1];
+                                                Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
+                                                towing.setDistance(results[0]);
+                                                filteredTowing.add(towing);
+                                                addedNames.add(towing.getShopName());
+                                            }
                                         }
                                     } else {
                                         for (RecommendLocalShop shop : combinedShops) {
                                             String kindOfService = shop.getKindOfService();
                                             if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
-                                                float[] results = new float[1];
-                                                Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
-                                                shop.setDistance(results[0]);
-                                                filteredShops.add(shop);
+                                                if (!addedNames.contains(shop.getShopName())) {
+                                                    float[] results = new float[1];
+                                                    Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
+                                                    shop.setDistance(results[0]);
+                                                    filteredShops.add(shop);
+                                                    addedNames.add(shop.getShopName());
+                                                }
                                             }
                                         }
                                     }
@@ -156,6 +166,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             });
         }).start();
     }
+
 
     private String askGemini(String prompt) {
         String formattedPrompt = String.format(
