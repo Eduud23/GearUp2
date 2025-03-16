@@ -57,4 +57,11 @@
         android:textSize="14sp"
         android:textColor="@android:color/holo_orange_dark"/>
 
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
+
 </LinearLayout>

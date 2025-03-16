@@ -45,6 +45,11 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
         // Load image using Glide
         Glide.with(context).load(shop.getImage()).into(holder.shopImage);
 
+        // Display distance
+        double distance = shop.getDistance();
+        String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
+        holder.distance.setText(distanceText);
+
         holder.itemView.setOnClickListener(v -> onShopClickListener.onShopClick(shop));
     }
 
@@ -55,7 +60,7 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView shopImage;
-        TextView shopName, place, ratings, kindOfService;
+        TextView shopName, place, ratings, kindOfService, distance;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -64,6 +69,7 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
             kindOfService = itemView.findViewById(R.id.kindOfService);
             place = itemView.findViewById(R.id.shopPlace);
             ratings = itemView.findViewById(R.id.ratings);
+            distance = itemView.findViewById(R.id.distance);
         }
     }
 }

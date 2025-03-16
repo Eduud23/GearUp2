@@ -39,6 +39,10 @@ public class RecommendGasStationAdapter extends RecyclerView.Adapter<RecommendGa
                 .load(gasStation.getImageUrl())
                 .placeholder(R.drawable.gear)
                 .into(holder.gasStationImageView);
+
+        double distance = gasStation.getDistance();
+        String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
+        holder.distance.setText(distanceText);
     }
 
     @Override
@@ -47,7 +51,7 @@ public class RecommendGasStationAdapter extends RecyclerView.Adapter<RecommendGa
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView, kindOfServiceTextView, placeTextView;
+        TextView nameTextView, kindOfServiceTextView, placeTextView, distance;
         ImageView gasStationImageView;
 
         public ViewHolder(@NonNull View itemView) {
@@ -56,6 +60,7 @@ public class RecommendGasStationAdapter extends RecyclerView.Adapter<RecommendGa
             kindOfServiceTextView = itemView.findViewById(R.id.kindOfServiceTextView);
             placeTextView = itemView.findViewById(R.id.placeTextView);
             gasStationImageView = itemView.findViewById(R.id.gasStationImageView);
+            distance = itemView.findViewById(R.id.distance);
         }
     }
 }

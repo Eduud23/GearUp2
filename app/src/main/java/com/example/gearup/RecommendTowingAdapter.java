@@ -33,9 +33,14 @@ public class RecommendTowingAdapter extends RecyclerView.Adapter<RecommendTowing
         holder.shopName.setText(towing.getShopName());
         holder.kindOfService.setText(towing.getKindOfService());
         holder.place.setText(towing.getPlace());
+        holder.contactNumber.setText(towing.getContactNumber());
         holder.ratings.setText(towing.getRatings());
 
         Glide.with(context).load(towing.getImage()).into(holder.imageView);
+
+        double distance = towing.getDistance();
+        String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
+        holder.distance.setText(distanceText);
     }
 
     @Override
@@ -45,7 +50,7 @@ public class RecommendTowingAdapter extends RecyclerView.Adapter<RecommendTowing
 
     public static class TowingViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
-        TextView shopName, kindOfService, place, ratings;
+        TextView shopName, kindOfService, place, ratings, distance, contactNumber;
 
         public TowingViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -54,6 +59,8 @@ public class RecommendTowingAdapter extends RecyclerView.Adapter<RecommendTowing
             kindOfService = itemView.findViewById(R.id.towingKindOfService);
             place = itemView.findViewById(R.id.towingPlace);
             ratings = itemView.findViewById(R.id.towingRatings);
+            contactNumber = itemView.findViewById(R.id.towingContactNumber);
+            distance = itemView.findViewById(R.id.distance);
         }
     }
 }
