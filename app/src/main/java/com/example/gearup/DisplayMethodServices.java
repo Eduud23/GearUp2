@@ -177,7 +177,7 @@ public class DisplayMethodServices {
                                 gasStation.setPlace(document.getString("place"));
                                 gasStation.setImageUrl(document.getString("image"));
                                 gasStation.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
-                                gasStation.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
+
                                 gasStation.setWebsite(document.get("website") != null ? document.get("website").toString() : "");
 
                                 try {
@@ -200,9 +200,9 @@ public class DisplayMethodServices {
                                     stationLocation.setLatitude(gasStation.getLatitude());
                                     stationLocation.setLongitude(gasStation.getLongitude());
                                     float distance = userLocation.distanceTo(stationLocation);
-                                    // You can add a method in RecommendGasStation to set distance if needed.
+                                    gasStation.setDistance(distance);
                                 }
-                                // Sort by distance if needed (add a getDistance method in RecommendGasStation if you do this)
+                                Collections.sort(gasStationList, Comparator.comparingDouble(RecommendGasStation::getDistance));
                             } else {
                                 Log.e(TAG, "User location is null");
                             }
@@ -256,9 +256,9 @@ public class DisplayMethodServices {
                                     towingLocation.setLatitude(towing.getLatitude());
                                     towingLocation.setLongitude(towing.getLongitude());
                                     float distance = userLocation.distanceTo(towingLocation);
-                                    // Optionally, add a method to set distance if needed.
+                                    towing.setDistance(distance);
                                 }
-                                // Sort by distance if required (add a getDistance method in RecommendTowing if needed)
+                                Collections.sort(towingList, Comparator.comparingDouble(RecommendTowing::getDistance));
                             } else {
                                 Log.e(TAG, "User location is null");
                             }

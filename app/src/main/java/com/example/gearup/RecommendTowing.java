@@ -11,6 +11,7 @@ public class RecommendTowing {
     private String website;
     private double latitude;
     private double longitude;
+    private float distance;
 
     public RecommendTowing() {}
 
@@ -43,5 +44,8 @@ public class RecommendTowing {
 
     public double getLongitude() { return longitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
+
+    public float getDistance() { return distance; }
+    public void setDistance(float distance) { this.distance = distance; }
 }
 

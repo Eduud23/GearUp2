@@ -11,6 +11,8 @@ public class RecommendGasStation {
     private double longitude;
     private String imageUrl;
 
+    private float distance;
+
     // Constructor
     public RecommendGasStation(String name, String kindOfService, String place, String contactNumber, String website, String timeSchedule, double latitude, double longitude, String imageUrl) {
         this.name = name;
@@ -99,4 +101,6 @@ public class RecommendGasStation {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+    public float getDistance() { return distance; }
+    public void setDistance(float distance) { this.distance = distance; }
 }
