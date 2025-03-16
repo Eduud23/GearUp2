@@ -109,9 +109,19 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                 for (String service : predictedServices) {
                                     service = service.trim();
                                     if (service.equalsIgnoreCase("Gas station")) {
-                                        filteredGasStations.addAll(gasStations);
+                                        for (RecommendGasStation station : gasStations) {
+                                            float[] results = new float[1];
+                                            Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
+                                            station.setDistance(results[0]);
+                                            filteredGasStations.add(station);
+                                        }
                                     } else if (service.equalsIgnoreCase("Towing service")) {
-                                        filteredTowing.addAll(towingServices);
+                                        for (RecommendTowing towing : towingServices) {
+                                            float[] results = new float[1];
+                                            Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
+                                            towing.setDistance(results[0]);
+                                            filteredTowing.add(towing);
+                                        }
                                     } else {
                                         for (RecommendLocalShop shop : combinedShops) {
                                             String kindOfService = shop.getKindOfService();
@@ -126,8 +136,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                 }
 
                                 Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
-                                Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getLatitude));
-                                Collections.sort(filteredTowing, Comparator.comparingDouble(RecommendTowing::getLatitude));
+                                Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getDistance));
+                                Collections.sort(filteredTowing, Comparator.comparingDouble(RecommendTowing::getDistance));
 
                                 if (!filteredGasStations.isEmpty()) {
                                     gasStationAdapter = new RecommendGasStationAdapter(ServicesRecommendActivity.this, filteredGasStations);
@@ -152,6 +162,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 "The user describes a vehicle-related issue. Categorize it into one or more of these services, separated by commas if multiple:\n" +
                         "- Auto repair shop\n" +
                         "- Auto Parts Store\n" +
+                        "- Motorcycle parts store\n" +
+                        "- Auto body parts supplier\n" +
                         "- Gas station\n" +
                         "- Towing Service\n" +
                         "If unrelated, respond with 'Error: No relevant services found.'\n" +
