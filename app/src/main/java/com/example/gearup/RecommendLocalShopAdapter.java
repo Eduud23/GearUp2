@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +16,12 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
 
     private List<RecommendLocalShop> shopList;
     private Context context;
-    private OnShopClickListener onShopClickListener;
 
-    public interface OnShopClickListener {
-        void onShopClick(RecommendLocalShop shop);
-    }
+    public RecommendLocalShopAdapter(List<RecommendLocalShop> shopList, Context context)
 
-    public RecommendLocalShopAdapter(List<RecommendLocalShop> shopList, Context context, OnShopClickListener onShopClickListener) {
+        {
         this.shopList = shopList;
         this.context = context;
-        this.onShopClickListener = onShopClickListener;
     }
 
     @NonNull
@@ -50,12 +47,30 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
         String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
         holder.distance.setText(distanceText);
 
-        holder.itemView.setOnClickListener(v -> onShopClickListener.onShopClick(shop));
+        // Click listener to open Local Shop Detail Activity
+        holder.itemView.setOnClickListener(v -> openLocalShopDetailActivity(shop));
     }
 
     @Override
     public int getItemCount() {
         return shopList.size();
+    }
+
+    private void openLocalShopDetailActivity(RecommendLocalShop shop) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isLocalShop", true);
+        intent.putExtra("name", shop.getShopName());
+        intent.putExtra("latitude", shop.getLatitude());
+        intent.putExtra("longitude", shop.getLongitude());
+        intent.putExtra("kindOfService", shop.getKindOfService());
+        intent.putExtra("place", shop.getPlace());
+        intent.putExtra("distance", shop.getDistance());
+        intent.putExtra("image", shop.getImage());
+        intent.putExtra("contactNumber", shop.getContactNumber());
+        intent.putExtra("ratings", shop.getRatings());
+        intent.putExtra("timeSchedule", shop.getTimeSchedule());
+        intent.putExtra("website", shop.getWebsite());
+        context.startActivity(intent);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

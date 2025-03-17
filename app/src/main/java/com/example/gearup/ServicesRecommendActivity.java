@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
@@ -156,7 +157,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                     towingAdapter = new RecommendTowingAdapter(ServicesRecommendActivity.this, filteredTowing);
                                     recyclerView.setAdapter(towingAdapter);
                                 } else {
-                                    shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this, shop -> {});
+                                    shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this);
                                     recyclerView.setAdapter(shopAdapter);
                                 }
                             });
@@ -198,4 +199,35 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             return "Error: " + e.getMessage();
         }
     }
+
+    private void openDetailActivityGas(RecommendLocalShop shop) {
+        Intent intent = new Intent(this, ServiceDetailActivity.class);
+        intent.putExtra("name", shop.getShopName());
+        intent.putExtra("latitude", shop.getLatitude());
+        intent.putExtra("longitude", shop.getLongitude());
+        intent.putExtra("kindOfService", shop.getKindOfService());
+        intent.putExtra("timeSchedule", shop.getTimeSchedule());
+        intent.putExtra("contactNumber", shop.getContactNumber());
+        intent.putExtra("ratings", shop.getRatings());
+        intent.putExtra("website", shop.getWebsite());
+        intent.putExtra("image", shop.getImage());
+        intent.putExtra("distance", shop.getDistance());
+        startActivity(intent);
+    }
+    private void openDetailActivity(RecommendLocalShop shop) {
+        Intent intent = new Intent(this, ServiceDetailActivity.class);
+        intent.putExtra("name", shop.getShopName());
+        intent.putExtra("latitude", shop.getLatitude());
+        intent.putExtra("longitude", shop.getLongitude());
+        intent.putExtra("kindOfService", shop.getKindOfService());
+        intent.putExtra("timeSchedule", shop.getTimeSchedule());
+        intent.putExtra("contactNumber", shop.getContactNumber());
+        intent.putExtra("ratings", shop.getRatings());
+        intent.putExtra("website", shop.getWebsite());
+        intent.putExtra("image", shop.getImage());
+        intent.putExtra("distance", shop.getDistance());
+        startActivity(intent);
+    }
+
+
 }

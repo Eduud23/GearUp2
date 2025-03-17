@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +42,29 @@ public class RecommendTowingAdapter extends RecyclerView.Adapter<RecommendTowing
         double distance = towing.getDistance();
         String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
         holder.distance.setText(distanceText);
+
+        // Click listener to open Towing Detail Activity
+        holder.itemView.setOnClickListener(v -> openTowingDetailActivity(towing));
     }
 
     @Override
     public int getItemCount() {
         return towingList.size();
+    }
+
+    private void openTowingDetailActivity(RecommendTowing towing) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isTowing", true);
+        intent.putExtra("name", towing.getShopName());
+        intent.putExtra("latitude", towing.getLatitude());
+        intent.putExtra("longitude", towing.getLongitude());
+        intent.putExtra("kindOfService", towing.getKindOfService());
+        intent.putExtra("place", towing.getPlace());
+        intent.putExtra("contactNumber", towing.getContactNumber());
+        intent.putExtra("ratings", towing.getRatings());
+        intent.putExtra("distance", towing.getDistance());
+        intent.putExtra("image", towing.getImage());
+        context.startActivity(intent);
     }
 
     public static class TowingViewHolder extends RecyclerView.ViewHolder {

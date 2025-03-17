@@ -3,26 +3,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Describe Your Vehicle Issue"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="8dp"/>
 
     <EditText
         android:id="@+id/queryInput"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Describe your vehicle issue"
-        android:inputType="text"
-        android:padding="12dp"
+        android:layout_height="150dp"
+        android:hint="Type here..."
+        android:inputType="textMultiLine"
+        android:gravity="top|start"
+        android:padding="16dp"
         android:background="@android:drawable/edit_text"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="16dp"
+        android:scrollbars="vertical"/>
 
     <Button
         android:id="@+id/predictButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Predict Service"
+        android:textSize="16sp"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="24dp"
         android:layout_gravity="center"
-        android:padding="12dp"
-        android:layout_marginBottom="12dp"/>
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp"/>
 
     <TextView
         android:id="@+id/resultView"
@@ -31,15 +46,17 @@
         android:text="Predicted Service: "
         android:textSize="16sp"
         android:textColor="@android:color/black"
-        android:padding="8dp"
+        android:padding="12dp"
         android:background="@android:color/darker_gray"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="16dp"
+       />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:scrollbars="vertical"/>
+        android:scrollbars="vertical"
+        android:background="@android:color/white"/>
 
 </LinearLayout>

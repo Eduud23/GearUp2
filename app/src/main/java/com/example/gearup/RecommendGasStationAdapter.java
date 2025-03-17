@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,11 +44,27 @@ public class RecommendGasStationAdapter extends RecyclerView.Adapter<RecommendGa
         double distance = gasStation.getDistance();
         String distanceText = (distance >= 1000) ? String.format("%.2f km", distance / 1000) : String.format("%.0f m", distance);
         holder.distance.setText(distanceText);
+
+        // Click listener to open Gas Station Detail Activity
+        holder.itemView.setOnClickListener(v -> openGasStationDetailActivity(gasStation));
     }
 
     @Override
     public int getItemCount() {
         return gasStationList.size();
+    }
+
+    private void openGasStationDetailActivity(RecommendGasStation station) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isGasStation", true);
+        intent.putExtra("name", station.getName());
+        intent.putExtra("latitude", station.getLatitude());
+        intent.putExtra("longitude", station.getLongitude());
+        intent.putExtra("kindOfService", station.getKindOfService());
+        intent.putExtra("place", station.getPlace());
+        intent.putExtra("distance", station.getDistance());
+        intent.putExtra("image", station.getImageUrl());
+        context.startActivity(intent);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
