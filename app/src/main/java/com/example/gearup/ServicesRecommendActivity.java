@@ -200,34 +200,4 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         }
     }
 
-    private void openDetailActivityGas(RecommendLocalShop shop) {
-        Intent intent = new Intent(this, ServiceDetailActivity.class);
-        intent.putExtra("name", shop.getShopName());
-        intent.putExtra("latitude", shop.getLatitude());
-        intent.putExtra("longitude", shop.getLongitude());
-        intent.putExtra("kindOfService", shop.getKindOfService());
-        intent.putExtra("timeSchedule", shop.getTimeSchedule());
-        intent.putExtra("contactNumber", shop.getContactNumber());
-        intent.putExtra("ratings", shop.getRatings());
-        intent.putExtra("website", shop.getWebsite());
-        intent.putExtra("image", shop.getImage());
-        intent.putExtra("distance", shop.getDistance());
-        startActivity(intent);
-    }
-    private void openDetailActivity(RecommendLocalShop shop) {
-        Intent intent = new Intent(this, ServiceDetailActivity.class);
-        intent.putExtra("name", shop.getShopName());
-        intent.putExtra("latitude", shop.getLatitude());
-        intent.putExtra("longitude", shop.getLongitude());
-        intent.putExtra("kindOfService", shop.getKindOfService());
-        intent.putExtra("timeSchedule", shop.getTimeSchedule());
-        intent.putExtra("contactNumber", shop.getContactNumber());
-        intent.putExtra("ratings", shop.getRatings());
-        intent.putExtra("website", shop.getWebsite());
-        intent.putExtra("image", shop.getImage());
-        intent.putExtra("distance", shop.getDistance());
-        startActivity(intent);
-    }
-
-
 }
