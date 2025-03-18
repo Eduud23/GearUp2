@@ -37,6 +37,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private RecommendLocalShopAdapter shopAdapter;
     private RecommendGasStationAdapter gasStationAdapter;
     private RecommendTowingAdapter towingAdapter;
+    private RecommendCombinedAdapter combinedAdapter;
     private final OkHttpClient client = new OkHttpClient();
     private static final String API_KEY = "AIzaSyAqN2a7lbuzQGe20b8cZ6UhMF2K9jHAIHs";
     private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + API_KEY;
@@ -58,16 +59,13 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getUserLocation();
 
-        predictButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String userQuery = queryInput.getText().toString().trim();
-                if (!userQuery.isEmpty()) {
-                    if (userLatitude != 0.0 && userLongitude != 0.0) {
-                        makePrediction(userQuery);
-                    } else {
-                        getUserLocation();
-                    }
+        predictButton.setOnClickListener(v -> {
+            String userQuery = queryInput.getText().toString().trim();
+            if (!userQuery.isEmpty()) {
+                if (userLatitude != 0.0 && userLongitude != 0.0) {
+                    makePrediction(userQuery);
+                } else {
+                    getUserLocation();
                 }
             }
         });
@@ -78,13 +76,10 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    if (location != null) {
-                        userLatitude = location.getLatitude();
-                        userLongitude = location.getLongitude();
-                    }
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                if (location != null) {
+                    userLatitude = location.getLatitude();
+                    userLongitude = location.getLongitude();
                 }
             });
         } else {
@@ -119,19 +114,17 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 List<RecommendGasStation> gasStations = new ArrayList<>();
                 List<RecommendTowing> towingServices = new ArrayList<>();
 
-                DisplayMethodServices.getAutoPartsShops(ServicesRecommendActivity.this, autoPartsShops -> {
+                DisplayMethodServices.getAutoPartsShops(this, autoPartsShops -> {
                     combinedShops.addAll(autoPartsShops);
-                    DisplayMethodServices.getLocalRepair(ServicesRecommendActivity.this, localRepairShops -> {
+                    DisplayMethodServices.getLocalRepair(this, localRepairShops -> {
                         combinedShops.addAll(localRepairShops);
-                        DisplayMethodServices.getGasStation(ServicesRecommendActivity.this, fetchedGasStations -> {
+                        DisplayMethodServices.getGasStation(this, fetchedGasStations -> {
                             gasStations.addAll(fetchedGasStations);
-                            DisplayMethodServices.getTowing(ServicesRecommendActivity.this, fetchedTowing -> {
+                            DisplayMethodServices.getTowing(this, fetchedTowing -> {
                                 towingServices.addAll(fetchedTowing);
 
+                                List<Object> combinedList = new ArrayList<>();
                                 List<String> addedNames = new ArrayList<>();
-                                List<RecommendLocalShop> filteredShops = new ArrayList<>();
-                                List<RecommendGasStation> filteredGasStations = new ArrayList<>();
-                                List<RecommendTowing> filteredTowing = new ArrayList<>();
 
                                 String[] predictedServices = prediction.split(",");
                                 for (String service : predictedServices) {
@@ -142,7 +135,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                 float[] results = new float[1];
                                                 Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
                                                 station.setDistance(results[0]);
-                                                filteredGasStations.add(station);
+                                                combinedList.add(station);
                                                 addedNames.add(station.getName());
                                             }
                                         }
@@ -152,7 +145,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                 float[] results = new float[1];
                                                 Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
                                                 towing.setDistance(results[0]);
-                                                filteredTowing.add(towing);
+                                                combinedList.add(towing);
                                                 addedNames.add(towing.getShopName());
                                             }
                                         }
@@ -164,28 +157,15 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                     float[] results = new float[1];
                                                     Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
                                                     shop.setDistance(results[0]);
-                                                    filteredShops.add(shop);
+                                                    combinedList.add(shop);
                                                     addedNames.add(shop.getShopName());
                                                 }
                                             }
                                         }
                                     }
                                 }
-
-                                Collections.sort(filteredShops, Comparator.comparingDouble(RecommendLocalShop::getDistance));
-                                Collections.sort(filteredGasStations, Comparator.comparingDouble(RecommendGasStation::getDistance));
-                                Collections.sort(filteredTowing, Comparator.comparingDouble(RecommendTowing::getDistance));
-
-                                if (!filteredGasStations.isEmpty()) {
-                                    gasStationAdapter = new RecommendGasStationAdapter(ServicesRecommendActivity.this, filteredGasStations);
-                                    recyclerView.setAdapter(gasStationAdapter);
-                                } else if (!filteredTowing.isEmpty()) {
-                                    towingAdapter = new RecommendTowingAdapter(ServicesRecommendActivity.this, filteredTowing);
-                                    recyclerView.setAdapter(towingAdapter);
-                                } else {
-                                    shopAdapter = new RecommendLocalShopAdapter(filteredShops, ServicesRecommendActivity.this);
-                                    recyclerView.setAdapter(shopAdapter);
-                                }
+                                combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList);
+                                recyclerView.setAdapter(combinedAdapter);
                             });
                         });
                     });

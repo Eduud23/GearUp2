@@ -74,7 +74,7 @@ public class RecommendGasStationAdapter extends RecyclerView.Adapter<RecommendGa
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
-            kindOfServiceTextView = itemView.findViewById(R.id.kindOfServiceTextView);
+            kindOfServiceTextView = itemView.findViewById(R.id.serviceKind);
             placeTextView = itemView.findViewById(R.id.placeTextView);
             gasStationImageView = itemView.findViewById(R.id.gasStationImageView);
             distance = itemView.findViewById(R.id.distance);

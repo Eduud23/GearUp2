@@ -81,7 +81,7 @@ public class RecommendLocalShopAdapter extends RecyclerView.Adapter<RecommendLoc
             super(itemView);
             shopImage = itemView.findViewById(R.id.shopImage);
             shopName = itemView.findViewById(R.id.shopName);
-            kindOfService = itemView.findViewById(R.id.kindOfService);
+            kindOfService = itemView.findViewById(R.id.serviceKind);
             place = itemView.findViewById(R.id.shopPlace);
             ratings = itemView.findViewById(R.id.ratings);
             distance = itemView.findViewById(R.id.distance);

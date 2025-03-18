@@ -9,50 +9,32 @@
     android:layout_margin="8dp">
 
     <ImageView
-        android:id="@+id/shopImage"
+        android:id="@+id/serviceIcon"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:scaleType="centerCrop"
-        android:contentDescription="Shop Image" />
+        android:contentDescription="Service Image"/>
 
     <TextView
-        android:id="@+id/shopName"
+        android:id="@+id/serviceName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:maxLines="1"
         android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"/>
 
     <TextView
         android:id="@+id/serviceKind"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/shopPlace"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:maxLines="1"
-        android:layout_marginTop="4dp" />
-
-    <TextView
-        android:id="@+id/ratings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="4dp"/>
 
     <TextView
         android:id="@+id/distance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:layout_marginTop="4dp" />
-
-
-
+        android:layout_marginTop="4dp"/>
 </LinearLayout>

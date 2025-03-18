@@ -75,7 +75,7 @@ public class RecommendTowingAdapter extends RecyclerView.Adapter<RecommendTowing
             super(itemView);
             imageView = itemView.findViewById(R.id.towingImage);
             shopName = itemView.findViewById(R.id.towingShopName);
-            kindOfService = itemView.findViewById(R.id.towingKindOfService);
+            kindOfService = itemView.findViewById(R.id.serviceKind);
             place = itemView.findViewById(R.id.towingPlace);
             ratings = itemView.findViewById(R.id.towingRatings);
             contactNumber = itemView.findViewById(R.id.towingContactNumber);
