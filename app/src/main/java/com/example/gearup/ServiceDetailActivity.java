@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,6 +44,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Button navigateButton = findViewById(R.id.navigateButton);
         Button visitWebsiteButton = findViewById(R.id.visitWebsiteButton);
         RecyclerView similarServicesRecycler = findViewById(R.id.similarServicesRecycler);
+        TextView seeAllTextView = findViewById(R.id.seeAllTextView);
+
 
         // Get selected service and all services
         Object selectedService = getIntent().getSerializableExtra("selectedService");
@@ -149,6 +152,16 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 startActivity(mapIntent);
             }
         });
+        if (similarServices.size() > 4) {
+            seeAllTextView.setVisibility(View.VISIBLE);
+        } else {
+            seeAllTextView.setVisibility(View.GONE);
+        }
+        seeAllTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(ServiceDetailActivity.this, SeeAllServicesActivity.class);
+            intent.putExtra("similarServices", (ArrayList<Object>) similarServices);
+            startActivity(intent);
+        });
 
         // Visit website button listener (Local Shops Only)
         visitWebsiteButton.setOnClickListener(v -> {
@@ -159,4 +172,5 @@ public class ServiceDetailActivity extends AppCompatActivity {
             }
         });
     }
+
 }
