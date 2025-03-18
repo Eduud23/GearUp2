@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +28,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ServicesRecommendActivity extends AppCompatActivity {
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
 
     private EditText queryInput;
     private Button predictButton;
@@ -73,15 +75,39 @@ public class ServicesRecommendActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")
     private void getUserLocation() {
-        fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    userLatitude = location.getLatitude();
-                    userLongitude = location.getLongitude();
+        if (checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                @Override
+                public void onSuccess(Location location) {
+                    if (location != null) {
+                        userLatitude = location.getLatitude();
+                        userLongitude = location.getLongitude();
+                    }
                 }
+            });
+        } else {
+            // Request location permissions
+            requestPermissions(new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+            }, LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, get location
+                getUserLocation();
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+                resultView.setText("Location permission is required to get nearby services.");
             }
-        });
+        }
     }
 
     private void makePrediction(String userQuery) {
