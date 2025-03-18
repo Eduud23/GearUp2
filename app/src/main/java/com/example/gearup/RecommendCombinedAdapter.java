@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,18 +67,24 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
                 holder.type.setText(shop.getKindOfService());
                 holder.distance.setText(String.format("%.2f km", shop.getDistance() / 1000));
                 Glide.with(context).load(shop.getImage()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openLocalShopDetailActivity(shop));
             } else if (service instanceof RecommendGasStation) {
                 RecommendGasStation station = (RecommendGasStation) service;
                 holder.name.setText(station.getName());
                 holder.type.setText("Gas Station");
                 holder.distance.setText(String.format("%.2f km", station.getDistance() / 1000));
                 Glide.with(context).load(station.getImageUrl()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openGasStationDetailActivity(station));
             } else if (service instanceof RecommendTowing) {
                 RecommendTowing towing = (RecommendTowing) service;
                 holder.name.setText(towing.getShopName());
                 holder.type.setText("Towing Service");
                 holder.distance.setText(String.format("%.2f km", towing.getDistance() / 1000));
                 Glide.with(context).load(towing.getImage()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openTowingDetailActivity(towing));
             } else {
                 Log.w(TAG, "Unknown service type: " + service.getClass().getSimpleName());
             }
@@ -86,6 +93,49 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         }
     }
 
+    private void openLocalShopDetailActivity(RecommendLocalShop shop) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isLocalShop", true);
+        intent.putExtra("name", shop.getShopName());
+        intent.putExtra("latitude", shop.getLatitude());
+        intent.putExtra("longitude", shop.getLongitude());
+        intent.putExtra("kindOfService", shop.getKindOfService());
+        intent.putExtra("place", shop.getPlace());
+        intent.putExtra("distance", shop.getDistance());
+        intent.putExtra("image", shop.getImage());
+        intent.putExtra("contactNumber", shop.getContactNumber());
+        intent.putExtra("ratings", shop.getRatings());
+        intent.putExtra("timeSchedule", shop.getTimeSchedule());
+        intent.putExtra("website", shop.getWebsite());
+        context.startActivity(intent);
+    }
+
+    private void openGasStationDetailActivity(RecommendGasStation station) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isGasStation", true);
+        intent.putExtra("name", station.getName());
+        intent.putExtra("latitude", station.getLatitude());
+        intent.putExtra("longitude", station.getLongitude());
+        intent.putExtra("kindOfService", station.getKindOfService());
+        intent.putExtra("place", station.getPlace());
+        intent.putExtra("distance", station.getDistance());
+        intent.putExtra("image", station.getImageUrl());
+        context.startActivity(intent);
+    }
+    private void openTowingDetailActivity(RecommendTowing towing) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isTowing", true);
+        intent.putExtra("name", towing.getShopName());
+        intent.putExtra("latitude", towing.getLatitude());
+        intent.putExtra("longitude", towing.getLongitude());
+        intent.putExtra("kindOfService", towing.getKindOfService());
+        intent.putExtra("place", towing.getPlace());
+        intent.putExtra("contactNumber", towing.getContactNumber());
+        intent.putExtra("ratings", towing.getRatings());
+        intent.putExtra("distance", towing.getDistance());
+        intent.putExtra("image", towing.getImage());
+        context.startActivity(intent);
+    }
     @Override
     public int getItemCount() {
         Log.d(TAG, "Total items count: " + services.size());
