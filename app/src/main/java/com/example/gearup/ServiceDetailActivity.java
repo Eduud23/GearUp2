@@ -3,23 +3,32 @@ package com.example.gearup;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServiceDetailActivity extends AppCompatActivity {
+
+    private static final String TAG = "ServiceDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_detail);
+        Log.d(TAG, "onCreate: ServiceDetailActivity started");
 
         // Identify service type
         boolean isGasStation = getIntent().getBooleanExtra("isGasStation", false);
         boolean isTowing = getIntent().getBooleanExtra("isTowing", false);
         boolean isLocalShop = getIntent().getBooleanExtra("isLocalShop", false);
+        Log.d(TAG, "Service Type - GasStation: " + isGasStation + ", Towing: " + isTowing + ", LocalShop: " + isLocalShop);
 
         // Find views
         ImageView serviceImage = findViewById(R.id.serviceImage);
@@ -33,6 +42,36 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Button callButton = findViewById(R.id.callButton);
         Button navigateButton = findViewById(R.id.navigateButton);
         Button visitWebsiteButton = findViewById(R.id.visitWebsiteButton);
+        RecyclerView similarServicesRecycler = findViewById(R.id.similarServicesRecycler);
+
+        // Get selected service and all services
+        Object selectedService = getIntent().getSerializableExtra("selectedService");
+        List<Object> allServices = (List<Object>) getIntent().getSerializableExtra("allServices");
+        List<Object> similarServices = new ArrayList<>();
+
+        if (allServices != null) {
+            for (Object service : allServices) {
+                if (!service.equals(selectedService)) {
+                    if (isLocalShop && service instanceof RecommendLocalShop) {
+                        RecommendLocalShop selected = (RecommendLocalShop) selectedService;
+                        RecommendLocalShop shop = (RecommendLocalShop) service;
+                        if (selected.getKindOfService().equals(shop.getKindOfService())) {
+                            similarServices.add(shop);
+                        }
+                    } else if (isGasStation && service instanceof RecommendGasStation) {
+                        similarServices.add(service);
+                    } else if (isTowing && service instanceof RecommendTowing) {
+                        similarServices.add(service);
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "Similar services found: " + similarServices.size());
+
+        // Set up RecyclerView with GridLayoutManager
+        similarServicesRecycler.setLayoutManager(new GridLayoutManager(this, 2));
+        RecommendCombinedAdapter adapter = new RecommendCombinedAdapter(this, similarServices);
+        similarServicesRecycler.setAdapter(adapter);
 
         // Get data from intent
         String name = getIntent().getStringExtra("name");
@@ -42,6 +81,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         String place = getIntent().getStringExtra("place");
         float distance = getIntent().getFloatExtra("distance", 0.0f);
         String image = getIntent().getStringExtra("image");
+
+        Log.d(TAG, "Service Details - Name: " + name + ", Kind: " + kindOfService + ", Distance: " + distance);
 
         // Set data to views
         serviceName.setText(name);
@@ -57,46 +98,36 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
         // Handle gas station-specific details
         if (isGasStation) {
-            timeScheduleText.setText("Place: " + (place != null ? place : "N/A"));
+            if (place != null && !place.isEmpty()) {
+                timeScheduleText.setText("Place: " + place);
+            } else {
+                timeScheduleText.setVisibility(TextView.GONE);
+            }
             contactNumberText.setVisibility(TextView.GONE);
             ratingsText.setVisibility(TextView.GONE);
             websiteText.setVisibility(TextView.GONE);
             callButton.setVisibility(Button.GONE);
             visitWebsiteButton.setVisibility(Button.GONE);
-        }
-        // Handle towing and local shop details
-        else {
-            // Time Schedule (Local Shops Only)
-            if (isLocalShop) {
-                timeScheduleText.setText("Hours: " + (getIntent().getStringExtra("timeSchedule") != null ? getIntent().getStringExtra("timeSchedule") : "N/A"));
-            } else {
-                timeScheduleText.setVisibility(TextView.GONE);
-            }
-
-            // Contact Number
+        } else {
             String contactNumber = getIntent().getStringExtra("contactNumber");
             if (contactNumber != null && !contactNumber.isEmpty()) {
                 contactNumberText.setText("Contact: " + contactNumber);
             } else {
                 contactNumberText.setVisibility(TextView.GONE);
-                callButton.setVisibility(Button.GONE);
             }
 
-            // Ratings
             double ratings = getIntent().getDoubleExtra("ratings", -1);
-            if (ratings != -1) {
+            if (ratings >= 0) {
                 ratingsText.setText("Ratings: " + ratings);
             } else {
                 ratingsText.setVisibility(TextView.GONE);
             }
 
-            // Website (Local Shops Only)
             String website = getIntent().getStringExtra("website");
-            if (isLocalShop && website != null && !website.isEmpty()) {
-                websiteText.setText(website);
+            if (website != null && !website.isEmpty()) {
+                websiteText.setText("Website: " + website);
             } else {
-                websiteText.setText("No Website");
-                visitWebsiteButton.setVisibility(Button.GONE);
+                websiteText.setVisibility(TextView.GONE);
             }
         }
 

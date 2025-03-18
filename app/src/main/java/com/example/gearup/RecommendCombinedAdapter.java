@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -96,6 +98,8 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
     private void openLocalShopDetailActivity(RecommendLocalShop shop) {
         Intent intent = new Intent(context, ServiceDetailActivity.class);
         intent.putExtra("isLocalShop", true);
+        intent.putExtra("selectedService", shop);
+        intent.putExtra("allServices", new ArrayList<>(services));
         intent.putExtra("name", shop.getShopName());
         intent.putExtra("latitude", shop.getLatitude());
         intent.putExtra("longitude", shop.getLongitude());
@@ -113,6 +117,8 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
     private void openGasStationDetailActivity(RecommendGasStation station) {
         Intent intent = new Intent(context, ServiceDetailActivity.class);
         intent.putExtra("isGasStation", true);
+        intent.putExtra("selectedService", station);
+        intent.putExtra("allServices", new ArrayList<>(services));
         intent.putExtra("name", station.getName());
         intent.putExtra("latitude", station.getLatitude());
         intent.putExtra("longitude", station.getLongitude());
@@ -122,9 +128,12 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("image", station.getImageUrl());
         context.startActivity(intent);
     }
+
     private void openTowingDetailActivity(RecommendTowing towing) {
         Intent intent = new Intent(context, ServiceDetailActivity.class);
         intent.putExtra("isTowing", true);
+        intent.putExtra("selectedService", towing);
+        intent.putExtra("allServices", new ArrayList<>(services));
         intent.putExtra("name", towing.getShopName());
         intent.putExtra("latitude", towing.getLatitude());
         intent.putExtra("longitude", towing.getLongitude());
@@ -136,6 +145,7 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("image", towing.getImage());
         context.startActivity(intent);
     }
+
     @Override
     public int getItemCount() {
         Log.d(TAG, "Total items count: " + services.size());

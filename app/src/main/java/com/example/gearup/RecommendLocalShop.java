@@ -1,6 +1,8 @@
 package com.example.gearup;
 
-public class RecommendLocalShop {
+import java.io.Serializable;
+
+public class RecommendLocalShop implements Serializable {
     private String image, shopName, kindOfService, timeSchedule, place, contactNumber, website;
     private double ratings, latitude, longitude;
     private float distance;  // Added distance field

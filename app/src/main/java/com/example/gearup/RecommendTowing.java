@@ -1,6 +1,8 @@
 package com.example.gearup;
 
-public class RecommendTowing {
+import java.io.Serializable;
+
+public class RecommendTowing implements Serializable {
     private String image;
     private String shopName;
     private String kindOfService;
