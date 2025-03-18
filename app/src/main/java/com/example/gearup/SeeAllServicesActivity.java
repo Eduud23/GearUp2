@@ -17,19 +17,24 @@ public class SeeAllServicesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_see_all_services);
         Log.d(TAG, "onCreate: SeeAllServicesActivity started");
 
+        // Get the selected service from intent
+        Object selectedService = getIntent().getSerializableExtra("selectedService");
+        Log.d(TAG, "Selected service: " + (selectedService != null ? selectedService.getClass().getSimpleName() : "None"));
+
         // Set up RecyclerView
         RecyclerView similarServicesRecycler = findViewById(R.id.allServicesRecycler);
         similarServicesRecycler.setLayoutManager(new GridLayoutManager(this, 2));
 
         // Get the similar services from intent
         List<Object> similarServices = (List<Object>) getIntent().getSerializableExtra("similarServices");
-
         Log.d(TAG, "Total similar services received: " + (similarServices != null ? similarServices.size() : 0));
 
         // Set up the adapter with similar services
         if (similarServices != null) {
-            RecommendCombinedAdapter adapter = new RecommendCombinedAdapter(this, similarServices);
+            RecommendCombinedAdapter adapter = new RecommendCombinedAdapter(this, similarServices, selectedService);
             similarServicesRecycler.setAdapter(adapter);
+        } else {
+            Log.w(TAG, "No similar services found.");
         }
     }
 }

@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +75,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
         // Set up RecyclerView with GridLayoutManager
         similarServicesRecycler.setLayoutManager(new GridLayoutManager(this, 2));
-        RecommendCombinedAdapter adapter = new RecommendCombinedAdapter(this, similarServices);
+        RecommendCombinedAdapter adapter = new RecommendCombinedAdapter(this, similarServices, selectedService);
         similarServicesRecycler.setAdapter(adapter);
 
         // Get data from intent
@@ -160,8 +162,11 @@ public class ServiceDetailActivity extends AppCompatActivity {
         seeAllTextView.setOnClickListener(v -> {
             Intent intent = new Intent(ServiceDetailActivity.this, SeeAllServicesActivity.class);
             intent.putExtra("similarServices", (ArrayList<Object>) similarServices);
+            intent.putExtra("selectedService", (Serializable) selectedService);
+
             startActivity(intent);
         });
+
 
         // Visit website button listener (Local Shops Only)
         visitWebsiteButton.setOnClickListener(v -> {

@@ -164,7 +164,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                         }
                                     }
                                 }
-                                combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList);
+                                combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList, null);
+
                                 recyclerView.setAdapter(combinedAdapter);
                             });
                         });

@@ -23,10 +23,26 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
     private final List<Object> services;
     private static final String TAG = "RecommendAdapter";
 
-    public RecommendCombinedAdapter(Context context, List<Object> services) {
+    public RecommendCombinedAdapter(Context context, List<Object> services, Object currentService) {
         this.context = context;
-        this.services = services;
-
+        this.services = new ArrayList<>();
+        for (Object service : services) {
+            if (service instanceof RecommendLocalShop && currentService instanceof RecommendLocalShop) {
+                if (!((RecommendLocalShop) service).getShopName().equals(((RecommendLocalShop) currentService).getShopName())) {
+                    this.services.add(service);
+                }
+            } else if (service instanceof RecommendGasStation && currentService instanceof RecommendGasStation) {
+                if (!((RecommendGasStation) service).getName().equals(((RecommendGasStation) currentService).getName())) {
+                    this.services.add(service);
+                }
+            } else if (service instanceof RecommendTowing && currentService instanceof RecommendTowing) {
+                if (!((RecommendTowing) service).getShopName().equals(((RecommendTowing) currentService).getShopName())) {
+                    this.services.add(service);
+                }
+            } else {
+                this.services.add(service);
+            }
+        }
         // Sort services by distance (nearest to farthest)
         Collections.sort(this.services, new Comparator<Object>() {
             @Override
