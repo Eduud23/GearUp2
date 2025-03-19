@@ -23,6 +23,9 @@ public class DisplayMethodServices {
     public interface FirestoreGasStationCallback {
         void onCallback(List<RecommendGasStation> gasStationList);
     }
+    public interface FirestoreSmokeServiceCallback {
+        void onCallback(List<RecommendSmokeService> smokeList);
+    }
     public interface FirestoreTowingCallback {
         void onCallback(List<RecommendTowing> towingList);
     }
@@ -52,7 +55,8 @@ public class DisplayMethodServices {
                                 RecommendLocalShop shop = new RecommendLocalShop();
                                 shop.setShopName(document.getString("shop_name"));
                                 shop.setPlace(document.getString("place"));
-                                shop.setKindOfService(document.getString("kind_of_service"));
+                                Object kindOfService = document.get("kind_of_service");
+                                shop.setKindOfService(kindOfService != null ? kindOfService.toString() : "");
                                 shop.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
                                 shop.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
                                 try {
@@ -271,5 +275,132 @@ public class DisplayMethodServices {
                     }
                 });
     }
+    public static void getBatteryShop(Context context, FirestoreCallback callback) {
+        FirebaseApp secondApp = FirebaseApp.getInstance("gearupdataSecondApp");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance(secondApp);
 
+        firestore.collection("batteries_shops").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<RecommendLocalShop> shopList = new ArrayList<>();
+                        QuerySnapshot result = task.getResult();
+                        if (result != null) {
+                            for (QueryDocumentSnapshot document : result) {
+                                RecommendLocalShop shop = new RecommendLocalShop();
+                                shop.setShopName(document.getString("shop_name"));
+                                shop.setPlace(document.getString("place"));
+                                Object kindOfService = document.get("kind_of_service");
+                                shop.setKindOfService(kindOfService != null ? kindOfService.toString() : "");
+                                shop.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
+                                shop.setContactNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
+                                try {
+                                    shop.setRatings(document.get("ratings") != null && !document.get("ratings").toString().equalsIgnoreCase("none") ? Double.parseDouble(document.get("ratings").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid ratings format", e);
+                                    shop.setRatings(0.0);
+                                }
+                                shop.setWebsite(document.get("website") != null ? document.get("website").toString() : "");
+                                try {
+                                    shop.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
+                                    shop.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid latitude/longitude format", e);
+                                    shop.setLatitude(0.0);
+                                    shop.setLongitude(0.0);
+                                }
+                                shop.setImage(document.get("image") != null ? document.get("image").toString() : "");
+
+                                shopList.add(shop);
+                            }
+
+                            // Get user location
+                            Location userLocation = getUserLocation(context);
+                            if (userLocation != null) {
+                                for (RecommendLocalShop shop : shopList) {
+                                    Location shopLocation = new Location("");
+                                    shopLocation.setLatitude(shop.getLatitude());
+                                    shopLocation.setLongitude(shop.getLongitude());
+                                    float distance = userLocation.distanceTo(shopLocation);
+                                    shop.setDistance(distance);
+                                }
+                                // Sort by distance
+                                Collections.sort(shopList, Comparator.comparingDouble(RecommendLocalShop::getDistance));
+                            } else {
+                                Log.e(TAG, "User location is null");
+                            }
+                            callback.onCallback(shopList);
+                        } else {
+                            Log.e(TAG, "No data found in auto_parts_shops");
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+    public static void getSmokeService(Context context, FirestoreSmokeServiceCallback callback) {
+        FirebaseApp secondApp = FirebaseApp.getInstance("gearupdataSecondApp");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance(secondApp);
+
+        firestore.collection("smoke_services").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<RecommendSmokeService> smokeList = new ArrayList<>();
+                        QuerySnapshot result = task.getResult();
+                        if (result != null) {
+                            for (QueryDocumentSnapshot document : result) {
+                                RecommendSmokeService shop = new RecommendSmokeService();
+                                shop.setShopName(document.getString("shop_name"));
+                                shop.setLocation(document.getString("place"));
+                                shop.setServices(document.get("kind_of_service") != null ? document.get("kind_of_service").toString() : "");
+                                shop.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
+                                shop.setNumber(document.get("contact_number") != null ? document.get("contact_number").toString() : "");
+                                try {
+                                    shop.setRatings(document.get("ratings") != null && !document.get("ratings").toString().equalsIgnoreCase("none") ? Double.parseDouble(document.get("ratings").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid ratings format", e);
+                                    shop.setRatings(0.0);
+                                }
+                                shop.setNumReviews(document.get("num_reviews") != null ? Integer.parseInt(document.get("num_reviews").toString()) : 0);
+                                try {
+                                    shop.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
+                                    shop.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid latitude/longitude format", e);
+                                    shop.setLatitude(0.0);
+                                    shop.setLongitude(0.0);
+                                }
+                                shop.setImage(document.get("image") != null ? document.get("image").toString() : "");
+
+                                smokeList.add(shop);
+                            }
+
+                            // Get user location
+                            Location userLocation = getUserLocation(context);
+                            if (userLocation != null) {
+                                for (RecommendSmokeService shop : smokeList) {
+                                    Location shopLocation = new Location("");
+                                    shopLocation.setLatitude(shop.getLatitude());
+                                    shopLocation.setLongitude(shop.getLongitude());
+                                    float distance = userLocation.distanceTo(shopLocation);
+                                    shop.setDistance(distance);
+                                }
+                                // Sort by distance
+                                Collections.sort(smokeList, Comparator.comparingDouble(shop -> {
+                                    Location shopLocation = new Location("");
+                                    shopLocation.setLatitude(shop.getLatitude());
+                                    shopLocation.setLongitude(shop.getLongitude());
+                                    return userLocation.distanceTo(shopLocation);
+                                }));
+                            } else {
+                                Log.e(TAG, "User location is null");
+                            }
+                            callback.onCallback(smokeList);
+                        } else {
+                            Log.e(TAG, "No data found in smoke_services");
+                        }
+                    } else {
+                        Log.e(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
 }

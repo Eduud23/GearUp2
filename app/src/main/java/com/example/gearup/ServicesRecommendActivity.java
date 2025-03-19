@@ -34,9 +34,6 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private Button predictButton;
     private TextView resultView;
     private RecyclerView recyclerView;
-    private RecommendLocalShopAdapter shopAdapter;
-    private RecommendGasStationAdapter gasStationAdapter;
-    private RecommendTowingAdapter towingAdapter;
     private RecommendCombinedAdapter combinedAdapter;
     private final OkHttpClient client = new OkHttpClient();
     private static final String API_KEY = "AIzaSyAqN2a7lbuzQGe20b8cZ6UhMF2K9jHAIHs";
@@ -118,10 +115,12 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                     combinedShops.addAll(autoPartsShops);
                     DisplayMethodServices.getLocalRepair(this, localRepairShops -> {
                         combinedShops.addAll(localRepairShops);
-                        DisplayMethodServices.getGasStation(this, fetchedGasStations -> {
-                            gasStations.addAll(fetchedGasStations);
-                            DisplayMethodServices.getTowing(this, fetchedTowing -> {
-                                towingServices.addAll(fetchedTowing);
+                        DisplayMethodServices.getBatteryShop(this, batteryShop -> {
+                            combinedShops.addAll(batteryShop);
+                            DisplayMethodServices.getGasStation(this, fetchedGasStations -> {
+                                gasStations.addAll(fetchedGasStations);
+                                DisplayMethodServices.getTowing(this, fetchedTowing -> {
+                                    towingServices.addAll(fetchedTowing);
 
                                 List<Object> combinedList = new ArrayList<>();
                                 List<String> addedNames = new ArrayList<>();
@@ -172,6 +171,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                     });
                 });
             });
+            });
         }).start();
     }
 
@@ -184,7 +184,16 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         "- Motorcycle parts store\n" +
                         "- Auto body parts supplier\n" +
                         "- Gas station\n" +
+                        "- Tire shop\n" +
+                        "- Used tire shop\n" +
                         "- Towing Service\n" +
+                        "- Motorcycle repair shop\n" +
+                        "- Towing Service\n" +
+                        "- Battery store\n" +
+                        "- Electronics store\n" +
+                        "- Tire repair shop\n" +
+                        "- Electronics store\n" +
+                        "- Mechanic\n" +
                         "If unrelated, respond with 'Error: No relevant services found.'\n" +
                         "User Query: \"%s\"\n" +
                         "Provide only the service category or categories, separated by commas.",
