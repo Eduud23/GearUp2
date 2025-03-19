@@ -1,6 +1,8 @@
 package com.example.gearup;
 
-public class RecommendSmokeService {
+import java.io.Serializable;
+
+public class RecommendSmokeService implements Serializable {
     private String image;
     private String shopName;
     private double ratings;

@@ -39,7 +39,13 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
                 if (!((RecommendTowing) service).getShopName().equals(((RecommendTowing) currentService).getShopName())) {
                     this.services.add(service);
                 }
-            } else {
+            }
+            else if (service instanceof RecommendSmokeService && currentService instanceof RecommendSmokeService) {
+                if (!((RecommendSmokeService) service).getShopName().equals(((RecommendSmokeService) currentService).getShopName())) {
+                    this.services.add(service);
+                }
+            }
+            else {
                 this.services.add(service);
             }
         }
@@ -87,15 +93,8 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
                 Glide.with(context).load(shop.getImage()).into(holder.icon);
 
                 holder.itemView.setOnClickListener(v -> openLocalShopDetailActivity(shop));
-            } else if (service instanceof RecommendGasStation) {
-                RecommendGasStation station = (RecommendGasStation) service;
-                holder.name.setText(station.getName());
-                holder.type.setText("Gas Station");
-                holder.distance.setText(String.format("%.2f km", station.getDistance() / 1000));
-                Glide.with(context).load(station.getImageUrl()).into(holder.icon);
-
-                holder.itemView.setOnClickListener(v -> openGasStationDetailActivity(station));
-            } else if (service instanceof RecommendTowing) {
+            }
+            else if (service instanceof RecommendTowing) {
                 RecommendTowing towing = (RecommendTowing) service;
                 holder.name.setText(towing.getShopName());
                 holder.type.setText("Towing Service");
@@ -103,7 +102,21 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
                 Glide.with(context).load(towing.getImage()).into(holder.icon);
 
                 holder.itemView.setOnClickListener(v -> openTowingDetailActivity(towing));
-            } else {
+            }
+            else if (service instanceof RecommendSmokeService) {
+                RecommendSmokeService smoke = (RecommendSmokeService) service;
+                holder.name.setText(smoke.getShopName());
+                if (smoke.getServices().equalsIgnoreCase("Smog inspection station")) {
+                    holder.type.setText("Smog inspection station");
+                } else {
+                    holder.type.setText("Vehicle inspection service");
+                }
+                holder.distance.setText(String.format("%.2f km", smoke.getDistance() / 1000));
+                Glide.with(context).load(smoke.getImage()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openSmokeServiceActivity(smoke));
+            }
+            else {
                 Log.w(TAG, "Unknown service type: " + service.getClass().getSimpleName());
             }
         } else {
@@ -161,6 +174,23 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("image", towing.getImage());
         context.startActivity(intent);
     }
+
+    private void openSmokeServiceActivity(RecommendSmokeService smoke) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isSmoke", true);
+        intent.putExtra("selectedService", smoke);
+        intent.putExtra("allServices", new ArrayList<>(services));
+        intent.putExtra("name", smoke.getShopName());
+        intent.putExtra("latitude", smoke.getLatitude());
+        intent.putExtra("longitude", smoke.getLongitude());
+        intent.putExtra("kindOfService", smoke.getServices());
+        intent.putExtra("place", smoke.getLocation());
+        intent.putExtra("ratings", smoke.getRatings());
+        intent.putExtra("distance", smoke.getDistance());
+        intent.putExtra("image", smoke.getImage());
+        context.startActivity(intent);
+    }
+
 
     @Override
     public int getItemCount() {

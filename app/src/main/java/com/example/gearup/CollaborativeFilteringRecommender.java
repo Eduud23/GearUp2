@@ -37,6 +37,13 @@ public class CollaborativeFilteringRecommender {
 
             Log.d(TAG, "👤 Current user (" + currentUserId + ") interacted with: " + currentUserProducts);
 
+            // Early exit if new user (no interactions)
+            if (currentUserProducts.isEmpty()) {
+                Log.w(TAG, "⚠ New user detected. No recommendations will be generated.");
+                listener.onRecommendationsGenerated(Collections.emptyList());
+                return;
+            }
+
             Map<String, Integer> recommendedProducts = new HashMap<>();
             Map<String, Integer> popularProducts = new HashMap<>();
             Set<String> otherUserProducts = new HashSet<>();

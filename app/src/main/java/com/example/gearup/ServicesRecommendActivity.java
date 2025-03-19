@@ -110,6 +110,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 List<RecommendLocalShop> combinedShops = new ArrayList<>();
                 List<RecommendGasStation> gasStations = new ArrayList<>();
                 List<RecommendTowing> towingServices = new ArrayList<>();
+                List<RecommendSmokeService> smokeServices = new ArrayList<>();
 
                 DisplayMethodServices.getAutoPartsShops(this, autoPartsShops -> {
                     combinedShops.addAll(autoPartsShops);
@@ -121,6 +122,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                 gasStations.addAll(fetchedGasStations);
                                 DisplayMethodServices.getTowing(this, fetchedTowing -> {
                                     towingServices.addAll(fetchedTowing);
+                                    DisplayMethodServices.getSmokeService(this, fetchedSmoke -> {
+                                        smokeServices.addAll(fetchedSmoke);
 
                                 List<Object> combinedList = new ArrayList<>();
                                 List<String> addedNames = new ArrayList<>();
@@ -148,6 +151,16 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                 addedNames.add(towing.getShopName());
                                             }
                                         }
+                                    } else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
+                                            for (RecommendSmokeService smoke : smokeServices) {
+                                                if (!addedNames.contains(smoke.getShopName())) {
+                                                    float[] results = new float[1];
+                                                    Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
+                                                    smoke.setDistance(results[0]);
+                                                    combinedList.add(smoke);
+                                                    addedNames.add(smoke.getShopName());
+                                                }
+                                            }
                                     } else {
                                         for (RecommendLocalShop shop : combinedShops) {
                                             String kindOfService = shop.getKindOfService();
@@ -161,6 +174,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                 }
                                             }
                                         }
+
                                     }
                                 }
                                 combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList, null);
@@ -168,6 +182,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                 recyclerView.setAdapter(combinedAdapter);
                             });
                         });
+                            });
                     });
                 });
             });
@@ -188,6 +203,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         "- Used tire shop\n" +
                         "- Towing Service\n" +
                         "- Motorcycle repair shop\n" +
+                        "- Vehicle inspection service\n" +
+                        "- Smog inspection station\n" +
                         "- Towing Service\n" +
                         "- Battery store\n" +
                         "- Electronics store\n" +
