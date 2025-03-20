@@ -152,16 +152,17 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                             }
                                         }
                                     } else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
-                                            for (RecommendSmokeService smoke : smokeServices) {
-                                                if (!addedNames.contains(smoke.getShopName())) {
-                                                    float[] results = new float[1];
-                                                    Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
-                                                    smoke.setDistance(results[0]);
-                                                    combinedList.add(smoke);
-                                                    addedNames.add(smoke.getShopName());
-                                                }
+                                        for (RecommendSmokeService smoke : smokeServices) {
+                                            if (!addedNames.contains(smoke.getShopName())) {
+                                                float[] results = new float[1];
+                                                Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
+                                                smoke.setDistance(results[0]);
+                                                combinedList.add(smoke);
+                                                addedNames.add(smoke.getShopName());
                                             }
-                                    } else {
+                                        }
+                                    }
+                                    else {
                                         for (RecommendLocalShop shop : combinedShops) {
                                             String kindOfService = shop.getKindOfService();
                                             if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {

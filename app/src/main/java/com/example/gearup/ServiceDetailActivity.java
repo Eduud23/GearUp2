@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +33,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         boolean isGasStation = getIntent().getBooleanExtra("isGasStation", false);
         boolean isTowing = getIntent().getBooleanExtra("isTowing", false);
         boolean isLocalShop = getIntent().getBooleanExtra("isLocalShop", false);
-        Log.d(TAG, "Service Type - GasStation: " + isGasStation + ", Towing: " + isTowing + ", LocalShop: " + isLocalShop);
+        boolean isSmoke = getIntent().getBooleanExtra("isSmoke", false);
+        Log.d(TAG, "Service Type - GasStation: " + isGasStation + ", Towing: " + isTowing + ", LocalShop: " + isLocalShop + ", Smoke");
 
         // Find views
         ImageView serviceImage = findViewById(R.id.serviceImage);
@@ -66,6 +69,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
                     } else if (isGasStation && service instanceof RecommendGasStation) {
                         similarServices.add(service);
                     } else if (isTowing && service instanceof RecommendTowing) {
+                        similarServices.add(service);
+                    }
+                    else if (isSmoke && service instanceof RecommendSmokeService) {
                         similarServices.add(service);
                     }
                 }
@@ -134,8 +140,15 @@ public class ServiceDetailActivity extends AppCompatActivity {
             } else {
                 websiteText.setVisibility(TextView.GONE);
             }
-        }
 
+        }
+        visitWebsiteButton.setOnClickListener(v -> {
+            String website = getIntent().getStringExtra("website");
+            if (website != null && !website.isEmpty()) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
+                startActivity(browserIntent);
+            }
+        });
         // Call button listener
         callButton.setOnClickListener(v -> {
             String contactNumber = getIntent().getStringExtra("contactNumber");
@@ -168,14 +181,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
         });
 
 
-        // Visit website button listener (Local Shops Only)
-        visitWebsiteButton.setOnClickListener(v -> {
-            String website = getIntent().getStringExtra("website");
-            if (website != null && !website.isEmpty()) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
-                startActivity(browserIntent);
-            }
-        });
+
+
+
     }
 
 }

@@ -94,6 +94,15 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
 
                 holder.itemView.setOnClickListener(v -> openLocalShopDetailActivity(shop));
             }
+            else if (service instanceof RecommendGasStation) {
+                RecommendGasStation gas = (RecommendGasStation) service;
+                holder.name.setText(gas.getName());
+                holder.type.setText("Gas station");
+                holder.distance.setText(String.format("%.2f km", gas.getDistance() / 1000));
+                Glide.with(context).load(gas.getImageUrl()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openGasStationDetailActivity(gas));
+            }
             else if (service instanceof RecommendTowing) {
                 RecommendTowing towing = (RecommendTowing) service;
                 holder.name.setText(towing.getShopName());
@@ -106,11 +115,12 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
             else if (service instanceof RecommendSmokeService) {
                 RecommendSmokeService smoke = (RecommendSmokeService) service;
                 holder.name.setText(smoke.getShopName());
-                if (smoke.getServices().equalsIgnoreCase("Smog inspection station")) {
+                if (smoke.getServices().trim().equalsIgnoreCase("Smog inspection station")) {
                     holder.type.setText("Smog inspection station");
                 } else {
                     holder.type.setText("Vehicle inspection service");
                 }
+
                 holder.distance.setText(String.format("%.2f km", smoke.getDistance() / 1000));
                 Glide.with(context).load(smoke.getImage()).into(holder.icon);
 
