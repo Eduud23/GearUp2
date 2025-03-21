@@ -1,7 +1,6 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -15,12 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import org.json.JSONObject;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -36,8 +33,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecommendCombinedAdapter combinedAdapter;
     private final OkHttpClient client = new OkHttpClient();
-    private static final String API_KEY = "AIzaSyAqN2a7lbuzQGe20b8cZ6UhMF2K9jHAIHs";
-    private static final String GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=" + API_KEY;
+    private static final String VERCEL_URL = "https://test-sage-nine-37.vercel.app/?q=";
     private FusedLocationProviderClient fusedLocationClient;
     private double userLatitude = 0.0;
     private double userLongitude = 0.0;
@@ -104,7 +100,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
 
     private void makePrediction(String userQuery) {
         new Thread(() -> {
-            String prediction = askGemini(userQuery).trim();
+            String prediction = askVercel(userQuery).trim();
             runOnUiThread(() -> {
                 resultView.setText(prediction);
                 List<RecommendLocalShop> combinedShops = new ArrayList<>();
@@ -125,113 +121,84 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                     DisplayMethodServices.getSmokeService(this, fetchedSmoke -> {
                                         smokeServices.addAll(fetchedSmoke);
 
-                                List<Object> combinedList = new ArrayList<>();
-                                List<String> addedNames = new ArrayList<>();
+                                        List<Object> combinedList = new ArrayList<>();
+                                        List<String> addedNames = new ArrayList<>();
 
-                                String[] predictedServices = prediction.split(",");
-                                for (String service : predictedServices) {
-                                    service = service.trim();
-                                    if (service.equalsIgnoreCase("Gas station")) {
-                                        for (RecommendGasStation station : gasStations) {
-                                            if (!addedNames.contains(station.getName())) {
-                                                float[] results = new float[1];
-                                                Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
-                                                station.setDistance(results[0]);
-                                                combinedList.add(station);
-                                                addedNames.add(station.getName());
-                                            }
-                                        }
-                                    } else if (service.equalsIgnoreCase("Towing service")) {
-                                        for (RecommendTowing towing : towingServices) {
-                                            if (!addedNames.contains(towing.getShopName())) {
-                                                float[] results = new float[1];
-                                                Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
-                                                towing.setDistance(results[0]);
-                                                combinedList.add(towing);
-                                                addedNames.add(towing.getShopName());
-                                            }
-                                        }
-                                    } else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
-                                        for (RecommendSmokeService smoke : smokeServices) {
-                                            if (!addedNames.contains(smoke.getShopName())) {
-                                                float[] results = new float[1];
-                                                Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
-                                                smoke.setDistance(results[0]);
-                                                combinedList.add(smoke);
-                                                addedNames.add(smoke.getShopName());
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        for (RecommendLocalShop shop : combinedShops) {
-                                            String kindOfService = shop.getKindOfService();
-                                            if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
-                                                if (!addedNames.contains(shop.getShopName())) {
-                                                    float[] results = new float[1];
-                                                    Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
-                                                    shop.setDistance(results[0]);
-                                                    combinedList.add(shop);
-                                                    addedNames.add(shop.getShopName());
+                                        String[] predictedServices = prediction.split(",");
+                                        for (String service : predictedServices) {
+                                            service = service.trim();
+                                            if (service.equalsIgnoreCase("Gas station")) {
+                                                for (RecommendGasStation station : gasStations) {
+                                                    if (!addedNames.contains(station.getName())) {
+                                                        float[] results = new float[1];
+                                                        Location.distanceBetween(userLatitude, userLongitude, station.getLatitude(), station.getLongitude(), results);
+                                                        station.setDistance(results[0]);
+                                                        combinedList.add(station);
+                                                        addedNames.add(station.getName());
+                                                    }
+                                                }
+                                            } else if (service.equalsIgnoreCase("Towing service")) {
+                                                for (RecommendTowing towing : towingServices) {
+                                                    if (!addedNames.contains(towing.getShopName())) {
+                                                        float[] results = new float[1];
+                                                        Location.distanceBetween(userLatitude, userLongitude, towing.getLatitude(), towing.getLongitude(), results);
+                                                        towing.setDistance(results[0]);
+                                                        combinedList.add(towing);
+                                                        addedNames.add(towing.getShopName());
+                                                    }
+                                                }
+                                            } else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
+                                                for (RecommendSmokeService smoke : smokeServices) {
+                                                    if (!addedNames.contains(smoke.getShopName())) {
+                                                        float[] results = new float[1];
+                                                        Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
+                                                        smoke.setDistance(results[0]);
+                                                        combinedList.add(smoke);
+                                                        addedNames.add(smoke.getShopName());
+                                                    }
+                                                }
+                                            } else {
+                                                for (RecommendLocalShop shop : combinedShops) {
+                                                    String kindOfService = shop.getKindOfService();
+                                                    if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
+                                                        if (!addedNames.contains(shop.getShopName())) {
+                                                            float[] results = new float[1];
+                                                            Location.distanceBetween(userLatitude, userLongitude, shop.getLatitude(), shop.getLongitude(), results);
+                                                            shop.setDistance(results[0]);
+                                                            combinedList.add(shop);
+                                                            addedNames.add(shop.getShopName());
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
-
-                                    }
-                                }
-                                combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList, null);
-
-                                recyclerView.setAdapter(combinedAdapter);
+                                        combinedAdapter = new RecommendCombinedAdapter(ServicesRecommendActivity.this, combinedList, null);
+                                        recyclerView.setAdapter(combinedAdapter);
+                                    });
+                                });
                             });
                         });
-                            });
                     });
                 });
-            });
             });
         }).start();
     }
 
-
-    private String askGemini(String prompt) {
-        String formattedPrompt = String.format(
-                "The user describes a vehicle-related issue. Categorize it into one or more of these services, separated by commas if multiple:\n" +
-                        "- Auto repair shop\n" +
-                        "- Auto Parts Store\n" +
-                        "- Motorcycle parts store\n" +
-                        "- Auto body parts supplier\n" +
-                        "- Gas station\n" +
-                        "- Tire shop\n" +
-                        "- Used tire shop\n" +
-                        "- Towing Service\n" +
-                        "- Motorcycle repair shop\n" +
-                        "- Vehicle inspection service\n" +
-                        "- Smog inspection station\n" +
-                        "- Towing Service\n" +
-                        "- Battery store\n" +
-                        "- Electronics store\n" +
-                        "- Tire repair shop\n" +
-                        "- Electronics store\n" +
-                        "- Mechanic\n" +
-                        "If unrelated, respond with 'Error: No relevant services found.'\n" +
-                        "User Query: \"%s\"\n" +
-                        "Provide only the service category or categories, separated by commas.",
-                prompt
-        );
-
+    private String askVercel(String prompt) {
         try {
-            JSONObject jsonRequest = new JSONObject().put("contents", new JSONObject().put("parts", new JSONObject().put("text", formattedPrompt)));
-            RequestBody body = RequestBody.create(jsonRequest.toString(), MediaType.get("application/json; charset=utf-8"));
-            Request request = new Request.Builder().url(GEMINI_URL).post(body).build();
+            Request request = new Request.Builder()
+                    .url(VERCEL_URL + prompt)
+                    .get()
+                    .build();
 
             try (Response response = client.newCall(request).execute()) {
                 if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
                 JSONObject jsonResponse = new JSONObject(response.body().string());
-                return jsonResponse.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text").trim();
+                return jsonResponse.optString("prediction", "Error: No relevant services found.");
             }
         } catch (Exception e) {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
     }
-
 }
