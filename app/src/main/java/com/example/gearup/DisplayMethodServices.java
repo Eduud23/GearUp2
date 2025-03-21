@@ -360,7 +360,15 @@ public class DisplayMethodServices {
                                     Log.e(TAG, "Invalid ratings format", e);
                                     shop.setRatings(0.0);
                                 }
-                                shop.setNumReviews(document.get("num_reviews") != null ? Integer.parseInt(document.get("num_reviews").toString()) : 0);
+                                String numReviewsStr = document.get("num_reviews") != null ? document.get("num_reviews").toString() : "0";
+                                int numReviews;
+                                try {
+                                    numReviews = (int) Float.parseFloat(numReviewsStr);
+                                } catch (NumberFormatException e) {
+                                    numReviews = 0;
+                                }
+                                shop.setNumReviews(numReviews);
+
                                 try {
                                     shop.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
                                     shop.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);

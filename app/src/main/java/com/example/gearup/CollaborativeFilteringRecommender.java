@@ -102,13 +102,15 @@ public class CollaborativeFilteringRecommender {
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
 
-            // If no recommendations but only one other user exists, recommend all their products
-            if (sortedRecommendations.isEmpty() && allUsers.size() == 2) {
-                sortedRecommendations = new ArrayList<>(otherUserProducts);
-                Log.w(TAG, "⚠ Only two users exist. Recommending all unique products from the other user.");
+            if (sortedRecommendations.isEmpty()) {
+                sortedRecommendations = popularProducts.entrySet().stream()
+                        .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                        .map(Map.Entry::getKey)
+                        .limit(10)
+                        .collect(Collectors.toList());
+                Log.d(TAG, "✅ Final recommendations: " + sortedRecommendations);
             }
 
-            Log.d(TAG, "✅ Final recommendations: " + sortedRecommendations);
             listener.onRecommendationsGenerated(sortedRecommendations);
         });
     }
