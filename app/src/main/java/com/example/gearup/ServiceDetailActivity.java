@@ -34,7 +34,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         boolean isTowing = getIntent().getBooleanExtra("isTowing", false);
         boolean isLocalShop = getIntent().getBooleanExtra("isLocalShop", false);
         boolean isSmoke = getIntent().getBooleanExtra("isSmoke", false);
-        Log.d(TAG, "Service Type - GasStation: " + isGasStation + ", Towing: " + isTowing + ", LocalShop: " + isLocalShop + ", Smoke");
+        boolean isParking = getIntent().getBooleanExtra("isParking", false);
+        Log.d(TAG, "Service Type - GasStation: " + isGasStation + ", Towing: " + isTowing + ", LocalShop: " + isLocalShop + ", Smoke" + isSmoke + ", isParking" + isParking);
 
         // Find views
         ImageView serviceImage = findViewById(R.id.serviceImage);
@@ -72,6 +73,9 @@ public class ServiceDetailActivity extends AppCompatActivity {
                         similarServices.add(service);
                     }
                     else if (isSmoke && service instanceof RecommendSmokeService) {
+                        similarServices.add(service);
+                    }
+                    else if (isParking && service instanceof RecommendParking) {
                         similarServices.add(service);
                     }
                 }

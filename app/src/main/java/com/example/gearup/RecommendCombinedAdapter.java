@@ -119,11 +119,13 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
             else if (service instanceof RecommendSmokeService) {
                 RecommendSmokeService smoke = (RecommendSmokeService) service;
                 holder.name.setText(smoke.getShopName());
-                if (smoke.getServices().trim().equalsIgnoreCase("Smog inspection station")) {
+                String serviceType = smoke.getServices().trim();
+                if (serviceType.contains("smog inspection station")) {
                     holder.type.setText("Smog inspection station");
                 } else {
                     holder.type.setText("Vehicle inspection service");
                 }
+
 
                 holder.distance.setText(String.format("%.2f km", smoke.getDistance() / 1000));
                 Glide.with(context).load(smoke.getImage()).into(holder.icon);

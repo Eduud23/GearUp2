@@ -167,13 +167,13 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                             }
 
                                             else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
-                                                for (RecommendParking parking : parkingLot) {
-                                                    if (!addedNames.contains(parking.getShopName())) {
+                                                for (RecommendSmokeService smoke : smokeServices) {
+                                                    if (!addedNames.contains(smoke.getShopName())) {
                                                         float[] results = new float[1];
-                                                        Location.distanceBetween(userLatitude, userLongitude, parking.getLatitude(), parking.getLongitude(), results);
-                                                        parking.setDistance(results[0]);
-                                                        combinedList.add(parking);
-                                                        addedNames.add(parking.getShopName());
+                                                        Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
+                                                        smoke.setDistance(results[0]);
+                                                        combinedList.add(smoke);
+                                                        addedNames.add(smoke.getShopName());
                                                     }
                                                 }
                                             }else {
