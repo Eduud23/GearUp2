@@ -29,6 +29,9 @@ public class DisplayMethodServices {
     public interface FirestoreTowingCallback {
         void onCallback(List<RecommendTowing> towingList);
     }
+    public interface FirestoreParkingCallback {
+        void onCallback(List<RecommendParking> parkingList);
+    }
 
 
     @SuppressLint("MissingPermission")
@@ -408,6 +411,65 @@ public class DisplayMethodServices {
                         }
                     } else {
                         Log.e(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+    public static void getParkingLot(Context context, FirestoreParkingCallback callback) {
+        FirebaseApp secondApp = FirebaseApp.getInstance("gearupdataSecondApp");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance(secondApp);
+
+        firestore.collection("parking_lot").get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<RecommendParking> parkingList = new ArrayList<>();
+                        QuerySnapshot result = task.getResult();
+                        if (result != null) {
+                            for (QueryDocumentSnapshot document : result) {
+                                RecommendParking parking = new RecommendParking();
+                                parking.setShopName(document.getString("shop_name"));
+                                parking.setPlace(document.getString("place"));
+                                parking.setKindOfService(document.get("kind_of_service") != null ? document.get("kind_of_service").toString() : "");
+                                parking.setTimeSchedule(document.get("time_schedule") != null ? document.get("time_schedule").toString() : "");
+                                try {
+                                    parking.setRatings(document.get("ratings") != null && !document.get("ratings").toString().equalsIgnoreCase("none") ? Float.parseFloat(document.get("ratings").toString()) : 0.0f);
+                                } catch (NumberFormatException e) {
+                                    Log.e("TAG", "Invalid ratings format", e);
+                                    parking.setRatings(0.0f);
+                                }
+                                try {
+                                    parking.setLatitude(document.get("latitude") != null ? Double.parseDouble(document.get("latitude").toString()) : 0.0);
+                                    parking.setLongitude(document.get("longitude") != null ? Double.parseDouble(document.get("longitude").toString()) : 0.0);
+                                } catch (NumberFormatException e) {
+                                    Log.e("TAG", "Invalid latitude/longitude format", e);
+                                    parking.setLatitude(0.0);
+                                    parking.setLongitude(0.0);
+                                }
+                                parking.setImage(document.get("image") != null ? document.get("image").toString() : "");
+
+                                parkingList.add(parking);
+                            }
+
+                            // Get user location
+                            Location userLocation = getUserLocation(context);
+                            if (userLocation != null) {
+                                for (RecommendParking parking : parkingList) {
+                                    Location parkingLocation = new Location("");
+                                    parkingLocation.setLatitude(parking.getLatitude());
+                                    parkingLocation.setLongitude(parking.getLongitude());
+                                    float distance = userLocation.distanceTo(parkingLocation);
+                                    parking.setDistance(distance);
+                                }
+                                // Sort by distance
+                                Collections.sort(parkingList, Comparator.comparingDouble(RecommendParking::getDistance));
+                            } else {
+                                Log.e("TAG", "User location is null");
+                            }
+                            callback.onCallback(parkingList);
+                        } else {
+                            Log.e("TAG", "No data found in parking_lot");
+                        }
+                    } else {
+                        Log.e("TAG", "Error getting documents: ", task.getException());
                     }
                 });
     }

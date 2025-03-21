@@ -45,11 +45,15 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
                     this.services.add(service);
                 }
             }
+            else if (service instanceof RecommendParking && currentService instanceof RecommendParking) {
+                if (!((RecommendParking) service).getShopName().equals(((RecommendParking) currentService).getShopName())) {
+                    this.services.add(service);
+                }
+            }
             else {
                 this.services.add(service);
             }
         }
-        // Sort services by distance (nearest to farthest)
         Collections.sort(this.services, new Comparator<Object>() {
             @Override
             public int compare(Object o1, Object o2) {
@@ -126,6 +130,28 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
 
                 holder.itemView.setOnClickListener(v -> openSmokeServiceActivity(smoke));
             }
+
+            else if (service instanceof RecommendParking) {
+                RecommendParking parking = (RecommendParking) service;
+                holder.name.setText(parking.getShopName());
+
+                String kindOfService = parking.getKindOfService().trim();
+                if (kindOfService.equalsIgnoreCase("Parking lot") ||
+                        kindOfService.equalsIgnoreCase("Public parking space") ||
+                        kindOfService.equalsIgnoreCase("Free parking lot") ||
+                        kindOfService.equalsIgnoreCase("Parking garage") ||
+                        kindOfService.equalsIgnoreCase("Parking lot for motorcycles")) {
+                    holder.type.setText(kindOfService);
+                } else {
+                    holder.type.setText("Parking lot");
+                }
+
+                holder.distance.setText(String.format("%.2f km", parking.getDistance() / 1000));
+                Glide.with(context).load(parking.getImage()).into(holder.icon);
+
+                holder.itemView.setOnClickListener(v -> openParKingLotActivity(parking));
+            }
+
             else {
                 Log.w(TAG, "Unknown service type: " + service.getClass().getSimpleName());
             }
@@ -182,6 +208,21 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("ratings", towing.getRatings());
         intent.putExtra("distance", towing.getDistance());
         intent.putExtra("image", towing.getImage());
+        context.startActivity(intent);
+    }
+    private void openParKingLotActivity(RecommendParking parking) {
+        Intent intent = new Intent(context, ServiceDetailActivity.class);
+        intent.putExtra("isParking", true);
+        intent.putExtra("selectedService", parking);
+        intent.putExtra("allServices", new ArrayList<>(services));
+        intent.putExtra("name", parking.getShopName());
+        intent.putExtra("latitude", parking.getLatitude());
+        intent.putExtra("longitude", parking.getLongitude());
+        intent.putExtra("kindOfService", parking.getKindOfService());
+        intent.putExtra("place", parking.getPlace());
+        intent.putExtra("ratings", parking.getRatings());
+        intent.putExtra("distance", parking.getDistance());
+        intent.putExtra("image", parking.getImage());
         context.startActivity(intent);
     }
 

@@ -107,6 +107,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 List<RecommendGasStation> gasStations = new ArrayList<>();
                 List<RecommendTowing> towingServices = new ArrayList<>();
                 List<RecommendSmokeService> smokeServices = new ArrayList<>();
+                List<RecommendParking> parkingLot = new ArrayList<>();
 
                 DisplayMethodServices.getAutoPartsShops(this, autoPartsShops -> {
                     combinedShops.addAll(autoPartsShops);
@@ -120,6 +121,8 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                     towingServices.addAll(fetchedTowing);
                                     DisplayMethodServices.getSmokeService(this, fetchedSmoke -> {
                                         smokeServices.addAll(fetchedSmoke);
+                                        DisplayMethodServices.getParkingLot(this, fetchedParking -> {
+                                            parkingLot.addAll(fetchedParking);
 
                                         List<Object> combinedList = new ArrayList<>();
                                         List<String> addedNames = new ArrayList<>();
@@ -147,17 +150,33 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                                                         addedNames.add(towing.getShopName());
                                                     }
                                                 }
-                                            } else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
-                                                for (RecommendSmokeService smoke : smokeServices) {
-                                                    if (!addedNames.contains(smoke.getShopName())) {
+                                            } else if (service.equalsIgnoreCase("Parking lot") ||
+                                                    service.equalsIgnoreCase("Public parking space") ||
+                                                    service.equalsIgnoreCase("Free parking lot") ||
+                                                    service.equalsIgnoreCase("Parking garage") ||
+                                                    service.equalsIgnoreCase("Parking lot for motorcycles")) {
+                                                for (RecommendParking parking : parkingLot) {
+                                                    if (!addedNames.contains(parking.getShopName())) {
                                                         float[] results = new float[1];
-                                                        Location.distanceBetween(userLatitude, userLongitude, smoke.getLatitude(), smoke.getLongitude(), results);
-                                                        smoke.setDistance(results[0]);
-                                                        combinedList.add(smoke);
-                                                        addedNames.add(smoke.getShopName());
+                                                        Location.distanceBetween(userLatitude, userLongitude, parking.getLatitude(), parking.getLongitude(), results);
+                                                        parking.setDistance(results[0]);
+                                                        combinedList.add(parking);
+                                                        addedNames.add(parking.getShopName());
                                                     }
                                                 }
-                                            } else {
+                                            }
+
+                                            else if (service.equalsIgnoreCase("Vehicle inspection service") || service.equalsIgnoreCase("Smog inspection station")) {
+                                                for (RecommendParking parking : parkingLot) {
+                                                    if (!addedNames.contains(parking.getShopName())) {
+                                                        float[] results = new float[1];
+                                                        Location.distanceBetween(userLatitude, userLongitude, parking.getLatitude(), parking.getLongitude(), results);
+                                                        parking.setDistance(results[0]);
+                                                        combinedList.add(parking);
+                                                        addedNames.add(parking.getShopName());
+                                                    }
+                                                }
+                                            }else {
                                                 for (RecommendLocalShop shop : combinedShops) {
                                                     String kindOfService = shop.getKindOfService();
                                                     if (kindOfService != null && kindOfService.equalsIgnoreCase(service)) {
@@ -180,6 +199,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                         });
                     });
                 });
+            });
             });
         }).start();
     }
