@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -29,11 +30,12 @@ public class ServicesRecommendActivity extends AppCompatActivity {
 
     private EditText queryInput;
     private Button predictButton;
-    private TextView resultView;
+    private TextView resultView, seeVideos;
     private RecyclerView recyclerView;
     private RecommendCombinedAdapter combinedAdapter;
     private final OkHttpClient client = new OkHttpClient();
     private static final String VERCEL_URL = "https://test-sage-nine-37.vercel.app/?q=";
+    private static final String YOUTUBE_VERCEL_URL = "https://youtube-mu-one.vercel.app/search?query=";
     private FusedLocationProviderClient fusedLocationClient;
     private double userLatitude = 0.0;
     private double userLongitude = 0.0;
@@ -47,6 +49,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         predictButton = findViewById(R.id.predictButton);
         resultView = findViewById(R.id.resultView);
         recyclerView = findViewById(R.id.recyclerView);
+        seeVideos = findViewById(R.id.seeVideos);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -61,6 +64,13 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                     getUserLocation();
                 }
             }
+        });
+        seeVideos.setOnClickListener(v -> {
+            String userQuery = queryInput.getText().toString().trim();
+            String youtubeUrl = YOUTUBE_VERCEL_URL + userQuery;
+            Intent intent = new Intent(ServicesRecommendActivity.this, VideoResultsActivity.class);
+            intent.putExtra("youtubeUrl", youtubeUrl);
+            startActivity(intent);
         });
     }
 

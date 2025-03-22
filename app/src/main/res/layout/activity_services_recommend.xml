@@ -52,6 +52,17 @@
 
        />
 
+    <TextView
+        android:id="@+id/seeVideos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Videos "
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
