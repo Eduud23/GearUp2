@@ -35,6 +35,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
     public void onBindViewHolder(VideoViewHolder holder, int position) {
         VideoItem video = videoList.get(position);
         holder.titleTextView.setText(video.getTitle());
+        holder.channelTitleTextView.setText(video.getChannelTitle());
         Glide.with(holder.thumbnailImageView.getContext()).load(video.getThumbnail()).into(holder.thumbnailImageView);
         holder.itemView.setOnClickListener(v -> onItemClickListener.onItemClick(video));
     }
@@ -46,11 +47,13 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
 
     static class VideoViewHolder extends RecyclerView.ViewHolder {
         TextView titleTextView;
+        TextView channelTitleTextView;
         ImageView thumbnailImageView;
 
         public VideoViewHolder(View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.videoTitle);
+            channelTitleTextView = itemView.findViewById(R.id.channelTitle);
             thumbnailImageView = itemView.findViewById(R.id.videoThumbnail);
         }
     }

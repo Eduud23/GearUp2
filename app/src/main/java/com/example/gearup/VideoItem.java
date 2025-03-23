@@ -4,11 +4,13 @@ public class VideoItem {
     private String title;
     private String thumbnail;
     private String url;
+    private String channelTitle;
 
-    public VideoItem(String title, String thumbnail, String url) {
+    public VideoItem(String title, String thumbnail, String url, String channelTitle) {
         this.title = title;
         this.thumbnail = thumbnail;
         this.url = url;
+        this.channelTitle = channelTitle;
     }
 
     public String getTitle() {
@@ -21,5 +23,9 @@ public class VideoItem {
 
     public String getUrl() {
         return url;
+    }
+
+    public String getChannelTitle() {
+        return channelTitle;
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -11,6 +12,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -252,14 +254,12 @@ public class CheckoutFormActivity extends AppCompatActivity {
         db.collection("orders")
                 .add(orderDetails)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(CheckoutFormActivity.this, "Payment Successful! Order Confirmed.", Toast.LENGTH_LONG).show();
-                    finish();
+                    showCustomDialog(true);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(CheckoutFormActivity.this, "Payment failed. Try again!", Toast.LENGTH_SHORT).show();
+                    showCustomDialog(false);
                 });
     }
-
 
     private String identifyCardType(String cardNum) {
         String cleanCardNum = cardNum.replaceAll("\\s", ""); // Remove spaces for validation
@@ -279,4 +279,40 @@ public class CheckoutFormActivity extends AppCompatActivity {
             return "Unknown";
         }
     }
+    private void showCustomDialog(boolean isSuccess) {
+        // Inflate the custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog, null);
+
+        TextView title = dialogView.findViewById(R.id.dialogTitle);
+        TextView message = dialogView.findViewById(R.id.dialogMessage);
+        Button okButton = dialogView.findViewById(R.id.dialogButton);
+        ImageView icon = dialogView.findViewById(R.id.dialogIcon);
+
+        // Customize based on success or failure
+        if (isSuccess) {
+            title.setText("Payment Successful");
+            message.setText("Your order has been confirmed.");
+            icon.setImageResource(R.drawable.success);
+        } else {
+            title.setText("Payment Failed");
+            message.setText("Something went wrong. Please try again.");
+            icon.setImageResource(R.drawable.error);
+        }
+
+        // Build the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+
+        // Handle the button click
+        okButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            if (isSuccess) {
+                finish();  // Close the activity after successful payment
+            }
+        });
+    }
+
 }

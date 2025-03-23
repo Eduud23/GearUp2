@@ -96,11 +96,13 @@ public class VideoResultsActivity extends AppCompatActivity {
                 String title = video.getString("title");
                 String thumbnail = video.getString("thumbnail");
                 String videoId = video.getString("url").split("v=")[1];
-                videoList.add(new VideoItem(title, thumbnail, videoId));
+                String channelTitle = video.getString("channelTitle"); // New field
+                videoList.add(new VideoItem(title, thumbnail, videoId, channelTitle));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return videoList;
     }
+
 }
