@@ -285,6 +285,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private void checkout() {
         Intent intent = new Intent(this, CheckoutFormActivity.class);
         intent.putExtra("SELLER_ID", sellerId);
+        intent.putExtra("PRODUCT_ID", product.getId());
         intent.putExtra("PRODUCT", product);
         intent.putExtra("PRODUCT_PRICE", product.getPrice());
         intent.putExtra("PRODUCT_QUANTITY", Integer.parseInt(productQuantity.getText().toString()));

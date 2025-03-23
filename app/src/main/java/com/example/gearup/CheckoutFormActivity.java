@@ -272,6 +272,14 @@ public class CheckoutFormActivity extends AppCompatActivity {
         db.collection("orders")
                 .add(orderDetails)
                 .addOnSuccessListener(documentReference -> {
+                    UserInteractionLogger.logPurchaseInteraction(
+                            userId,
+                            getIntent().getStringExtra("PRODUCT_ID"),
+                            getIntent().getStringExtra("PRODUCT_NAME"),
+                            getIntent().getStringExtra("SELLER_ID"),
+                            finalPrice
+                    );
+
                     showCustomDialog(true);
                 })
                 .addOnFailureListener(e -> {

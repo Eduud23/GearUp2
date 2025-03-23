@@ -29,7 +29,7 @@ public class CollaborativeFilteringRecommender {
 
             Log.d(TAG, "🔥 Retrieved " + allUsers.size() + " users from Firebase.");
 
-            // Get current user interactions
+            // Get current user interactions (clicks, reviews, purchases)
             Set<String> currentUserProducts = new HashSet<>();
             if (allUsers.containsKey(currentUserId)) {
                 currentUserProducts = ((Map<String, Object>) allUsers.get(currentUserId)).keySet();
@@ -97,21 +97,51 @@ public class CollaborativeFilteringRecommender {
                 }
             }
 
-            List<String> sortedRecommendations = recommendedProducts.entrySet().stream()
-                    .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+            // Incorporate reviews and purchases
+            DatabaseReference reviewsRef = database.getReference("user_reviews");
+            DatabaseReference purchasesRef = database.getReference("user_purchases");
 
-            if (sortedRecommendations.isEmpty()) {
-                sortedRecommendations = popularProducts.entrySet().stream()
+            reviewsRef.get().addOnCompleteListener(reviewTask -> {
+                if (reviewTask.isSuccessful() && reviewTask.getResult().exists()) {
+                    Map<String, Object> allReviews = (Map<String, Object>) reviewTask.getResult().getValue();
+                    if (allReviews != null) {
+                        allReviews.values().forEach(userReview -> {
+                            Map<String, Object> userProducts = (Map<String, Object>) userReview;
+                            userProducts.keySet().forEach(productId ->
+                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 1));
+                        });
+                    }
+                }
+            });
+
+            purchasesRef.get().addOnCompleteListener(purchaseTask -> {
+                if (purchaseTask.isSuccessful() && purchaseTask.getResult().exists()) {
+                    Map<String, Object> allPurchases = (Map<String, Object>) purchaseTask.getResult().getValue();
+                    if (allPurchases != null) {
+                        allPurchases.values().forEach(userPurchase -> {
+                            Map<String, Object> userProducts = (Map<String, Object>) userPurchase;
+                            userProducts.keySet().forEach(productId ->
+                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 2)); // Higher weight for purchases
+                        });
+                    }
+                }
+
+                List<String> sortedRecommendations = recommendedProducts.entrySet().stream()
                         .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                         .map(Map.Entry::getKey)
-                        .limit(10)
                         .collect(Collectors.toList());
-                Log.d(TAG, "✅ Final recommendations: " + sortedRecommendations);
-            }
 
-            listener.onRecommendationsGenerated(sortedRecommendations);
+                if (sortedRecommendations.isEmpty()) {
+                    sortedRecommendations = popularProducts.entrySet().stream()
+                            .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
+                            .map(Map.Entry::getKey)
+                            .limit(10)
+                            .collect(Collectors.toList());
+                    Log.d(TAG, "✅ Final recommendations: " + sortedRecommendations);
+                }
+
+                listener.onRecommendationsGenerated(sortedRecommendations);
+            });
         });
     }
 

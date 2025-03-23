@@ -75,6 +75,34 @@ public class UserInteractionLogger {
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Review interaction logged successfully!"))
                 .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to log review interaction: " + e.getMessage(), e));
     }
+    public static void logPurchaseInteraction(String userId, String productId, String productName, String sellerId, double totalPrice)
+    {
+        if (userId == null || userId.isEmpty()) {
+            Log.e(TAG, "❌ Error: User ID is null or empty. Cannot log purchase.");
+            return;
+        }
+        if (productId == null || productId.isEmpty()) {
+            Log.e(TAG, "❌ Error: Product ID is null or empty. Cannot log purchase.");
+            return;
+        }
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://gearup-df833-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        DatabaseReference dbRef = database.getReference("user_purchases").child(userId).child(productId);
+
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
+
+        Map<String, Object> purchaseData = new HashMap<>();
+        purchaseData.put("productId", productId);
+        purchaseData.put("productName", productName);
+        purchaseData.put("sellerId", sellerId);
+        purchaseData.put("totalPrice", totalPrice);
+        purchaseData.put("timestamp", timestamp);
+
+        dbRef.setValue(purchaseData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "✅ Purchase interaction logged successfully!"))
+                .addOnFailureListener(e -> Log.e(TAG, "❌ Failed to log purchase interaction: " + e.getMessage(), e));
+    }
+
 
     public static String getCurrentUserId() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
