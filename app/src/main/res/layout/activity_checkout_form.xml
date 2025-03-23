@@ -156,8 +156,14 @@
                 android:hint="Email" />
 
             <EditText
+                android:id="@+id/fullName"
+                style="@style/CustomInputField"
+                android:hint="Full Name" />
+
+            <EditText
                 android:id="@+id/phone_number"
                 style="@style/CustomInputField"
+                android:inputType="phone"
                 android:hint="Phone Number" />
 
             <EditText

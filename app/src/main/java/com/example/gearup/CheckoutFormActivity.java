@@ -27,7 +27,7 @@ import java.util.Map;
 public class CheckoutFormActivity extends AppCompatActivity {
 
     private TextView productName, productBrand, productYear, productPrice, productQuantity, cardTypeTextView;
-    private EditText shippingAddress, cardName, cardNumber, expiryDate, cvv, riderMessage;
+    private EditText shippingAddress, cardName, cardNumber, expiryDate, cvv, riderMessage, fullNameField, emailField, phoneNumberField, zipCodeField;
     private RadioGroup deliveryOption;
     private Button confirmPayment;
     private ImageView productImage;
@@ -46,8 +46,12 @@ public class CheckoutFormActivity extends AppCompatActivity {
         productImage = findViewById(R.id.product_image);
 
         shippingAddress = findViewById(R.id.shipping_address);
+        fullNameField = findViewById(R.id.fullName);
         cardName = findViewById(R.id.card_name);
         cardNumber = findViewById(R.id.card_number);
+        phoneNumberField = findViewById(R.id.phone_number);
+        zipCodeField = findViewById(R.id.zip_code);
+        emailField = findViewById(R.id.email);
         expiryDate = findViewById(R.id.expiry_date);
         cvv = findViewById(R.id.cvv);
         riderMessage = findViewById(R.id.rider_message);
@@ -201,11 +205,16 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String expiry = expiryDate.getText().toString().trim();
         String cvvCode = cvv.getText().toString().trim();
         String message = riderMessage.getText().toString().trim();
+        String email = emailField.getText().toString().trim();
+        String fullName = fullNameField.getText().toString().trim();
+        String phoneNumber = phoneNumberField.getText().toString().trim();
+        String zipCode = zipCodeField.getText().toString().trim();
 
         int selectedOption = deliveryOption.getCheckedRadioButtonId();
         String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
 
         if (cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty() || nameOnCard.isEmpty() ||
+                email.isEmpty() || fullName.isEmpty() || phoneNumber.isEmpty() || zipCode.isEmpty() ||
                 (selectedOption == R.id.radio_delivery && address.isEmpty())) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
@@ -241,14 +250,23 @@ public class CheckoutFormActivity extends AppCompatActivity {
             orderDetails.put("shippingAddress", address);
         }
 
+        // Store customer info
+        Map<String, Object> customerInfo = new HashMap<>();
+        customerInfo.put("email", email);
+        customerInfo.put("fullName", fullName);
+        customerInfo.put("phoneNumber", phoneNumber);
+        customerInfo.put("zipCode", zipCode);
+        customerInfo.put("riderMessage", message);
+        orderDetails.put("customerInfo", customerInfo);
+
         // Store payment details
-        orderDetails.put("payment", new HashMap<String, Object>() {{
-            put("cardName", nameOnCard);
-            put("cardNumber", cardNum);
-            put("expiryDate", expiry);
-            put("cvv", cvvCode);
-            put("cardType", cardType);
-        }});
+        Map<String, Object> paymentDetails = new HashMap<>();
+        paymentDetails.put("cardName", nameOnCard);
+        paymentDetails.put("cardNumber", cardNum);
+        paymentDetails.put("expiryDate", expiry);
+        paymentDetails.put("cvv", cvvCode);
+        paymentDetails.put("cardType", cardType);
+        orderDetails.put("payment", paymentDetails);
 
         // Save to Firestore
         db.collection("orders")
@@ -260,6 +278,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     showCustomDialog(false);
                 });
     }
+
 
     private String identifyCardType(String cardNum) {
         String cleanCardNum = cardNum.replaceAll("\\s", ""); // Remove spaces for validation
