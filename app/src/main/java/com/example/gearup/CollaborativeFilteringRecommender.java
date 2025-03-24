@@ -28,8 +28,7 @@ public class CollaborativeFilteringRecommender {
             }
 
             Log.d(TAG, "🔥 Retrieved " + allUsers.size() + " users from Firebase.");
-
-            // Get current user interactions (clicks, reviews, purchases)
+            
             Set<String> currentUserProducts = new HashSet<>();
             if (allUsers.containsKey(currentUserId)) {
                 currentUserProducts = ((Map<String, Object>) allUsers.get(currentUserId)).keySet();
