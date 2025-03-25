@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import org.json.JSONObject;
@@ -41,6 +43,11 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         seeVideos = findViewById(R.id.recommendedVideosButton);
         nearbyServicesButton = findViewById(R.id.recommendedServicesButton);
         tutorialsButton = findViewById(R.id.stepByStepTutorialsButton);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getUserLocation();
