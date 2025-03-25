@@ -7,7 +7,6 @@
     android:padding="16dp"
     android:background="@android:color/background_light">
 
-    <!-- Header Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -18,7 +17,6 @@
         android:layout_gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <!-- Query Input Section -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +34,6 @@
             android:scrollbars="vertical" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Generate Button -->
     <Button
         android:id="@+id/predictButton"
         android:layout_width="wrap_content"
@@ -51,7 +48,6 @@
         android:elevation="6dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Result Display Section -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,43 +64,46 @@
             android:padding="16dp" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Videos Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
+        android:orientation="vertical"
         android:padding="8dp"
         android:layout_marginBottom="12dp">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_play"
-            app:tint="@color/black" />
-
-        <TextView
-            android:id="@+id/seeVideos"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Watch Related Videos"
-            android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:padding="12dp"/>
-    </LinearLayout>
-
-    <!-- Service Recommendations RecyclerView -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <Button
+            android:id="@+id/recommendedServicesButton"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:padding="8dp"/>
-    </androidx.cardview.widget.CardView>
+            android:layout_height="wrap_content"
+            android:text="Recommended Services"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:textColor="@android:color/white"
+            android:elevation="6dp"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/recommendedVideosButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recommended Educational Videos"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:textColor="@android:color/white"
+            android:elevation="6dp"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/stepByStepTutorialsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Step By Step Tutorials"
+            android:textSize="16sp"
+            android:paddingVertical="12dp"
+            android:backgroundTint="@android:color/holo_blue_light"
+            android:textColor="@android:color/white"
+            android:elevation="6dp" />
+    </LinearLayout>
 </LinearLayout>

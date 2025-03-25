@@ -18,6 +18,19 @@
         android:layout_gravity="center"
         android:layout_marginBottom="16dp" />
 
+    <!-- Prediction View -->
+    <TextView
+        android:id="@+id/predictionView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Prediction:"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="12dp"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        app:cardElevation="4dp" />
+
     <!-- Video Recommendations RecyclerView -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
