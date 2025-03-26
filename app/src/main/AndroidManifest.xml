@@ -127,6 +127,7 @@
             android:exported="false" />
         <activity
             android:name=".Login"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".ChooseUser"
