@@ -27,6 +27,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private final OkHttpClient client = new OkHttpClient();
     private static final String VERCEL_URL = "https://test-sage-nine-37.vercel.app/?q=";
     private static final String YOUTUBE_VERCEL_URL = "https://youtube-mu-one.vercel.app/search?query=";
+    private static final String TIPS_URL = "https://stepbystep-iota.vercel.app/predict?q=";
     private FusedLocationProviderClient fusedLocationClient;
     private double userLatitude = 0.0;
     private double userLongitude = 0.0;
@@ -80,14 +81,16 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             String userQuery = queryInput.getText().toString().trim();
             String youtubeUrl = YOUTUBE_VERCEL_URL + userQuery;
             Intent intent = new Intent(ServicesRecommendActivity.this, VideoResultsActivity.class);
-            intent.putExtra("prediction", prediction);
             intent.putExtra("youtubeUrl", youtubeUrl);
             startActivity(intent);
         });
 
         tutorialsButton.setOnClickListener(v -> {
-            // Handle the Step-by-Step Tutorials option here
-            // Example: Navigate to another activity for tutorials
+            String userQuery = queryInput.getText().toString().trim();
+            String tipsUrl = TIPS_URL + userQuery;
+            Intent intent = new Intent(ServicesRecommendActivity.this, StepByStepActivity.class);
+            intent.putExtra("tips", tipsUrl);
+            startActivity(intent);
         });
     }
 
