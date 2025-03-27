@@ -8,15 +8,16 @@
     android:background="@android:color/background_light">
 
     <!-- Toolbar with Back Button and Centered Title -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/holo_blue_light"
-        app:title="Vehicle AI Assistant"
-        app:titleTextColor="@android:color/white"
+        android:elevation="4dp"
         app:navigationIcon="@drawable/ic_back_white"
-        android:elevation="4dp" />
+        app:title="Step By Step Tutorial"
+        app:titleTextColor="@android:color/white" />
 
     <ScrollView
         android:layout_width="match_parent"

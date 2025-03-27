@@ -7,6 +7,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -22,7 +23,8 @@ import okhttp3.Response;
 public class ServicesRecommendActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private EditText queryInput;
-    private Button predictButton, seeVideos, nearbyServicesButton, tutorialsButton;
+    private Button predictButton;
+    private ImageButton seeVideos, nearbyServicesButton, tutorialsButton;
     private TextView resultView;
     private final OkHttpClient client = new OkHttpClient();
     private static final String VERCEL_URL = "https://test-sage-nine-37.vercel.app/?q=";
