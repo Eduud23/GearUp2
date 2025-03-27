@@ -49,7 +49,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private ListenerRegistration reviewsListener;
     private ViewPager2 viewPager;
     private ImageView sellerProfileImage;
-    private RecyclerView rvReviews;
     private int maxQuantity;
     private String sellerId;
     private String currentUserId;
@@ -74,10 +73,17 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         productQuantity = findViewById(R.id.et_product_quantity);
         viewPager = findViewById(R.id.viewPager);
         addReviewButton = findViewById(R.id.btn_add_review);
-        rvReviews = findViewById(R.id.rv_reviews);
         tvAverageRating = findViewById(R.id.tv_average_rating);
         productBrand = findViewById(R.id.tv_product_brand);
         productYearModel = findViewById(R.id.tv_product_year_model);
+
+        Button viewReviewsButton = findViewById(R.id.btn_view_reviews);
+        viewReviewsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ProductDetailsBuyerActivity.this, ProductReviewsActivity.class);
+            intent.putExtra("PRODUCT_ID", product.getId());
+            startActivity(intent);
+        });
+
 
 
 
@@ -120,8 +126,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         sellerProfileImage.setOnClickListener(v -> openSellerShop());
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
-        // Setup RecyclerView for reviews
-        rvReviews.setLayoutManager(new LinearLayoutManager(this));
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -538,9 +542,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                         reviews.add(review);
                     }
 
-                    // Update the RecyclerView adapter dynamically
-                    ReviewAdapter reviewsAdapter = new ReviewAdapter(reviews);
-                    rvReviews.setAdapter(reviewsAdapter);
                 });
     }
 

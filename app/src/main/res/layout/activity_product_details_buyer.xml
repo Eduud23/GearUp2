@@ -280,23 +280,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_reviews"
-                android:layout_width="0dp"
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_view_reviews"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
+                android:text="See Reviews"
                 android:layout_marginTop="16dp"
-                android:padding="8dp"
-                android:background="@color/transparent"
-                android:scrollbars="vertical"
+                android:textColor="@android:color/black"
+                android:padding="10dp"
+                android:background="@drawable/border"
+                android:textSize="16sp"
+                android:textAllCaps="false"
                 app:layout_constraintTop_toBottomOf="@id/btn_add_review"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:elevation="4dp"
-                android:clipToPadding="false"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:divider="@android:drawable/divider_horizontal_bright"
-                android:dividerHeight="1dp" />
+                app:layout_constraintEnd_toEndOf="parent"/>
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

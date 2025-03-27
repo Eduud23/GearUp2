@@ -30,7 +30,6 @@ public class VideoResultsActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_video_results);
 
-        TextView predictionView = findViewById(R.id.predictionView);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -39,13 +38,7 @@ public class VideoResultsActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         String youtubeUrl = getIntent().getStringExtra("youtubeUrl");
-        String prediction = getIntent().getStringExtra("prediction");
 
-        if (prediction != null && !prediction.isEmpty()) {
-            predictionView.setText("Prediction: " + prediction);
-        } else {
-            predictionView.setText("No prediction available");
-        }
 
         if (youtubeUrl != null) {
             new FetchVideoDataTask(recyclerView).execute(youtubeUrl);
