@@ -101,16 +101,22 @@
                         android:background="?attr/selectableItemBackground"
                         android:scaleType="centerInside"
                         android:src="@drawable/recommended_services"
-                        android:layout_marginEnd="12dp"/>
+                        android:layout_marginEnd="12dp"
+                        android:visibility="gone"
+                        />
 
                     <!-- Label for Recommended Services -->
                     <TextView
+                        android:id="@+id/tvServices"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Recommended Services"
                         android:textSize="12sp"
                         android:gravity="center"
-                        android:layout_marginTop="8dp"/>
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+
+                        />
                 </LinearLayout>
 
                 <!-- Recommended Videos Button -->
@@ -127,16 +133,21 @@
                         android:layout_height="100dp"
                         android:background="?attr/selectableItemBackground"
                         android:scaleType="centerInside"
-                        android:src="@drawable/recommended_videos"/>
+                        android:src="@drawable/recommended_videos"
+                        android:visibility="gone"
+                        />
 
                     <!-- Label for Recommended Videos -->
                     <TextView
+                        android:id="@+id/tvVideos"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Recommended Videos"
                         android:textSize="12sp"
                         android:gravity="center"
-                        android:layout_marginTop="8dp"/>
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
+                        />
                 </LinearLayout>
             </LinearLayout>
 
@@ -154,16 +165,21 @@
                     android:layout_height="120dp"
                     android:background="?attr/selectableItemBackground"
                     android:scaleType="centerInside"
-                    android:src="@drawable/step_by_step_tutorials"/>
+                    android:src="@drawable/step_by_step_tutorials"
+                    android:visibility="gone"
+                    />
 
                 <!-- Label for Step-by-Step Tutorials -->
                 <TextView
+                    android:id="@+id/tvTutorials"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Step-by-Step Tutorials"
                     android:textSize="12sp"
                     android:gravity="center"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    />
             </LinearLayout>
 
 

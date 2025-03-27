@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -61,7 +62,21 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 if (userLatitude != 0.0 && userLongitude != 0.0) {
                     new Thread(() -> {
                         prediction = askVercel(userQuery).trim();
-                        runOnUiThread(() -> resultView.setText("Prediction: " + prediction));
+                        runOnUiThread(() -> {
+                            resultView.setText("Prediction: " + prediction);
+
+                            // Make buttons visible when there’s a prediction
+                            if (!prediction.isEmpty()) {
+                                nearbyServicesButton.setVisibility(View.VISIBLE);
+                                seeVideos.setVisibility(View.VISIBLE);
+                                tutorialsButton.setVisibility(View.VISIBLE);
+
+                                findViewById(R.id.tvServices).setVisibility(View.VISIBLE);
+                                findViewById(R.id.tvVideos).setVisibility(View.VISIBLE);
+                                findViewById(R.id.tvTutorials).setVisibility(View.VISIBLE);
+                            }
+                        });
+
                     }).start();
                 } else {
                     getUserLocation();

@@ -10,6 +10,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 public class ShopsFragment extends Fragment {
 
@@ -24,9 +25,20 @@ public class ShopsFragment extends Fragment {
 
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
+        ImageView btnBack = view.findViewById(R.id.btn_back);
+
+
 
         adapter = new ShopsPagerAdapter(this);
         viewPager.setAdapter(adapter);
+
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+            }
+        });
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) {
