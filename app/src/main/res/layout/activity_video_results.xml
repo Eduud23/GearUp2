@@ -4,49 +4,74 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:fitsSystemWindows="true"
     android:background="@android:color/background_light">
 
-    <!-- Header Section -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Related Educational Videos"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_gravity="center"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Prediction View -->
-    <TextView
-        android:id="@+id/predictionView"
+    <!-- Toolbar with Back Button and Centered Title -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Prediction:"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="12dp"
-        android:padding="8dp"
-        android:background="@android:color/white"
-        app:cardElevation="4dp" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/holo_blue_light"
+        app:title="Watch Recommended Videos"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_white"
+        android:elevation="4dp" />
 
-    <!-- Video Recommendations RecyclerView -->
-    <androidx.cardview.widget.CardView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="6dp">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:padding="8dp"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:background="@android:color/white" />
-    </androidx.cardview.widget.CardView>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/background_light">
 
+            <!-- Header Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Related Educational Videos"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Prediction View -->
+            <TextView
+                android:id="@+id/predictionView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Prediction:"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="12dp"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                app:cardElevation="4dp" />
+
+            <!-- Video Recommendations RecyclerView -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:padding="8dp"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never"
+                    android:background="@android:color/white" />
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

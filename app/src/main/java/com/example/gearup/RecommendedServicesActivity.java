@@ -5,6 +5,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
@@ -24,6 +25,10 @@ public class RecommendedServicesActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recommendedServicesRecyclerView);
         predictionView = findViewById(R.id.predictionView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         // Get intent data
         Intent intent = getIntent();

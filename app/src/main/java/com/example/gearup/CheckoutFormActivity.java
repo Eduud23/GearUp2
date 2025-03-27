@@ -62,8 +62,6 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         Intent intent = getIntent();
