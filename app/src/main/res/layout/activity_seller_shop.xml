@@ -90,6 +90,7 @@
                         android:textSize="16sp"
                         android:layout_marginTop="5dp"
                         android:layout_marginStart="10dp"
+                        android:maxLines="1"
                         android:textColor="@color/black"/>
 
                     <!-- Address -->
@@ -108,6 +109,7 @@
                         android:text="Tech City"
                         android:textSize="16sp"
                         android:layout_marginStart="10dp"
+                        android:maxLines="1"
                         android:textColor="@color/gray"/>
 
                     <!-- Phone Number -->
@@ -126,15 +128,16 @@
                         android:text="Phone Number"
                         android:textSize="16sp"
                         android:layout_marginStart="10dp"
+                        android:maxLines="1"
                         android:textColor="@color/black"/>
 
-                    <!-- Sold -->
-                    <ImageView
-                        android:layout_width="24dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="24dp"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/sold"
-                        android:contentDescription="Sold Icon"/>
+                        android:text="sold"
+                        />
+
 
                     <TextView
                         android:id="@+id/tv_sold_count"
@@ -147,12 +150,12 @@
                         android:textColor="@color/black"/>
 
                     <!-- Reviews -->
-                    <ImageView
-                        android:layout_width="24dp"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="24dp"
                         android:layout_gravity="center_vertical"
-                        android:src="@drawable/review"
-                        android:contentDescription="Reviews Icon"/>
+                        android:text="Reviews"
+                        />
 
                     <TextView
                         android:id="@+id/tv_review_count"
@@ -200,12 +203,15 @@
             android:padding="12dp"
             android:textSize="14sp"/>
 
-        <Spinner
-            android:id="@+id/spinner_categories"
+        <ImageView
+            android:id="@+id/spinner_category"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
+            android:src="@drawable/filter_category"
+            android:contentDescription="Category Icon"
             android:background="@drawable/rounded_bg"
+            android:elevation="6dp"
             android:padding="8dp"/>
     </LinearLayout>
 
