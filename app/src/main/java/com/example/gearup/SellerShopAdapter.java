@@ -37,12 +37,11 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         Product product = productList.get(position);
 
         if (product != null) {
-            // Set product name, price, and description
+            // Set product name, brand, price, and category
             holder.productNameTextView.setText(product.getName());
             holder.brandTextView.setText(product.getBrand());
-            holder.yearModelTextView.setText(product.getYearModel());
             holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
-            holder.productDescriptionTextView.setText(product.getDescription());
+            holder.productCategoryTextView.setText(product.getCategory());
 
             // Load the product image using Glide (First image from the list or fallback image)
             List<String> imageUrls = product.getImageUrls();
@@ -59,11 +58,11 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
             holder.itemView.setOnClickListener(v -> listener.onProductClick(product));
         }
     }
+
     public void updateList(List<Product> updatedList) {
         this.productList = updatedList;
         notifyDataSetChanged();
     }
-
 
     @Override
     public int getItemCount() {
@@ -75,9 +74,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         ImageView productImageView;
         TextView productNameTextView;
         TextView brandTextView;
-        TextView yearModelTextView;
         TextView productPriceTextView;
-        TextView productDescriptionTextView;
+        TextView productCategoryTextView; // New field for category
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -85,9 +83,8 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
             productImageView = itemView.findViewById(R.id.iv_product_image);
             productNameTextView = itemView.findViewById(R.id.tv_product_name);
             brandTextView = itemView.findViewById(R.id.tv_product_brand);
-            yearModelTextView = itemView.findViewById(R.id.tv_product_year_model);
             productPriceTextView = itemView.findViewById(R.id.tv_product_price);
-            productDescriptionTextView = itemView.findViewById(R.id.tv_product_description);
+            productCategoryTextView = itemView.findViewById(R.id.tv_product_category); // New field for category
         }
     }
 

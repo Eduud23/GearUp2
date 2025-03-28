@@ -8,11 +8,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,7 +36,8 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     private List<Product> fullProductList = new ArrayList<>(); // For filtering purposes
     private FirebaseFirestore db;
     private String sellerId;
-    private Spinner categorySpinner;
+    private ImageView categorySpinner;
+    //private Spinner categorySpinner;
     private ImageView messageIcon, profileImageView;
     private EditText searchEditText; // Search bar for product search
 
@@ -54,7 +57,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         phoneNumberTextView = findViewById(R.id.tv_phone_number);
         profileImageView = findViewById(R.id.iv_profile_image);
         productsRecyclerView = findViewById(R.id.rv_products);
-        categorySpinner = findViewById(R.id.spinner_categories);
+        categorySpinner = findViewById(R.id.spinner_category);
         messageIcon = findViewById(R.id.iv_message_icon);
         searchEditText = findViewById(R.id.et_search); // Initialize search bar
 
@@ -95,24 +98,20 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     }
 
     private void setupCategorySpinner() {
-        String[] categories = {"All", "Central Components", "Body", "Connectors", "Peripherals"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
+        categorySpinner.setOnClickListener(v -> {
+            String[] categories = {"All", "Central Components", "Body", "Connectors", "Peripherals"};
 
-        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedCategory = parentView.getItemAtPosition(position).toString();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Select Category");
+            builder.setItems(categories, (dialog, which) -> {
+                String selectedCategory = categories[which];
                 loadSellerProducts(sellerId, selectedCategory);
-            }
+            });
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                loadSellerProducts(sellerId, "All");
-            }
+            builder.show();
         });
     }
+
 
     private void setupSearchEditText() {
         searchEditText.addTextChangedListener(new TextWatcher() {

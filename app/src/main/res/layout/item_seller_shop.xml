@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="8dp"
     android:background="@android:color/white"
@@ -16,25 +14,6 @@
         android:layout_height="150dp"
         android:contentDescription="@string/product_image_desc"
         android:scaleType="centerCrop" />
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_gravity="start"
-        android:layout_marginEnd="16dp"
-        android:elevation="4dp"
-        app:cardCornerRadius="100dp">
-
-        <ImageView
-            android:id="@+id/civ_seller_profile_image"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:scaleType="fitXY"
-            android:contentDescription="@string/seller_profile_image_desc"
-            android:src="@drawable/gear" />
-
-    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/tv_product_name"
@@ -55,15 +34,15 @@
         android:layout_marginTop="4dp"
         android:text="Brand" />
 
-    <!-- Year Model -->
+    <!-- Product Category -->
     <TextView
-        android:id="@+id/tv_product_year_model"
+        android:id="@+id/tv_product_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/darker_gray"
         android:layout_marginTop="4dp"
-        android:text="Year Model" />
+        android:text="Category" />
 
     <!-- Product Price -->
     <TextView
@@ -74,16 +53,5 @@
         android:textColor="@android:color/holo_red_dark"
         android:layout_marginTop="4dp"
         android:text="₱Price" />
-
-    <TextView
-        android:id="@+id/tv_product_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        android:text="Product Description"
-        android:maxLines="2"
-        android:ellipsize="end" />
 
 </LinearLayout>
