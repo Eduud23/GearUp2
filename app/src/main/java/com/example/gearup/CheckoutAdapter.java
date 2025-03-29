@@ -38,13 +38,21 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.ViewHo
         holder.productQuantityTextView.setText("Quantity: " + cartItem.getQuantity());
         holder.productPriceTextView.setText("₱" + formatPrice(cartItem.getTotalPrice()));
 
-        // Load the product image using Glide
-        if (!product.getImageUrls().isEmpty()) {
+        // Check for null or empty values
+        String brand = (product.getBrand() != null && !product.getBrand().isEmpty()) ? product.getBrand() : "Unknown";
+        holder.productBrandTextView.setText("Brand: " + brand);
+
+        String yearModel = (product.getYearModel() != null && !product.getYearModel().isEmpty()) ? product.getYearModel() : "N/A";
+        holder.productYearModelTextView.setText("Year: " + yearModel);
+
+        // Load product image using Glide
+        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
             Glide.with(holder.productImageView.getContext())
                     .load(product.getImageUrls().get(0))
                     .into(holder.productImageView);
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -52,7 +60,7 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView productNameTextView, productQuantityTextView, productPriceTextView;
+        TextView productNameTextView, productQuantityTextView, productPriceTextView, productBrandTextView, productYearModelTextView;
         ImageView productImageView;
 
         public ViewHolder(@NonNull View itemView) {
@@ -60,6 +68,8 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.ViewHo
             productNameTextView = itemView.findViewById(R.id.textView_checkout_product_name);
             productQuantityTextView = itemView.findViewById(R.id.textView_checkout_quantity);
             productPriceTextView = itemView.findViewById(R.id.textView_checkout_price);
+            productBrandTextView = itemView.findViewById(R.id.textView_checkout_brand);
+            productYearModelTextView = itemView.findViewById(R.id.textView_checkout_year);
             productImageView = itemView.findViewById(R.id.imageView_checkout_product);
         }
     }

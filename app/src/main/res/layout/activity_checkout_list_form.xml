@@ -1,43 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:fitsSystemWindows="true"
+    android:background="@android:color/background_light">
 
-    <TextView
-        android:id="@+id/textView_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Checkout Items"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="10dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_checkout"
+    <!-- Toolbar with Back Button and Centered Title -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/holo_blue_light"
+        app:title="Checkout Items"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_white"
+        android:elevation="4dp" />
 
-    <TextView
-        android:id="@+id/textView_total_checkout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total: ₱0.00"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:gravity="end"
-        android:padding="10dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/background_light">
 
-    <Button
-        android:id="@+id/button_proceed_payment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Proceed to Payment"
-        android:backgroundTint="@color/colorPrimary"
-        android:textColor="@android:color/white"
-        android:padding="10dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_checkout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical" />
+
+        <TextView
+            android:id="@+id/textView_total_checkout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: ₱0.00"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:padding="10dp" />
+
+        <Button
+            android:id="@+id/button_proceed_payment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Proceed to Payment"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white"
+            android:padding="10dp" />
+    </LinearLayout>
 </LinearLayout>

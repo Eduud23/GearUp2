@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,10 @@ public class CheckoutListFormActivity extends AppCompatActivity {
         recyclerViewCheckout = findViewById(R.id.recyclerView_checkout);
         totalAmount = findViewById(R.id.textView_total_checkout);
         confirmCheckoutButton = findViewById(R.id.button_proceed_payment);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         recyclerViewCheckout.setLayoutManager(new LinearLayoutManager(this));
 
