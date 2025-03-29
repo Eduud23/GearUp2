@@ -4,13 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class CartItem implements Parcelable {
-    private String documentId; // Firestore document ID
     private Product product;
     private int quantity;
+    private String documentId; // Firestore Document ID
 
-    // No-argument constructor required for Firestore
-    public CartItem() {
-    }
+    // Default constructor (needed for Firebase)
+    public CartItem() {}
 
     public CartItem(Product product, int quantity) {
         this.product = product;
@@ -18,9 +17,9 @@ public class CartItem implements Parcelable {
     }
 
     protected CartItem(Parcel in) {
-        documentId = in.readString(); // Read document ID from Parcel
         product = in.readParcelable(Product.class.getClassLoader());
         quantity = in.readInt();
+        documentId = in.readString();
     }
 
     public static final Creator<CartItem> CREATOR = new Creator<CartItem>() {
@@ -35,15 +34,19 @@ public class CartItem implements Parcelable {
         }
     };
 
-    // Getter and setter for documentId
-    public String getDocumentId() {
-        return documentId;
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(product, flags);
+        dest.writeInt(quantity);
+        dest.writeString(documentId);
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
+    // Getters and Setters
     public Product getProduct() {
         return product;
     }
@@ -60,28 +63,15 @@ public class CartItem implements Parcelable {
         this.quantity = quantity;
     }
 
-    // Method to get the total price for this CartItem (price * quantity)
     public double getTotalPrice() {
-        double price = 0.0;
-        try {
-            // Directly use getPrice() since it's already a double
-            price = product.getPrice();
-        } catch (Exception e) {
-            // Handle the case where the price is invalid (optional)
-            e.printStackTrace(); // Optionally log the exception
-        }
-        return price * quantity;
+        return product.getPrice() * quantity;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(documentId); // Write document ID to Parcel
-        dest.writeParcelable(product, flags);
-        dest.writeInt(quantity);
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }
