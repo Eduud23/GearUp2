@@ -97,7 +97,8 @@
             android:layout_height="wrap_content"
             android:hint="Card Number"
             android:inputType="number"
-            android:maxLength="19" />
+            android:maxLength="19"
+            android:drawableEnd="@drawable/credit_card"/>
 
         <TextView
             android:id="@+id/card_type"

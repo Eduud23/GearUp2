@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,26 +68,50 @@ public class PaymentActivity extends AppCompatActivity {
         confirmPaymentButton.setOnClickListener(v -> processPayment());
 
         cardNumber.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            private boolean isFormatting;
+            private int beforeLength;
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                cardTypeTextView.setText("Card Type: " + identifyCardType(s.toString()));
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                beforeLength = s.length();
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+
+                isFormatting = true;
+
+                String input = s.toString().replaceAll("\\s", ""); // Remove existing spaces
+                StringBuilder formatted = new StringBuilder();
+
+                for (int i = 0; i < input.length(); i++) {
+                    if (i > 0 && i % 4 == 0) {
+                        formatted.append(" "); // Insert space after every 4 digits
+                    }
+                    formatted.append(input.charAt(i));
+                }
+
+                cardNumber.removeTextChangedListener(this);
+                cardNumber.setText(formatted.toString());
+                cardNumber.setSelection(formatted.length()); // Move cursor to the end
+                cardNumber.addTextChangedListener(this);
+
+                isFormatting = false;
+            }
         });
-
-
 
         expiryDate.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -142,11 +167,16 @@ public class PaymentActivity extends AppCompatActivity {
         String phoneNumberStr = phoneNumber.getText().toString().trim();
         String zipCodeStr = zipCode.getText().toString().trim();
         String riderMsgStr = riderMessage.getText().toString().trim();
+        String nameOnCard = cardName.getText().toString().trim();
+        String cardNum = cardNumber.getText().toString().trim();
+        String expiry = expiryDate.getText().toString().trim();
+        String cvvCode = cvv.getText().toString().trim();
+        String cardType = identifyCardType(cardNum);
 
         int selectedOption = deliveryOption.getCheckedRadioButtonId();
         String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
 
-        if (emailStr.isEmpty() || fullNameStr.isEmpty() || phoneNumberStr.isEmpty() || zipCodeStr.isEmpty()) {
+        if (emailStr.isEmpty() || fullNameStr.isEmpty() || phoneNumberStr.isEmpty() || zipCodeStr.isEmpty() || nameOnCard.isEmpty() || cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -160,7 +190,6 @@ public class PaymentActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         List<Map<String, Object>> productList = new ArrayList<>();
-
         for (CartItem item : cartItems) {
             Map<String, Object> product = new HashMap<>();
             product.put("productName", item.getProduct());
@@ -170,32 +199,83 @@ public class PaymentActivity extends AppCompatActivity {
             productList.add(product);
         }
 
-        db.collection("orders")
-                .add(new HashMap<String, Object>() {{
-                    put("products", productList);
-                    put("deliveryType", deliveryType);
-                    put("totalPrice", finalPrice);
-                    put("customerInfo", new HashMap<String, Object>() {{
-                        put("email", emailStr);
-                        put("fullName", fullNameStr);
-                        put("phoneNumber", phoneNumberStr);
-                        put("zipCode", zipCodeStr);
-                        put("riderMessage", riderMsgStr);
-                    }});
-                }})
-                .addOnSuccessListener(documentReference -> showCustomDialog(true))
-                .addOnFailureListener(e -> showCustomDialog(false));
+        Map<String, Object> paymentDetails = new HashMap<>();
+        paymentDetails.put("cardName", nameOnCard);
+        paymentDetails.put("cardNumber", cardNum);
+        paymentDetails.put("expiryDate", expiry);
+        paymentDetails.put("cvv", cvvCode);
+        paymentDetails.put("cardType", cardType);
+
+        db.collection("orders").add(new HashMap<String, Object>() {{
+            put("products", productList);
+            put("deliveryType", deliveryType);
+            put("totalPrice", finalPrice);
+            put("payment", paymentDetails);
+            put("customerInfo", new HashMap<String, Object>() {{
+                put("email", emailStr);
+                put("fullName", fullNameStr);
+                put("phoneNumber", phoneNumberStr);
+                put("zipCode", zipCodeStr);
+                put("riderMessage", riderMsgStr);
+            }});
+        }}).addOnSuccessListener(documentReference -> {
+            deleteCartItems(userId);
+            showCustomDialog(true);
+        }).addOnFailureListener(e -> showCustomDialog(false));
     }
 
 
-private void showCustomDialog(boolean isSuccess) {
+    private void showCustomDialog(boolean isSuccess) {
+        // Inflate the custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog, null);
+
+        TextView title = dialogView.findViewById(R.id.dialogTitle);
+        TextView message = dialogView.findViewById(R.id.dialogMessage);
+        Button okButton = dialogView.findViewById(R.id.dialogButton);
+        ImageView icon = dialogView.findViewById(R.id.dialogIcon);
+
+        // Customize based on success or failure
+        if (isSuccess) {
+            title.setText("Payment Successful");
+            message.setText("Your order has been confirmed.");
+            icon.setImageResource(R.drawable.success);
+        } else {
+            title.setText("Payment Failed");
+            message.setText("Something went wrong. Please try again.");
+            icon.setImageResource(R.drawable.error);
+        }
+
+        // Build the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(isSuccess ? "Payment Successful" : "Payment Failed");
-        builder.setMessage(isSuccess ? "Your order has been confirmed." : "Something went wrong. Please try again.");
-        builder.setPositiveButton("OK", (dialog, which) -> {
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+
+        // Handle the button click
+        okButton.setOnClickListener(v -> {
             dialog.dismiss();
-            if (isSuccess) finish();
+            if (isSuccess) {
+                finish();  // Close the activity after successful payment
+            }
         });
-        builder.show();
+    }
+    private void deleteCartItems(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("buyers").document(userId).collection("cartItems")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        db.collection("buyers").document(userId).collection("cartItems").document(doc.getId()).delete();
+                    }
+                });
+
+        db.collection("sellers").document(userId).collection("cartItems")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        db.collection("sellers").document(userId).collection("cartItems").document(doc.getId()).delete();
+                    }
+                });
     }
 }
