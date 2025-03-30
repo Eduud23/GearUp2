@@ -24,8 +24,8 @@ public class Cart {
         return instance;
     }
 
-    public void addToCart(Product product, int quantity) {
-        items.add(new CartItem(product, quantity));
+    public void addToCart(Product product, int quantity, String sellerId) {
+        items.add(new CartItem(product, quantity, sellerId));
         saveCart(); // Save cart items to Firestore
     }
 

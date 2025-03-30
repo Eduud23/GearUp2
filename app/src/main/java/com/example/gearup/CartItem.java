@@ -7,19 +7,22 @@ public class CartItem implements Parcelable {
     private Product product;
     private int quantity;
     private String documentId; // Firestore Document ID
+    private String sellerId; // Seller ID
 
     // Default constructor (needed for Firebase)
     public CartItem() {}
 
-    public CartItem(Product product, int quantity) {
+    public CartItem(Product product, int quantity, String sellerId) {
         this.product = product;
         this.quantity = quantity;
+        this.sellerId = sellerId;
     }
 
     protected CartItem(Parcel in) {
         product = in.readParcelable(Product.class.getClassLoader());
         quantity = in.readInt();
         documentId = in.readString();
+        sellerId = in.readString();
     }
 
     public static final Creator<CartItem> CREATOR = new Creator<CartItem>() {
@@ -39,6 +42,7 @@ public class CartItem implements Parcelable {
         dest.writeParcelable(product, flags);
         dest.writeInt(quantity);
         dest.writeString(documentId);
+        dest.writeString(sellerId);
     }
 
     @Override
@@ -73,5 +77,13 @@ public class CartItem implements Parcelable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public String getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
     }
 }

@@ -244,7 +244,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 existingItem.setQuantity(existingItem.getQuantity() + quantity);
                 updateCartItemInFirestore(product, existingItem.getQuantity());
             } else {
-                Cart.getInstance().addToCart(product, quantity);
+                Cart.getInstance().addToCart(product, quantity, sellerId);
                 saveCartItemToFirestore(product, quantity);
             }
 
@@ -253,7 +253,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     }
 
     private void saveCartItemToFirestore(Product product, int quantity) {
-        CartItem cartItem = new CartItem(product, quantity);
+        CartItem cartItem = new CartItem(product, quantity, sellerId);
         db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)
                 .addOnSuccessListener(documentReference -> {
                     // Handle success

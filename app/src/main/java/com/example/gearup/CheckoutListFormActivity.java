@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -47,7 +48,7 @@ public class CheckoutListFormActivity extends AppCompatActivity {
 
         updateTotal();
 
-        confirmCheckoutButton.setOnClickListener(v -> confirmCheckout());
+        confirmCheckoutButton.setOnClickListener(v -> goToPaymentActivity());
     }
 
     private void updateTotal() {
@@ -63,7 +64,10 @@ public class CheckoutListFormActivity extends AppCompatActivity {
         return formatter.format(price);
     }
 
-    private void confirmCheckout() {
-        // Handle order processing logic
+    private void goToPaymentActivity() {
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(checkoutItems));
+        intent.putExtra("totalAmount", totalAmount.getText().toString());
+        startActivity(intent);
     }
 }
