@@ -1,40 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
-    <!-- BarChart for Search Queries -->
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/searchQueryChart"
-        android:layout_width="0dp"
+    <!-- ScrollView to make the content scrollable -->
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.33" />
+        android:layout_weight="1">
 
-    <!-- BarChart for Product Mentions -->
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/productMentionChart"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/searchQueryChart"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.33" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <!-- BarChart for Hashtags -->
-    <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/hashtagChart"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/productMentionChart"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.33" />
+            <!-- BarChart for Search Queries -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/searchQueryChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- TextView for Search Queries Percentages -->
+            <TextView
+                android:id="@+id/searchQueryPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Top 10 Search Queries" />
+
+            <!-- BarChart for Product Mentions -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/productMentionChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
+
+            <!-- TextView for Product Mentions Percentages -->
+            <TextView
+                android:id="@+id/productMentionPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Top 10 Product Mentions" />
+
+            <!-- BarChart for Hashtags -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/hashtagChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
+
+            <!-- TextView for Hashtags Percentages -->
+            <TextView
+                android:id="@+id/hashtagPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Top 10 Hashtags" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

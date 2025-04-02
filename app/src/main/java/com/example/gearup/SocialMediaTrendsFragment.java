@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,7 +38,10 @@ public class SocialMediaTrendsFragment extends Fragment {
     private ArrayList<BarEntry> productMentionEntries = new ArrayList<>();
     private ArrayList<BarEntry> hashtagEntries = new ArrayList<>();
 
+    private ArrayList<String> hashtagNames = new ArrayList<>();
+
     private Map<String, Integer> searchQueryCountMap = new HashMap<>();
+    private ArrayList<String> productNames = new ArrayList<>(); // To store product names for product mentions
 
     @Nullable
     @Override
@@ -64,22 +68,45 @@ public class SocialMediaTrendsFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        int index = 0;
+                        int index = 0;  // Define index here
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String searchQuery = document.getString("search_query");
 
-                            // Count occurrences of each search query
-                            searchQueryCountMap.put(searchQuery, searchQueryCountMap.getOrDefault(searchQuery, 0) + 1);
+                            // Initialize queryCount to 0
+                            long queryCount = 0;
+                            if (document.contains("query_count")) {
+                                Object queryCountObj = document.get("query_count");
+
+                                // Check if query_count is a valid number (Long, Integer, or String)
+                                if (queryCountObj instanceof Long) {
+                                    queryCount = (Long) queryCountObj;
+                                } else if (queryCountObj instanceof Integer) {
+                                    queryCount = ((Integer) queryCountObj).longValue();
+                                } else if (queryCountObj instanceof String) {
+                                    try {
+                                        queryCount = Long.parseLong((String) queryCountObj);
+                                    } catch (NumberFormatException e) {
+                                        Log.e(TAG, "Error parsing query_count as Long: " + e.getMessage());
+                                        queryCount = 0;  // Default to 0 if parsing fails
+                                    }
+                                }
+                            }
+
+                            // Add query count and search query to map
+                            searchQueryCountMap.put(searchQuery, (int) queryCount);  // Use queryCount directly
                         }
 
-                        // Populate BarChart with the counts of search queries
-                        for (Map.Entry<String, Integer> entry : searchQueryCountMap.entrySet()) {
-                            searchQueryEntries.add(new BarEntry(index, entry.getValue())); // Adding count as value
+                        // Sort and get top 10 search queries by query_count
+                        ArrayList<Map.Entry<String, Integer>> sortedSearchQueryList = new ArrayList<>(searchQueryCountMap.entrySet());
+                        sortedSearchQueryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue())); // Sort in descending order
+
+                        for (Map.Entry<String, Integer> entry : sortedSearchQueryList.subList(0, Math.min(10, sortedSearchQueryList.size()))) {
+                            searchQueryEntries.add(new BarEntry(index, entry.getValue())); // Adding queryCount as value
                             index++;
                         }
 
-                        // Fetch data from product_mentions collection
-                        fetchProductMentions();
+                        // Fetch data from product_mentions collection (without passing index)
+                        fetchProductMentions(); // Remove index argument
                     } else {
                         Toast.makeText(getContext(), "Error fetching search queries", Toast.LENGTH_SHORT).show();
                     }
@@ -91,31 +118,58 @@ public class SocialMediaTrendsFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        int index = searchQueryEntries.size();
+                        // Clear existing entries before adding new data
+                        productMentionEntries.clear();
+                        productNames.clear();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String product = document.getString("product");
                             Object mentionsObj = document.get("mentions");
 
-                            // Check if mentions is a number
+                            // Check if mentions is a valid number (Long, Integer, or String)
                             long mentions = 0;
                             if (mentionsObj instanceof Long) {
-                                mentions = (Long) mentionsObj; // Handle Long type
+                                mentions = (Long) mentionsObj;
                             } else if (mentionsObj instanceof Integer) {
-                                mentions = ((Integer) mentionsObj).longValue(); // Handle Integer type
+                                mentions = ((Integer) mentionsObj).longValue();
                             } else if (mentionsObj instanceof String) {
                                 try {
-                                    mentions = Long.parseLong((String) mentionsObj); // Attempt to parse String to Long
+                                    mentions = Long.parseLong((String) mentionsObj);
                                 } catch (NumberFormatException e) {
                                     Log.e(TAG, "Error parsing mentions as Long: " + e.getMessage());
-                                    continue; // Skip this document if parsing fails
+                                    continue; // Skip invalid data
                                 }
                             }
 
-                            productMentionEntries.add(new BarEntry(index, mentions)); // Example data
-                            index++;
+                            // Add product data to lists
+                            productMentionEntries.add(new BarEntry(productMentionEntries.size(), mentions)); // Sequential x-values
+                            productNames.add(product); // Save product names in parallel with the entries
                         }
 
-                        // Fetch data from hashtags collection
+                        // Sort product mentions by count in descending order and limit to top 10
+                        ArrayList<BarEntry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
+                        sortedProductMentionEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by mentions
+
+                        // Limit to top 10 product mentions
+                        if (sortedProductMentionEntries.size() > 10) {
+                            sortedProductMentionEntries = new ArrayList<>(sortedProductMentionEntries.subList(0, 10));
+                        }
+
+                        // Create a new list for top 10 product names
+                        ArrayList<String> topProducts = new ArrayList<>();
+                        for (int i = 0; i < sortedProductMentionEntries.size(); i++) {
+                            topProducts.add(productNames.get(i)); // Add the corresponding product name
+                        }
+
+                        // Now update the product mention entries and names with the top 10
+                        productMentionEntries.clear();
+                        productNames.clear();
+                        for (int i = 0; i < sortedProductMentionEntries.size(); i++) {
+                            BarEntry entry = sortedProductMentionEntries.get(i);
+                            // Set x-values to be sequential (i.e., 0, 1, 2, ..., 9) to prevent gaps
+                            productMentionEntries.add(new BarEntry(i, entry.getY()));
+                            productNames.add(topProducts.get(i)); // Add the corresponding product name
+                        }
                         fetchHashtags();
                     } else {
                         Toast.makeText(getContext(), "Error fetching product mentions", Toast.LENGTH_SHORT).show();
@@ -124,25 +178,76 @@ public class SocialMediaTrendsFragment extends Fragment {
     }
 
 
+
+
     private void fetchHashtags() {
         db.collection("hashtags")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        int index = productMentionEntries.size();
+                        // Clear existing entries before adding new data
+                        hashtagEntries.clear();
+                        hashtagNames.clear();
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String hashtag = document.getString("hashtag");
-                            hashtagEntries.add(new BarEntry(index, 1)); // Example data for hashtag
-                            index++;
+                            Object hashtagCountObj = document.get("hashtag_count");
+
+                            // Check if hashtag_count is a number (Long, Integer, or String)
+                            long hashtagCount = 0;
+                            if (hashtagCountObj instanceof Long) {
+                                hashtagCount = (Long) hashtagCountObj;
+                            } else if (hashtagCountObj instanceof Integer) {
+                                hashtagCount = ((Integer) hashtagCountObj).longValue();
+                            } else if (hashtagCountObj instanceof String) {
+                                try {
+                                    hashtagCount = Long.parseLong((String) hashtagCountObj);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Error parsing hashtag_count as Long: " + e.getMessage());
+                                    continue; // Skip invalid data
+                                }
+                            }
+
+                            // Add hashtag data to lists
+                            hashtagEntries.add(new BarEntry(hashtagEntries.size(), hashtagCount));
+                            hashtagNames.add(hashtag); // Save hashtag names in parallel with the entries
                         }
 
-                        // Now that we have all data, populate the charts
+                        // Sort hashtags by count in descending order and limit to top 10
+                        ArrayList<BarEntry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
+                        sortedHashtagEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by hashtag count
+
+                        // Limit to top 10 hashtags
+                        if (sortedHashtagEntries.size() > 10) {
+                            sortedHashtagEntries = new ArrayList<>(sortedHashtagEntries.subList(0, 10));
+                        }
+
+                        // Create a new list for top 10 hashtag names
+                        ArrayList<String> topHashtags = new ArrayList<>();
+                        for (int i = 0; i < sortedHashtagEntries.size(); i++) {
+                            topHashtags.add(hashtagNames.get(i)); // Add the corresponding hashtag name
+                        }
+
+                        // Now update the hashtag entries and names with the top 10
+                        hashtagEntries.clear();
+                        hashtagNames.clear();
+                        for (int i = 0; i < sortedHashtagEntries.size(); i++) {
+                            BarEntry entry = sortedHashtagEntries.get(i);
+                            // Set x-values to be sequential (i.e., 0, 1, 2, ..., 9) to prevent gaps
+                            hashtagEntries.add(new BarEntry(i, entry.getY()));
+                            hashtagNames.add(topHashtags.get(i)); // Add the corresponding hashtag name
+                        }
+
+                        // Set up the BarChart with updated data
                         populateCharts();
                     } else {
                         Toast.makeText(getContext(), "Error fetching hashtags", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+
+
 
     private void populateCharts() {
         // Create datasets and set them to the charts
@@ -174,5 +279,104 @@ public class SocialMediaTrendsFragment extends Fragment {
         searchQueryChart.getDescription().setEnabled(false);
         productMentionChart.getDescription().setEnabled(false);
         hashtagChart.getDescription().setEnabled(false);
+
+        // Update the TextViews with percentages and data
+        updateChartPercentages();
+    }
+
+    private void updateChartPercentages() {
+        // Update Search Query Percentages
+        StringBuilder searchQueryText = new StringBuilder("Top 10 Search Queries:\n");
+        int totalSearchQueryCount = 0;
+        // Calculate total count for search queries
+        for (Map.Entry<String, Integer> entry : searchQueryCountMap.entrySet()) {
+            totalSearchQueryCount += entry.getValue();
+        }
+
+        // Sort the search queries based on the count in descending order
+        ArrayList<Map.Entry<String, Integer>> sortedSearchQueryList = new ArrayList<>(searchQueryCountMap.entrySet());
+        sortedSearchQueryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue())); // Sort by count in descending order
+
+        // Display top 10 search queries
+        int counter = 0;
+        for (Map.Entry<String, Integer> entry : sortedSearchQueryList.subList(0, Math.min(10, sortedSearchQueryList.size()))) {
+            double percentage = (entry.getValue() / (double) totalSearchQueryCount) * 100;
+            searchQueryText.append(entry.getKey())
+                    .append(": ")
+                    .append(String.format("%.2f", percentage))
+                    .append("%\n");
+            counter++;
+        }
+
+        // Set the top 10 search query percentages in the TextView
+        ((TextView) getView().findViewById(R.id.searchQueryPercentages)).setText(searchQueryText.toString());
+
+        // Update Product Mention Percentages
+        StringBuilder productMentionText = new StringBuilder("Top 10 Product Mentions:\n");
+        int totalProductMentions = 0;
+        // Calculate total mentions for products
+        for (BarEntry entry : productMentionEntries) {
+            totalProductMentions += (int) entry.getY();
+        }
+
+        // Sort the product mentions by count in descending order
+        ArrayList<BarEntry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
+        sortedProductMentionEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by mentions in descending order
+
+        // Display top 10 product mentions
+        int productCounter = 0;
+        for (int i = 0; i < Math.min(10, sortedProductMentionEntries.size()); i++) {
+            BarEntry entry = sortedProductMentionEntries.get(i);
+            double percentage = (entry.getY() / totalProductMentions) * 100;
+            productMentionText.append(productNames.get(i)) // Get the product name
+                    .append(": ")
+                    .append(String.format("%.2f", percentage))
+                    .append("%\n");
+            productCounter++;
+        }
+
+        // Set the top 10 product mention percentages in the TextView
+        ((TextView) getView().findViewById(R.id.productMentionPercentages)).setText(productMentionText.toString());
+
+        // Update Hashtag Percentages
+        StringBuilder hashtagText = new StringBuilder("Top 10 Hashtags:\n");
+        int totalHashtags = 0;
+
+// Calculate total hashtag mentions
+        for (BarEntry entry : hashtagEntries) {
+            totalHashtags += (int) entry.getY();
+        }
+
+// Log total hashtags to check if it's 0
+        Log.d(TAG, "Total Hashtags: " + totalHashtags);
+
+// Check if totalHashtags is zero to avoid division by zero
+        if (totalHashtags == 0) {
+            Log.e(TAG, "Total hashtags are zero. Please check data.");
+        }
+
+// Sort the hashtags by count in descending order
+        ArrayList<BarEntry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
+        sortedHashtagEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by hashtag count in descending order
+
+// Display top 10 hashtags
+        for (int i = 0; i < Math.min(10, sortedHashtagEntries.size()); i++) {
+            BarEntry entry = sortedHashtagEntries.get(i);
+            double percentage = (entry.getY() / totalHashtags) * 100;
+
+            // Log each hashtag and its percentage
+            Log.d(TAG, "Hashtag: " + hashtagNames.get(i) + ", Count: " + entry.getY() + ", Percentage: " + percentage);
+
+            String hashtag = hashtagNames.get(i);  // Access the hashtag name
+
+            // Append hashtag name and percentage, without adding another "#"
+            hashtagText.append(hashtag)
+                    .append(": ")
+                    .append(String.format("%.2f", percentage))
+                    .append("%\n");
+        }
+        ((TextView) getView().findViewById(R.id.hashtagPercentages)).setText(hashtagText.toString());
+
+
     }
 }
