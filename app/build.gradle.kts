@@ -83,8 +83,6 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
 
 
-
-
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 }

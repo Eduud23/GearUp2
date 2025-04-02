@@ -24,6 +24,8 @@ public class MyApp extends Application {
 
         // Initialize Third Firebase App
         initializeThirdFirebaseApp();
+
+        initializeFourthFirebaseApp();
     }
 
     private void initializeSecondFirebaseApp() {
@@ -79,4 +81,31 @@ public class MyApp extends Application {
             Log.d(TAG, "Third Firebase app already initialized: " + thirdAppName);
         }
     }
+    private void initializeFourthFirebaseApp() {
+        String fourthAppName = "gearupdataFourthApp";
+        boolean isInitialized = false;
+
+        for (FirebaseApp app : FirebaseApp.getApps(this)) {
+            if (app.getName().equals(fourthAppName)) {
+                isInitialized = true;
+                break;
+            }
+        }
+
+        if (!isInitialized) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId("1:866517356305:android:d6bd5930190ac41a7986b0") // Replace with actual Firebase App ID
+                    .setApiKey("AIzaSyAtej_Uj9kfPQTCZaK2bIpNzkjCFVzu0qQ") // Replace with your actual API Key
+                    .setProjectId("social-popular") // Replace with your Project ID
+                    .setStorageBucket("social-popular.appspot.com") // Replace with your Storage Bucket
+                    .setGcmSenderId("866517356305") // Replace with your Sender ID
+                    .build();
+
+            FirebaseApp.initializeApp(this, options, fourthAppName);
+            Log.d(TAG, "Fourth Firebase app initialized: " + fourthAppName);
+        } else {
+            Log.d(TAG, "Fourth Firebase app already initialized: " + fourthAppName);
+        }
+    }
+
 }
