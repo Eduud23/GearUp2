@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -33,9 +34,19 @@ public class TrendsFragment extends Fragment {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().onBackPressed();
+                // Replace the current fragment with HomeFragmentBuyer
+                HomeFragmentBuyer homeFragmentBuyer = new HomeFragmentBuyer();
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+
+                // You can use replace() or add() depending on your use case
+                transaction.replace(R.id.fragment_container, homeFragmentBuyer); // Use your container ID here
+                transaction.addToBackStack(null);  // Optional: Add this transaction to the back stack if needed
+
+                // Commit the transaction to make the change
+                transaction.commit();
             }
         });
+
 
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(new InternationalTrendsFragment()); // International

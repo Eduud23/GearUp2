@@ -285,98 +285,66 @@ public class SocialMediaTrendsFragment extends Fragment {
     }
 
     private void updateChartPercentages() {
-        // Update Search Query Percentages
+        // Update Search Query Counts
         StringBuilder searchQueryText = new StringBuilder("Top 10 Search Queries:\n");
-        int totalSearchQueryCount = 0;
-        // Calculate total count for search queries
-        for (Map.Entry<String, Integer> entry : searchQueryCountMap.entrySet()) {
-            totalSearchQueryCount += entry.getValue();
-        }
-
         // Sort the search queries based on the count in descending order
         ArrayList<Map.Entry<String, Integer>> sortedSearchQueryList = new ArrayList<>(searchQueryCountMap.entrySet());
         sortedSearchQueryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue())); // Sort by count in descending order
 
         // Display top 10 search queries
-        int counter = 0;
+        int counter = 1;
         for (Map.Entry<String, Integer> entry : sortedSearchQueryList.subList(0, Math.min(10, sortedSearchQueryList.size()))) {
-            double percentage = (entry.getValue() / (double) totalSearchQueryCount) * 100;
-            searchQueryText.append(entry.getKey())
-                    .append(": ")
-                    .append(String.format("%.2f", percentage))
-                    .append("%\n");
+            searchQueryText.append(counter)
+                    .append(". ")
+                    .append(entry.getKey())
+                    .append("\n");
             counter++;
         }
 
-        // Set the top 10 search query percentages in the TextView
+        // Set the top 10 search queries in the TextView
         ((TextView) getView().findViewById(R.id.searchQueryPercentages)).setText(searchQueryText.toString());
 
-        // Update Product Mention Percentages
+        // Update Product Mention Counts
         StringBuilder productMentionText = new StringBuilder("Top 10 Product Mentions:\n");
-        int totalProductMentions = 0;
-        // Calculate total mentions for products
-        for (BarEntry entry : productMentionEntries) {
-            totalProductMentions += (int) entry.getY();
-        }
-
         // Sort the product mentions by count in descending order
         ArrayList<BarEntry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
         sortedProductMentionEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by mentions in descending order
 
         // Display top 10 product mentions
-        int productCounter = 0;
+        int productCounter = 1;
         for (int i = 0; i < Math.min(10, sortedProductMentionEntries.size()); i++) {
             BarEntry entry = sortedProductMentionEntries.get(i);
-            double percentage = (entry.getY() / totalProductMentions) * 100;
-            productMentionText.append(productNames.get(i)) // Get the product name
-                    .append(": ")
-                    .append(String.format("%.2f", percentage))
-                    .append("%\n");
+            productMentionText.append(productCounter)
+                    .append(". ")
+                    .append(productNames.get(i)) // Get the product name
+                    .append("\n");
             productCounter++;
         }
 
-        // Set the top 10 product mention percentages in the TextView
+        // Set the top 10 product mentions in the TextView
         ((TextView) getView().findViewById(R.id.productMentionPercentages)).setText(productMentionText.toString());
 
-        // Update Hashtag Percentages
+        // Update Hashtag Counts
         StringBuilder hashtagText = new StringBuilder("Top 10 Hashtags:\n");
-        int totalHashtags = 0;
 
-// Calculate total hashtag mentions
-        for (BarEntry entry : hashtagEntries) {
-            totalHashtags += (int) entry.getY();
-        }
-
-// Log total hashtags to check if it's 0
-        Log.d(TAG, "Total Hashtags: " + totalHashtags);
-
-// Check if totalHashtags is zero to avoid division by zero
-        if (totalHashtags == 0) {
-            Log.e(TAG, "Total hashtags are zero. Please check data.");
-        }
-
-// Sort the hashtags by count in descending order
+        // Sort the hashtags by count in descending order
         ArrayList<BarEntry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
         sortedHashtagEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by hashtag count in descending order
 
-// Display top 10 hashtags
+        // Display top 10 hashtags
+        int hashtagCounter = 1;
         for (int i = 0; i < Math.min(10, sortedHashtagEntries.size()); i++) {
             BarEntry entry = sortedHashtagEntries.get(i);
-            double percentage = (entry.getY() / totalHashtags) * 100;
-
-            // Log each hashtag and its percentage
-            Log.d(TAG, "Hashtag: " + hashtagNames.get(i) + ", Count: " + entry.getY() + ", Percentage: " + percentage);
-
             String hashtag = hashtagNames.get(i);  // Access the hashtag name
-
-            // Append hashtag name and percentage, without adding another "#"
-            hashtagText.append(hashtag)
-                    .append(": ")
-                    .append(String.format("%.2f", percentage))
-                    .append("%\n");
+            hashtagText.append(hashtagCounter)
+                    .append(". ")
+                    .append(hashtag)
+                    .append("\n");
+            hashtagCounter++;
         }
+
+        // Set the top 10 hashtags in the TextView
         ((TextView) getView().findViewById(R.id.hashtagPercentages)).setText(hashtagText.toString());
-
-
     }
+
 }

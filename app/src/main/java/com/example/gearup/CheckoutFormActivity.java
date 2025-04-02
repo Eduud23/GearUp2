@@ -266,10 +266,11 @@ public class CheckoutFormActivity extends AppCompatActivity {
         paymentDetails.put("cardType", cardType);
         orderDetails.put("payment", paymentDetails);
 
-        // Save to Firestore
+        // Save to Firestore for the order collection
         db.collection("orders")
                 .add(orderDetails)
                 .addOnSuccessListener(documentReference -> {
+                    // Log the purchase interaction
                     UserInteractionLogger.logPurchaseInteraction(
                             userId,
                             getIntent().getStringExtra("PRODUCT_ID"),
@@ -278,7 +279,22 @@ public class CheckoutFormActivity extends AppCompatActivity {
                             finalPrice
                     );
 
-                    showCustomDialog(true);
+                    // Now, also add to the manage_order collection
+                    Map<String, Object> manageOrderDetails = new HashMap<>();
+                    manageOrderDetails.put("buyerId", userId);
+                    manageOrderDetails.put("sellerId", sellerId);
+                    manageOrderDetails.put("productId", getIntent().getStringExtra("PRODUCT_ID"));
+                    manageOrderDetails.put("status", "pending");
+
+                    // Save to the manage_order collection
+                    db.collection("manage_order")
+                            .add(manageOrderDetails)
+                            .addOnSuccessListener(aVoid -> {
+                                showCustomDialog(true);
+                            })
+                            .addOnFailureListener(e -> {
+                                showCustomDialog(false);
+                            });
                 })
                 .addOnFailureListener(e -> {
                     showCustomDialog(false);
