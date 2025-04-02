@@ -1,6 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- ScrollView to make the content scrollable -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical">
+
+            <!-- BarChart for Search Queries -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/searchQueryChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
+
+            <!-- TextView for Search Queries Percentages -->
+            <TextView
+                android:id="@+id/searchQueryPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 10 Search Queries" />
+
+            <!-- BarChart for Product Mentions -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/productMentionChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
+
+            <!-- TextView for Product Mentions Percentages -->
+            <TextView
+                android:id="@+id/productMentionPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 10 Product Mentions" />
+
+            <!-- BarChart for Hashtags -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/hashtagChart"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" /> <!-- Set height -->
+
+            <!-- TextView for Hashtags Percentages -->
+            <TextView
+                android:id="@+id/hashtagPercentages"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Top 10 Hashtags" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
