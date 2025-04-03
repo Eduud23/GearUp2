@@ -54,22 +54,24 @@ public class OrderedProductsFragment extends Fragment {
         return view;
     }
 
+    // Fetch ordered items for the logged-in user
     private void fetchOrderedItems() {
         orderedListenerRegistration = db.collection("orders")
-                .whereEqualTo("buyerId", currentUserId)
+                .whereEqualTo("userId", currentUserId) // Query based on the buyerId (userId)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
-                            return; // Handle the error
+                            return; // Handle the error (maybe show a Toast)
                         }
 
+                        // Clear the existing list of orders and update with new ones
                         orderedItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
                             OrderItem orderItem = doc.toObject(OrderItem.class);
                             orderedItems.add(orderItem);
                         }
-                        purchasedAdapter.notifyDataSetChanged();
+                        purchasedAdapter.notifyDataSetChanged(); // Notify the adapter that the data set has changed
                     }
                 });
     }
@@ -78,7 +80,7 @@ public class OrderedProductsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         if (orderedListenerRegistration != null) {
-            orderedListenerRegistration.remove();
+            orderedListenerRegistration.remove(); // Remove the listener when the fragment is destroyed to avoid memory leaks
         }
     }
 }

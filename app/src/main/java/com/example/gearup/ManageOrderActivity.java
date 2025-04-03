@@ -74,7 +74,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         String orderId = document.getId();
                         String productName = document.getString("productName");
-                        String quantity = String.valueOf(document.getLong("quantity"));
+                        Long quantity = document.getLong("quantity");
                         double totalPrice = document.getDouble("totalPrice");
                         String customerName = document.getString("customerInfo.fullName");
                         String shippingAddress = document.getString("shippingAddress");
