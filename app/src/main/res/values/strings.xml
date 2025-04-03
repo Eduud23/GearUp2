@@ -14,8 +14,9 @@
     </string-array>
     <string-array name="order_status_array">
         <item>Pending</item>
-        <item>Approved</item>
-        <item>Shipping/Ready to Pickup</item>
+        <item>Shipping</item>
+        <item>Ready to pickup</item>
+        <item>Delivered</item>
     </string-array>
     <string name="category_image">Category Image</string>
     <string name="product_image_desc">Product Image</string>

@@ -1,9 +1,14 @@
 package com.example.gearup;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +24,8 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
     private RecyclerView recyclerView;
     private ManageOrderAdapter adapter;
     private List<OrderItem> orderList;
+    private List<OrderItem> filteredOrderList;
+    private Spinner spinnerOrderStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +36,30 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         orderList = new ArrayList<>();
-        adapter = new ManageOrderAdapter(orderList, this);
+        filteredOrderList = new ArrayList<>();
+        adapter = new ManageOrderAdapter(filteredOrderList, this);
         recyclerView.setAdapter(adapter);
+
+        // Spinner for Order Status
+        spinnerOrderStatus = findViewById(R.id.spinner_order_status);
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
+                R.array.order_status_array, android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerOrderStatus.setAdapter(spinnerAdapter);
+
+        // Set a listener on the Spinner
+        spinnerOrderStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedStatus = parentView.getItemAtPosition(position).toString();
+                filterOrdersByStatus(selectedStatus);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do nothing or you can reset the list if needed
+            }
+        });
 
         // Fetch orders from Firestore
         fetchOrdersFromFirestore();
@@ -51,7 +80,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         String shippingAddress = document.getString("shippingAddress");
                         String paymentMethod = document.getString("payment.cardType");
                         String orderStatus = document.getString("status");
-                        String imageUrl = document.getString("imageUrl");  // Fetch the image URL
+                        String imageUrl = document.getString("imageUrl");
 
                         // Create an OrderItem with the image URL
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
@@ -59,17 +88,51 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         orderList.add(orderItem);
                     }
                     adapter.notifyDataSetChanged();
+
+                    // Optionally, filter by default status (e.g., "Pending")
+                    filterOrdersByStatus("Pending");
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to load orders", Toast.LENGTH_SHORT).show();
                 });
     }
 
+    private void filterOrdersByStatus(String status) {
+        filteredOrderList.clear();
+
+        for (OrderItem orderItem : orderList) {
+            if (orderItem.getOrderStatus().equalsIgnoreCase(status) || status.equals("Default")) {
+                filteredOrderList.add(orderItem);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+
     @Override
     public void onStatusUpdate(OrderItem orderItem) {
-        // Create a new status based on the current order status
-        String newStatus = orderItem.getOrderStatus().equals("Pending") ? "Shipped" : "Delivered";
+        // Create an array of possible status options
+        final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Delivered"};
 
+        // Create an AlertDialog to choose a new status
+        new AlertDialog.Builder(this)
+                .setTitle("Select Order Status")
+                .setItems(statuses, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Get the selected status from the list
+                        String newStatus = statuses[which];
+
+                        // Update the order status and refresh the RecyclerView
+                        updateOrderStatus(orderItem, newStatus);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void updateOrderStatus(OrderItem orderItem, String newStatus) {
         // Find the position of the orderItem in the list
         int position = -1;
         for (int i = 0; i < orderList.size(); i++) {
@@ -80,7 +143,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
         }
 
         if (position != -1) {
-            // Update the order status in the list (create a new OrderItem)
+            // Create a new OrderItem with the updated status
             OrderItem updatedOrderItem = new OrderItem(
                     orderItem.getOrderId(),
                     orderItem.getProductName(),
@@ -90,12 +153,12 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderItem.getShippingAddress(),
                     orderItem.getPaymentMethod(),
                     newStatus,
-                    orderItem.getImageUrl()  // Keep the image URL unchanged
+                    orderItem.getImageUrl() // Keep the image URL unchanged
             );
 
             // Update the order in the list
             orderList.set(position, updatedOrderItem);
-            adapter.notifyItemChanged(position); // Notify the adapter of the update
+            adapter.notifyItemChanged(position); // Notify the adapter to refresh the item
 
             // Update the status in Firestore
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -103,11 +166,21 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     .document(orderItem.getOrderId())
                     .update("status", newStatus)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Order status updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Order status updated to " + newStatus, Toast.LENGTH_SHORT).show();
+
+                        // After status update, refresh the RecyclerView by re-fetching orders if needed
+                        refreshRecyclerView();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                     });
         }
     }
+
+    private void refreshRecyclerView() {
+        // Re-fetch the orders to ensure we have the latest data
+        fetchOrdersFromFirestore();
+    }
+
+
 }
