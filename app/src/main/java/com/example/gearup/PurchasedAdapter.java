@@ -31,13 +31,13 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderItem orderItem = purchasedItems.get(position);
         holder.tvProductName.setText(orderItem.getProductName());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice()));
-        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
+        //holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice()));
+        //holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
 
         // Load the product image using Glide
-        Glide.with(holder.itemView.getContext())
-                .load(orderItem.getProductImageUrl())
-                .into(holder.ivProductImage);
+       // Glide.with(holder.itemView.getContext())
+                //.load(orderItem.getProductImageUrl())
+                //.into(holder.ivProductImage);
 
         // Set the order status
         holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());

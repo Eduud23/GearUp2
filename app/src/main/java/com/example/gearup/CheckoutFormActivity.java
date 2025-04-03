@@ -248,6 +248,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
             orderDetails.put("shippingAddress", address);
         }
 
+        // Add default status as "Pending"
+        orderDetails.put("status", "Pending");
+
         // Store customer info
         Map<String, Object> customerInfo = new HashMap<>();
         customerInfo.put("email", email);
@@ -284,6 +287,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     showCustomDialog(false);
                 });
     }
+
 
 
     private String identifyCardType(String cardNum) {

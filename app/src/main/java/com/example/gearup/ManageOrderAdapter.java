@@ -1,91 +1,75 @@
 package com.example.gearup;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-
 import java.util.List;
 
-public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.ViewHolder> {
-    private List<OrderItem> orderItems;
-    private Context context;
+public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.OrderViewHolder> {
 
-    // Constructor
-    public ManageOrderAdapter(List<OrderItem> orderItems, Context context) {
-        this.orderItems = orderItems;
-        this.context = context;
+    private List<OrderItem> orderList;
+    private OnStatusUpdateListener statusUpdateListener;
+
+    public ManageOrderAdapter(List<OrderItem> orderList, OnStatusUpdateListener statusUpdateListener) {
+        this.orderList = orderList;
+        this.statusUpdateListener = statusUpdateListener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_manage_order, parent, false);  // Inflate the layout
-        return new ViewHolder(itemView);  // Return the ViewHolder
+    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_manage_order, parent, false);
+        return new OrderViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // Get the order item for the current position
-        OrderItem orderItem = orderItems.get(position);
+    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
+        OrderItem order = orderList.get(position);
 
-        // Set the data into the views
-        holder.tvOrderProductName.setText(orderItem.getProductName());
-        holder.tvOrderProductPrice.setText("₱" + orderItem.getProductPrice());
-        holder.tvOrderProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
-        holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());
-        holder.tvShippingMethod.setText("Shipping Method: " + orderItem.getShippingMethod());
+        holder.productName.setText(order.getProductName());
+        holder.quantity.setText("Quantity: " + order.getQuantity());
+        holder.totalPrice.setText("₱" + order.getTotalPrice());
+        holder.customerName.setText("Customer: " + order.getCustomerName());
+        holder.shippingAddress.setText("Address: " + order.getShippingAddress());
+        holder.paymentMethod.setText("Payment: " + order.getPaymentMethod());
+        holder.orderStatus.setText("Status: " + order.getOrderStatus());
 
-        // Load the product image using Glide
-        String imageUrl = orderItem.getProductImageUrl();  // Assuming you have the image URL in the OrderItem class
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            Glide.with(context)
-                    .load(imageUrl)
-                    .into(holder.ivProductImage);  // Set image into the ImageView
-        } else {
-            holder.ivProductImage.setImageResource(R.drawable.ic_launcher_foreground);  // Use a placeholder image if no URL is available
-        }
-
-        // Set click listener to show order details when clicked
-        holder.itemView.setOnClickListener(v -> {
-            // Assuming ManageOrderActivity has a method to show order details
-            ((ManageOrderActivity) context).showOrderDetailsDialog(orderItem);
+        holder.updateStatusButton.setOnClickListener(v -> {
+            if (statusUpdateListener != null) {
+                statusUpdateListener.onStatusUpdate(order);
+            }
         });
     }
 
     @Override
     public int getItemCount() {
-        return orderItems.size();  // Return the size of the order items list
+        return orderList.size();
     }
 
-    // ViewHolder class for binding views
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        // Declare TextViews
-        TextView tvOrderProductName;
-        TextView tvOrderProductPrice;
-        TextView tvOrderProductQuantity;
-        TextView tvOrderStatus;
-        TextView tvShippingMethod;  // New TextView for shipping method
-        ImageView ivProductImage;   // New ImageView for product image
+    public static class OrderViewHolder extends RecyclerView.ViewHolder {
+        TextView productName, quantity, totalPrice, customerName, shippingAddress, paymentMethod, orderStatus;
+        Button updateStatusButton;
 
-        public ViewHolder(@NonNull View itemView) {
+        public OrderViewHolder(View itemView) {
             super(itemView);
-
-            // Bind the views
-            tvOrderProductName = itemView.findViewById(R.id.tv_order_product_name);
-            tvOrderProductPrice = itemView.findViewById(R.id.tv_order_product_price);
-            tvOrderProductQuantity = itemView.findViewById(R.id.tv_order_product_quantity);
-            tvOrderStatus = itemView.findViewById(R.id.tv_order_status);
-            tvShippingMethod = itemView.findViewById(R.id.tv_shipping_method);
-            ivProductImage = itemView.findViewById(R.id.iv_product_image);
+            productName = itemView.findViewById(R.id.product_name);
+            quantity = itemView.findViewById(R.id.product_quantity);
+            totalPrice = itemView.findViewById(R.id.product_price);
+            customerName = itemView.findViewById(R.id.customer_name);
+            shippingAddress = itemView.findViewById(R.id.customer_address);
+            paymentMethod = itemView.findViewById(R.id.payment_method);
+            orderStatus = itemView.findViewById(R.id.order_status);
+            updateStatusButton = itemView.findViewById(R.id.update_status_button);
         }
+    }
+
+    public interface OnStatusUpdateListener {
+        void onStatusUpdate(OrderItem orderItem);
     }
 }
