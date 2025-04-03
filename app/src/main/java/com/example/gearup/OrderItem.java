@@ -10,8 +10,10 @@ public class OrderItem {
     private String orderStatus;
     private String orderId;
 
+    private String imageUrl;
+
     public OrderItem(String orderId, String productName, String quantity, double totalPrice,
-                     String customerName, String shippingAddress, String paymentMethod, String orderStatus) {
+                     String customerName, String shippingAddress, String paymentMethod, String orderStatus, String imageUrl) {
         this.orderId = orderId;
         this.productName = productName;
         this.quantity = quantity;
@@ -20,8 +22,15 @@ public class OrderItem {
         this.shippingAddress = shippingAddress;
         this.paymentMethod = paymentMethod;
         this.orderStatus = orderStatus;
+        this.imageUrl = imageUrl;
+    }
+    public String getImageUrl() {
+        return imageUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
     // Getters and setters for each field
     public String getOrderId() { return orderId; }
     public String getProductName() { return productName; }

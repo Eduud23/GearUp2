@@ -234,6 +234,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String userId = currentUser.getUid();
         String sellerId = getIntent().getStringExtra("SELLER_ID");
 
+        // Get the image URL from the intent
+        String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
+
         // Create Firestore reference
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> orderDetails = new HashMap<>();
@@ -269,6 +272,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
         paymentDetails.put("cardType", cardType);
         orderDetails.put("payment", paymentDetails);
 
+        // Store the image URL
+        orderDetails.put("imageUrl", imageUrl);
+
         // Save to Firestore
         db.collection("orders")
                 .add(orderDetails)
@@ -287,6 +293,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     showCustomDialog(false);
                 });
     }
+
 
 
 

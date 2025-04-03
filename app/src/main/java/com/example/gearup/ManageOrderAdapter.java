@@ -4,10 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
@@ -40,6 +43,11 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
         holder.paymentMethod.setText("Payment: " + order.getPaymentMethod());
         holder.orderStatus.setText("Status: " + order.getOrderStatus());
 
+        // Load the product image using Glide
+        Glide.with(holder.productImageView.getContext())
+                .load(order.getImageUrl())  // The image URL from the OrderItem object
+                .into(holder.productImageView);  // Load the image into the ImageView
+
         holder.updateStatusButton.setOnClickListener(v -> {
             if (statusUpdateListener != null) {
                 statusUpdateListener.onStatusUpdate(order);
@@ -55,6 +63,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
         TextView productName, quantity, totalPrice, customerName, shippingAddress, paymentMethod, orderStatus;
         Button updateStatusButton;
+        ImageView productImageView;  // ImageView for displaying the product image
 
         public OrderViewHolder(View itemView) {
             super(itemView);
@@ -66,6 +75,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
             paymentMethod = itemView.findViewById(R.id.payment_method);
             orderStatus = itemView.findViewById(R.id.order_status);
             updateStatusButton = itemView.findViewById(R.id.update_status_button);
+            productImageView = itemView.findViewById(R.id.product_image);  // Initialize ImageView
         }
     }
 
