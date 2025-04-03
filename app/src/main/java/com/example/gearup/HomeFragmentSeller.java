@@ -348,7 +348,6 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
     public void onProductClick(int position, String category) {
         Product clickedProduct;
 
-        // Determine which list the clicked product belongs to
         if (category.equals("Central Components")) {
             clickedProduct = centralComponentsList.get(position);
         } else if (category.equals("Body")) {
@@ -359,31 +358,24 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
             clickedProduct = peripheralsList.get(position);
         }
 
-        // Assuming you have the user ID (from FirebaseAuth or another method)
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        incrementProductViews(userId, clickedProduct.getId());
-
-        // Start ProductDetailsBuyerActivity with the clicked product
-        Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
-        intent.putExtra("PRODUCT", clickedProduct);  // Assuming Product implements Parcelable
-        startActivity(intent);
-    }
-
-    private void incrementProductViews(String userId, String productId) {
-        if (productId == null || productId.isEmpty() || userId == null || userId.isEmpty()) {
-            Log.e("HomeFragmentSeller", "User ID or Product ID is null or empty");
-            return;
+        // Get current user ID
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            UserInteractionLogger.logProductClick(
+                    userId,
+                    clickedProduct.getId(),
+                    clickedProduct.getName(),
+                    clickedProduct.getCategory()
+            );
+        } else {
+            Log.e("FirebaseDebug", "❌ User not authenticated. Cannot log interaction.");
         }
 
-        // Increment the views in the user's products subcollection
-        db.collection("users") // Users collection
-                .document(userId) // Specific user document
-                .collection("products") // Products subcollection within the user's document
-                .document(productId) // The product document
-                .update("views", FieldValue.increment(1)) // Atomically increment the "views" field
-                .addOnSuccessListener(aVoid -> Log.d("HomeFragmentSeller", "Views incremented for product: " + productId))
-                .addOnFailureListener(e -> Log.e("HomeFragmentSeller", "Failed to increment views", e));
+        // Open product details
+        Intent intent = new Intent(getContext(), ProductDetailsBuyerActivity.class);
+        intent.putExtra("PRODUCT", clickedProduct);
+        startActivity(intent);
     }
     private void loadRecommendations() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -433,6 +425,7 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }
+
 
 
 
