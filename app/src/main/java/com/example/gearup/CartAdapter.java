@@ -51,21 +51,21 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     @Override
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         CartItem cartItem = cartItems.get(position);
-        Product product = cartItem.getProduct();
 
-        // Format and calculate the total price of the item
-        double totalPrice = product.getPrice() * cartItem.getQuantity();
+        // Use the fields from CartItem directly, no Product object
+        String productName = cartItem.getProductName();
+        double totalPrice = cartItem.getTotalPrice(); // Already calculated in CartItem
         String formattedPrice = formatPrice(totalPrice);
+        String imageUrl = cartItem.getImageUrl();
 
-        holder.tvProductName.setText(product.getName());
+        holder.tvProductName.setText(productName);
         holder.tvProductPrice.setText("₱" + formattedPrice);
         holder.tvProductQuantity.setText("Quantity: " + cartItem.getQuantity());
 
         // Load product image
-        List<String> imageUrls = product.getImageUrls();
-        if (imageUrls != null && !imageUrls.isEmpty()) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrls.get(0))
+                    .load(imageUrl)
                     .into(holder.ivProductImage);
         }
 

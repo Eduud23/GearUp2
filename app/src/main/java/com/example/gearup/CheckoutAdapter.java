@@ -32,27 +32,30 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CartItem cartItem = checkoutItems.get(position);
-        Product product = cartItem.getProduct();
 
-        holder.productNameTextView.setText(product.getName());
-        holder.productQuantityTextView.setText("Quantity: " + cartItem.getQuantity());
-        holder.productPriceTextView.setText("₱" + formatPrice(cartItem.getTotalPrice()));
+        // Access CartItem fields directly
+        String productName = cartItem.getProductName();
+        int quantity = cartItem.getQuantity();
+        double totalPrice = cartItem.getTotalPrice();  // This is already total price (price * quantity)
+        String formattedPrice = formatPrice(totalPrice);
+        String imageUrl = cartItem.getImageUrl();  // Directly using the image URL from CartItem
+        String brand = cartItem.getBrand();  // If you have a brand field in CartItem, use it here (e.g., cartItem.getBrand())
+        String yearModel = cartItem.getYearModel();  // If you have a year model field, use it here as well (e.g., cartItem.getYearModel())
 
-        // Check for null or empty values
-        String brand = (product.getBrand() != null && !product.getBrand().isEmpty()) ? product.getBrand() : "Unknown";
-        holder.productBrandTextView.setText("Brand: " + brand);
+        // Set data to the views
+        holder.productNameTextView.setText(productName);
+        holder.productQuantityTextView.setText("Quantity: " + quantity);
+        holder.productPriceTextView.setText("₱" + formattedPrice);
+        holder.productBrandTextView.setText("Brand: " + brand);  // You can update this if your CartItem has a brand
+        holder.productYearModelTextView.setText("Year: " + yearModel);  // Similarly, update this for year model
 
-        String yearModel = (product.getYearModel() != null && !product.getYearModel().isEmpty()) ? product.getYearModel() : "N/A";
-        holder.productYearModelTextView.setText("Year: " + yearModel);
-
-        // Load product image using Glide
-        if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
+        // Load product image using Glide (from CartItem's imageUrl)
+        if (imageUrl != null && !imageUrl.isEmpty()) {
             Glide.with(holder.productImageView.getContext())
-                    .load(product.getImageUrls().get(0))
+                    .load(imageUrl)
                     .into(holder.productImageView);
         }
     }
-
 
     @Override
     public int getItemCount() {
@@ -74,6 +77,7 @@ public class CheckoutAdapter extends RecyclerView.Adapter<CheckoutAdapter.ViewHo
         }
     }
 
+    // Helper method to format price with commas
     private String formatPrice(double price) {
         DecimalFormat formatter = new DecimalFormat("#,###");
         return formatter.format(price);

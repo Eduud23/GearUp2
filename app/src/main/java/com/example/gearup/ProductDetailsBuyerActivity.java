@@ -1,8 +1,11 @@
 package com.example.gearup;
 
+import static java.security.AccessController.getContext;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -233,8 +236,9 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             }
 
             CartItem existingItem = null;
-            for (CartItem item : Cart.getInstance().getItems()) {
-                if (item.getProduct().getId().equals(product.getId())) {
+            // Compare based on productId instead of getProduct()
+            for (CartItem item : Cart.getInstance(this).getItems()) {
+                if (item.getProductId().equals(product.getId())) { // Compare using productId
                     existingItem = item;
                     break;
                 }
@@ -244,7 +248,8 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 existingItem.setQuantity(existingItem.getQuantity() + quantity);
                 updateCartItemInFirestore(product, existingItem.getQuantity());
             } else {
-                Cart.getInstance().addToCart(product, quantity, sellerId);
+                // Pass the productId when creating a CartItem
+                Cart.getInstance(this).addToCart(product, quantity, sellerId, product.getId()); // Assuming product.getId() gives productId
                 saveCartItemToFirestore(product, quantity);
             }
 
@@ -252,8 +257,20 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         }
     }
 
+
     private void saveCartItemToFirestore(Product product, int quantity) {
-        CartItem cartItem = new CartItem(product, quantity, sellerId);
+        String productName = product.getName();
+        double totalPrice = product.getPrice() * quantity; // Assuming Product has getPrice()
+        List<String> imageUrls = product.getImageUrls(); // Get the list of image URLs
+        String imageUrl = (imageUrls != null && !imageUrls.isEmpty()) ? imageUrls.get(0) : "";
+        String brand = product.getBrand(); // Assuming Product has getBrand()
+        String yearModel = product.getYearModel(); // Assuming Product has getYearModel()
+
+        // Create the CartItem
+        CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, product.getId());
+
+
+        // Save the cart item to Firestore
         db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)
                 .addOnSuccessListener(documentReference -> {
                     // Handle success
@@ -262,6 +279,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void updateCartItemInFirestore(Product product, int quantity) {
         String existingCartItemId = getExistingCartItemId(product.getId());
@@ -278,14 +296,22 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     }
 
     private String getExistingCartItemId(String productId) {
-        for (CartItem item : Cart.getInstance().getItems()) {
-            if (item.getProduct().getId().equals(productId)) {
-                return item.getDocumentId();
+        // Inside an Activity, use 'this' instead of getContext()
+        Context context = this;  // 'this' refers to the Activity, which is a Context
+
+        // Now, pass the context to Cart.getInstance()
+        for (CartItem item : Cart.getInstance(context).getItems()) {
+            if (item.getProductId().equals(productId)) {  // Directly compare productId
+                return item.getDocumentId();  // Return the document ID if found
             }
         }
-        return null;
+
+        return null;  // Return null if the item is not found
     }
-//Deliveryinfoactivity
+
+
+
+    //Deliveryinfoactivity
     private void checkout() {
         Intent intent = new Intent(this, CheckoutFormActivity.class);
         intent.putExtra("SELLER_ID", sellerId);

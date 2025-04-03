@@ -176,11 +176,13 @@ public class PaymentActivity extends AppCompatActivity {
         int selectedOption = deliveryOption.getCheckedRadioButtonId();
         String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
 
+        // Validate input fields
         if (emailStr.isEmpty() || fullNameStr.isEmpty() || phoneNumberStr.isEmpty() || zipCodeStr.isEmpty() || nameOnCard.isEmpty() || cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Check user authentication
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
@@ -188,41 +190,49 @@ public class PaymentActivity extends AppCompatActivity {
         }
         String userId = currentUser.getUid();
 
+        // Firestore instance
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        List<Map<String, Object>> productList = new ArrayList<>();
+
+        // Process each product as a separate order
         for (CartItem item : cartItems) {
             Map<String, Object> product = new HashMap<>();
-            product.put("productName", item.getProduct());
+            product.put("productId", item.getProductId()); // Store productId
+            product.put("productName", item.getProductName());
             product.put("quantity", item.getQuantity());
             product.put("sellerId", item.getSellerId());
             product.put("userId", userId);
-            productList.add(product);
-        }
+            product.put("totalPrice", item.getTotalPrice());
 
-        Map<String, Object> paymentDetails = new HashMap<>();
-        paymentDetails.put("cardName", nameOnCard);
-        paymentDetails.put("cardNumber", cardNum);
-        paymentDetails.put("expiryDate", expiry);
-        paymentDetails.put("cvv", cvvCode);
-        paymentDetails.put("cardType", cardType);
+            Map<String, Object> paymentDetails = new HashMap<>();
+            paymentDetails.put("cardName", nameOnCard);
+            paymentDetails.put("cardNumber", cardNum);
+            paymentDetails.put("expiryDate", expiry);
+            paymentDetails.put("cvv", cvvCode);
+            paymentDetails.put("cardType", cardType);
 
-        db.collection("orders").add(new HashMap<String, Object>() {{
-            put("products", productList);
-            put("deliveryType", deliveryType);
-            put("totalPrice", finalPrice);
-            put("payment", paymentDetails);
-            put("customerInfo", new HashMap<String, Object>() {{
+            // Order details
+            Map<String, Object> orderDetails = new HashMap<>();
+            orderDetails.put("product", product);
+            orderDetails.put("deliveryType", deliveryType);
+            orderDetails.put("payment", paymentDetails);
+            orderDetails.put("customerInfo", new HashMap<String, Object>() {{
                 put("email", emailStr);
                 put("fullName", fullNameStr);
                 put("phoneNumber", phoneNumberStr);
                 put("zipCode", zipCodeStr);
                 put("riderMessage", riderMsgStr);
             }});
-        }}).addOnSuccessListener(documentReference -> {
-            deleteCartItems(userId);
-            showCustomDialog(true);
-        }).addOnFailureListener(e -> showCustomDialog(false));
+
+            // Add the order to Firestore for each product
+            db.collection("orders").add(orderDetails)
+                    .addOnSuccessListener(documentReference -> {
+                        deleteCartItems(userId); // Delete cart items after order is placed
+                        showCustomDialog(true);
+                    })
+                    .addOnFailureListener(e -> showCustomDialog(false));
+        }
     }
+
 
 
     private void showCustomDialog(boolean isSuccess) {

@@ -82,14 +82,38 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
 
                         cartItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
-                            CartItem cartItem = doc.toObject(CartItem.class);
-                            cartItem.setDocumentId(doc.getId()); // Ensure Document ID is set
+                            String productName = doc.getString("productName");
+                            int quantity = doc.getLong("quantity").intValue();
+                            String sellerId = doc.getString("sellerId");
+                            double totalPrice = doc.getDouble("totalPrice");
+                            String imageUrl = doc.getString("imageUrl");
+                            String brand = doc.getString("brand"); // Assuming brand field exists
+                            String yearModel = doc.getString("yearModel"); // Assuming yearModel field exists
+
+                            // Create the CartItem with required fields
+                            List<String> imageUrls = new ArrayList<>();
+                            imageUrls.add(imageUrl); // Add the image URL to the list
+
+                            // Ensure Document ID is set
+                            CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, doc.getId());
                             cartItems.add(cartItem);
                         }
                         cartAdapter.notifyDataSetChanged();
                         updateTotal();
                     }
                 });
+    }
+
+
+    private void proceedToCheckout() {
+        if (cartItems.isEmpty()) {
+            Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent intent = new Intent(getActivity(), CheckoutListFormActivity.class);
+        intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(cartItems)); // Pass cart items
+        startActivity(intent);
     }
 
     private void updateTotal() {
@@ -131,18 +155,6 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
     }
-
-    private void proceedToCheckout() {
-        if (cartItems.isEmpty()) {
-            Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Intent intent = new Intent(getActivity(), CheckoutListFormActivity.class);
-        intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(cartItems)); // Pass cart items
-        startActivity(intent);
-    }
-
     @Override
     public void onItemLongPress(CartItem cartItem) {
         cartAdapter.setDeleteMode(true);
