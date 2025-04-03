@@ -234,6 +234,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String userId = currentUser.getUid();
         String sellerId = getIntent().getStringExtra("SELLER_ID");
 
+        // Get the image URL from the intent
+        String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
+
         // Create Firestore reference
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Map<String, Object> orderDetails = new HashMap<>();
@@ -247,6 +250,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
         if (deliveryType.equals("Delivery")) {
             orderDetails.put("shippingAddress", address);
         }
+
+        // Add default status as "Pending"
+        orderDetails.put("status", "Pending");
 
         // Store customer info
         Map<String, Object> customerInfo = new HashMap<>();
@@ -266,11 +272,13 @@ public class CheckoutFormActivity extends AppCompatActivity {
         paymentDetails.put("cardType", cardType);
         orderDetails.put("payment", paymentDetails);
 
-        // Save to Firestore for the order collection
+        // Store the image URL
+        orderDetails.put("imageUrl", imageUrl);
+
+        // Save to Firestore
         db.collection("orders")
                 .add(orderDetails)
                 .addOnSuccessListener(documentReference -> {
-                    // Log the purchase interaction
                     UserInteractionLogger.logPurchaseInteraction(
                             userId,
                             getIntent().getStringExtra("PRODUCT_ID"),
@@ -279,27 +287,14 @@ public class CheckoutFormActivity extends AppCompatActivity {
                             finalPrice
                     );
 
-                    // Now, also add to the manage_order collection
-                    Map<String, Object> manageOrderDetails = new HashMap<>();
-                    manageOrderDetails.put("buyerId", userId);
-                    manageOrderDetails.put("sellerId", sellerId);
-                    manageOrderDetails.put("productId", getIntent().getStringExtra("PRODUCT_ID"));
-                    manageOrderDetails.put("status", "pending");
-
-                    // Save to the manage_order collection
-                    db.collection("manage_order")
-                            .add(manageOrderDetails)
-                            .addOnSuccessListener(aVoid -> {
-                                showCustomDialog(true);
-                            })
-                            .addOnFailureListener(e -> {
-                                showCustomDialog(false);
-                            });
+                    showCustomDialog(true);
                 })
                 .addOnFailureListener(e -> {
                     showCustomDialog(false);
                 });
     }
+
+
 
 
     private String identifyCardType(String cardNum) {

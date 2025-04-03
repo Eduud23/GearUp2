@@ -30,17 +30,24 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         OrderItem orderItem = purchasedItems.get(position);
+
+        // Set the product name, quantity, and total price
         holder.tvProductName.setText(orderItem.getProductName());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getProductPrice()));
-        holder.tvProductQuantity.setText("Quantity: " + orderItem.getProductQuantity());
+        holder.tvProductQuantity.setText("Quantity: " + orderItem.getQuantity());
+        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getTotalPrice()));
 
         // Load the product image using Glide
         Glide.with(holder.itemView.getContext())
-                .load(orderItem.getProductImageUrl())
+                .load(orderItem.getImageUrl())
                 .into(holder.ivProductImage);
 
         // Set the order status
         holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());
+
+        // Set additional customer and shipping details if needed
+        holder.tvCustomerName.setText("Customer: " + orderItem.getCustomerName());
+        holder.tvShippingAddress.setText("Address: " + orderItem.getShippingAddress());
+        holder.tvPaymentMethod.setText("Payment: " + orderItem.getPaymentMethod());
     }
 
     @Override
@@ -49,7 +56,7 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvProductName, tvProductPrice, tvProductQuantity, tvOrderStatus; // Added order status
+        TextView tvProductName, tvProductPrice, tvProductQuantity, tvOrderStatus, tvCustomerName, tvShippingAddress, tvPaymentMethod;
         ImageView ivProductImage;
 
         ViewHolder(@NonNull View itemView) {
@@ -57,7 +64,10 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
             tvProductName = itemView.findViewById(R.id.tv_product_name);
             tvProductPrice = itemView.findViewById(R.id.tv_product_price);
             tvProductQuantity = itemView.findViewById(R.id.tv_product_quantity);
-            tvOrderStatus = itemView.findViewById(R.id.tv_order_status); // Initialize the order status TextView
+            tvOrderStatus = itemView.findViewById(R.id.tv_order_status);
+            tvCustomerName = itemView.findViewById(R.id.tv_customer_name); // Display customer name
+            tvShippingAddress = itemView.findViewById(R.id.tv_shipping_address); // Display shipping address
+            tvPaymentMethod = itemView.findViewById(R.id.tv_payment_method); // Display payment method
             ivProductImage = itemView.findViewById(R.id.iv_product_image);
         }
     }
