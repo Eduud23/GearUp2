@@ -85,7 +85,16 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                             String productName = doc.getString("productName");
                             int quantity = doc.getLong("quantity").intValue();
                             String sellerId = doc.getString("sellerId");
-                            double totalPrice = doc.getDouble("totalPrice");
+
+                            // Get totalPrice from Firestore
+                            Double totalPriceObj = doc.getDouble("totalPrice"); // Assuming totalPrice exists and represents the price of the product for the given quantity
+
+                            // Ensure totalPrice is not null and assign a default value if it is
+                            double totalPrice = (totalPriceObj != null) ? totalPriceObj : 0.0;
+
+                            // If you want to recalculate totalPrice based on quantity:
+                            totalPrice *= quantity;  // Multiply by quantity to get the final total price for the item
+
                             String imageUrl = doc.getString("imageUrl");
                             String brand = doc.getString("brand"); // Assuming brand field exists
                             String yearModel = doc.getString("yearModel"); // Assuming yearModel field exists
@@ -103,6 +112,7 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                     }
                 });
     }
+
 
 
     private void proceedToCheckout() {

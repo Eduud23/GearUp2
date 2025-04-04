@@ -71,7 +71,10 @@ public class CheckoutFormActivity extends AppCompatActivity {
             productYear.setText(intent.getStringExtra("PRODUCT_YEAR_MODEL"));
             double price = intent.getDoubleExtra("PRODUCT_PRICE", 0.0);
             int quantity = intent.getIntExtra("PRODUCT_QUANTITY", 1);
+
+            // Multiply price by quantity
             finalPrice = price * quantity;
+
             productPrice.setText("₱" + price);
             productQuantity.setText("Quantity: " + quantity);
 
@@ -81,10 +84,12 @@ public class CheckoutFormActivity extends AppCompatActivity {
             }
         }
 
+        // Update the confirm payment button text to show the final price
         confirmPayment.setText("Confirm Payment ( ₱" + finalPrice + ")");
         confirmPayment.setOnClickListener(v -> processPayment());
 
-        // Add TextWatcher for card number formatting
+
+    // Add TextWatcher for card number formatting
         cardNumber.addTextChangedListener(new TextWatcher() {
             private boolean isFormatting;
             private int beforeLength;

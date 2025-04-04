@@ -78,14 +78,14 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderList.clear();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
                         String orderId = document.getId();
-                        String productName = document.getString("productName");
-                        Long quantity = document.getLong("quantity");
-                        double totalPrice = document.getDouble("totalPrice");
+                        String productName = document.getString("prouduct.productName");
+                        Long quantity = document.getLong("product.quantity");
+                        double totalPrice = document.getDouble("product.totalPrice");
                         String customerName = document.getString("customerInfo.fullName");
                         String shippingAddress = document.getString("shippingAddress");
                         String paymentMethod = document.getString("payment.cardType");
                         String orderStatus = document.getString("status");
-                        String imageUrl = document.getString("imageUrl");
+                        String imageUrl = document.getString("product.imageUrl");
 
                         // Create an OrderItem with the image URL
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
