@@ -211,6 +211,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         int selectedOption = deliveryOption.getCheckedRadioButtonId();
         String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
 
+        // Validate input fields
         if (cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty() || nameOnCard.isEmpty() ||
                 email.isEmpty() || fullName.isEmpty() || phoneNumber.isEmpty() || zipCode.isEmpty() ||
                 (selectedOption == R.id.radio_delivery && address.isEmpty())) {
@@ -237,24 +238,30 @@ public class CheckoutFormActivity extends AppCompatActivity {
         // Get the image URL from the intent
         String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
 
-        // Create Firestore reference
+        // Firestore instance
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create the main order map
+        Map<String, Object> product = new HashMap<>();
+        product.put("userId", userId);
+        product.put("sellerId", sellerId);
+        product.put("productName", productName.getText().toString());
+        product.put("quantity", Integer.parseInt(productQuantity.getText().toString().replace("Quantity: ", "")));
+        product.put("totalPrice", finalPrice);
+        product.put("deliveryType", deliveryType);
+        product.put("imageUrl", imageUrl);
+
         Map<String, Object> orderDetails = new HashMap<>();
-        orderDetails.put("userId", userId);
-        orderDetails.put("sellerId", sellerId);
-        orderDetails.put("productName", productName.getText().toString());
-        orderDetails.put("quantity", Integer.parseInt(productQuantity.getText().toString().replace("Quantity: ", "")));
-        orderDetails.put("totalPrice", finalPrice);
+        orderDetails.put("product", product);
         orderDetails.put("deliveryType", deliveryType);
 
         if (deliveryType.equals("Delivery")) {
             orderDetails.put("shippingAddress", address);
         }
-
-        // Add default status as "Pending"
         orderDetails.put("status", "Pending");
 
-        // Store customer info
+
+        // Store customer info in a sub-map
         Map<String, Object> customerInfo = new HashMap<>();
         customerInfo.put("email", email);
         customerInfo.put("fullName", fullName);
@@ -263,7 +270,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         customerInfo.put("riderMessage", message);
         orderDetails.put("customerInfo", customerInfo);
 
-        // Store payment details
+        // Store payment details in a sub-map
         Map<String, Object> paymentDetails = new HashMap<>();
         paymentDetails.put("cardName", nameOnCard);
         paymentDetails.put("cardNumber", cardNum);
@@ -272,18 +279,17 @@ public class CheckoutFormActivity extends AppCompatActivity {
         paymentDetails.put("cardType", cardType);
         orderDetails.put("payment", paymentDetails);
 
-        // Store the image URL
-        orderDetails.put("imageUrl", imageUrl);
 
         // Save to Firestore
         db.collection("orders")
                 .add(orderDetails)
                 .addOnSuccessListener(documentReference -> {
+                    // Log the purchase interaction
                     UserInteractionLogger.logPurchaseInteraction(
                             userId,
                             getIntent().getStringExtra("PRODUCT_ID"),
                             getIntent().getStringExtra("PRODUCT_NAME"),
-                            getIntent().getStringExtra("SELLER_ID"),
+                            sellerId,
                             finalPrice
                     );
 

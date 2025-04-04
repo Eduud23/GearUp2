@@ -27,7 +27,7 @@ import java.util.Map;
 public class PaymentActivity extends AppCompatActivity {
 
     private TextView totalAmountText, cardTypeTextView;
-    private EditText email, fullName, phoneNumber, zipCode, riderMessage;
+    private EditText shippingAddress, email, fullName, phoneNumber, zipCode, riderMessage;
     private EditText cardName, cardNumber, expiryDate, cvv;
     private RadioGroup deliveryOption;
     private Button confirmPaymentButton;
@@ -50,6 +50,7 @@ public class PaymentActivity extends AppCompatActivity {
         cardNumber = findViewById(R.id.card_number);
         expiryDate = findViewById(R.id.expiry_date);
         cvv = findViewById(R.id.cvv);
+        shippingAddress = findViewById(R.id.shipping_address);
         deliveryOption = findViewById(R.id.delivery_option);
         confirmPaymentButton = findViewById(R.id.confirm_payment);
         cardTypeTextView = findViewById(R.id.card_type);
@@ -66,6 +67,25 @@ public class PaymentActivity extends AppCompatActivity {
 
         confirmPaymentButton.setText("Confirm Payment ( ₱" + finalPrice + ")");
         confirmPaymentButton.setOnClickListener(v -> processPayment());
+
+        cvv.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String cardType = identifyCardType(cardNumber.getText().toString());
+                int maxLength = cardType.equals("American Express") ? 4 : 3;
+
+                if (s.length() > maxLength) {
+                    cvv.setText(s.subSequence(0, maxLength));
+                    cvv.setSelection(maxLength);
+                }
+            }
+        });
 
         cardNumber.addTextChangedListener(new TextWatcher() {
             private boolean isFormatting;
@@ -162,6 +182,7 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void processPayment() {
+        String address = shippingAddress.getText().toString().trim();
         String emailStr = email.getText().toString().trim();
         String fullNameStr = fullName.getText().toString().trim();
         String phoneNumberStr = phoneNumber.getText().toString().trim();
@@ -202,6 +223,7 @@ public class PaymentActivity extends AppCompatActivity {
             product.put("sellerId", item.getSellerId());
             product.put("userId", userId);
             product.put("totalPrice", item.getTotalPrice());
+            product.put("imageUrl", item.getImageUrl()); // Pass image URL
 
             Map<String, Object> paymentDetails = new HashMap<>();
             paymentDetails.put("cardName", nameOnCard);
@@ -215,6 +237,9 @@ public class PaymentActivity extends AppCompatActivity {
             orderDetails.put("product", product);
             orderDetails.put("deliveryType", deliveryType);
             orderDetails.put("payment", paymentDetails);
+            if (deliveryType.equals("Delivery")) {
+                orderDetails.put("shippingAddress", address);
+            }
             orderDetails.put("customerInfo", new HashMap<String, Object>() {{
                 put("email", emailStr);
                 put("fullName", fullNameStr);
@@ -222,6 +247,7 @@ public class PaymentActivity extends AppCompatActivity {
                 put("zipCode", zipCodeStr);
                 put("riderMessage", riderMsgStr);
             }});
+            orderDetails.put("status", "Pending");  // Add the status field with a default value
 
             // Add the order to Firestore for each product
             db.collection("orders").add(orderDetails)
@@ -232,6 +258,8 @@ public class PaymentActivity extends AppCompatActivity {
                     .addOnFailureListener(e -> showCustomDialog(false));
         }
     }
+
+
 
 
 
