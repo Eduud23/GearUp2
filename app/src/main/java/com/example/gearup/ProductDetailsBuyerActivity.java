@@ -24,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -55,6 +56,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
     private int maxQuantity;
     private String sellerId;
     private String currentUserId;
+    private RecyclerView relatedProductsRecyclerView;
     private Product product;
     private FirebaseFirestore db;
 
@@ -79,6 +81,8 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         tvAverageRating = findViewById(R.id.tv_average_rating);
         productBrand = findViewById(R.id.tv_product_brand);
         productYearModel = findViewById(R.id.tv_product_year_model);
+        relatedProductsRecyclerView = findViewById(R.id.recycler_related_products);
+
 
         Button viewReviewsButton = findViewById(R.id.btn_view_reviews);
         viewReviewsButton.setOnClickListener(v -> {
@@ -117,6 +121,7 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             getSellerInfo(sellerId);
 
             loadReviews(product.getId());
+            fetchRelatedProducts(product.getCategory());
         } else {
             Toast.makeText(this, "Invalid product data", Toast.LENGTH_SHORT).show();
             finish();
@@ -224,6 +229,73 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         intent.putExtra("SELLER_ID", sellerId);
         startActivity(intent);
     }
+    private void fetchRelatedProducts(String productCategory) {
+        // Ensure productCategory is not null and has valid value
+        if (productCategory == null || productCategory.isEmpty()) {
+            Log.e("FetchRelatedProducts", "Product category is missing or empty");
+            Toast.makeText(this, "No category found for the current product", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Get the current product's document ID (used as the product ID)
+        String currentProductId = product.getId();  // Assuming product.getId() gives the current product's document ID
+        Log.d("FetchRelatedProducts", "Current product ID: " + currentProductId);
+
+        // Query to fetch related products based on the category, excluding the current product by its document ID
+        db.collectionGroup("products")  // Use collectionGroup to get products from all subcollections
+                .whereEqualTo("category", productCategory)  // Match category of the current product
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // If no related products found
+                        Log.d("FetchRelatedProducts", "No related products found with the specified category.");
+                        Toast.makeText(this, "No related products found", Toast.LENGTH_SHORT).show();
+                    } else {
+                        List<Product> relatedProducts = new ArrayList<>();
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            // Get the product ID (which is the document ID itself)
+                            String productId = documentSnapshot.getId();
+                            if (!productId.equals(currentProductId)) {  // Exclude the current product
+                                Product relatedProduct = documentSnapshot.toObject(Product.class);
+                                relatedProducts.add(relatedProduct);
+                            }
+                        }
+
+                        if (relatedProducts.isEmpty()) {
+                            Log.d("FetchRelatedProducts", "No related products found excluding the current product.");
+                            Toast.makeText(this, "No related products found", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.d("FetchRelatedProducts", "Found " + relatedProducts.size() + " related products.");
+                            setRelatedProducts(relatedProducts);  // Update RecyclerView with related products
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FetchRelatedProducts", "Error fetching related products", e);  // Log the actual error for debugging
+                    Toast.makeText(this, "Error fetching related products", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+
+    // Update RecyclerView with related products
+    private void setRelatedProducts(List<Product> relatedProducts) {
+        // If relatedProducts is not empty, update the RecyclerView
+        if (relatedProducts != null && !relatedProducts.isEmpty()) {
+            RelatedProductsAdapter adapter = new RelatedProductsAdapter(relatedProducts);
+
+            // Set GridLayoutManager with 2 columns
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2); // 2 columns in the grid
+            relatedProductsRecyclerView.setLayoutManager(gridLayoutManager);
+
+            // Set the adapter for the RecyclerView
+            relatedProductsRecyclerView.setAdapter(adapter);
+        } else {
+            // If there are no related products, you can display a placeholder or message
+            Toast.makeText(this, "No related products available", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void addToCart(Product product) {
         if (product != null) {
