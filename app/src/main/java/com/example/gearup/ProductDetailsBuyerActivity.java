@@ -257,7 +257,10 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                             String productId = documentSnapshot.getId();
                             if (!productId.equals(currentProductId)) {  // Exclude the current product
                                 Product relatedProduct = documentSnapshot.toObject(Product.class);
-                                relatedProducts.add(relatedProduct);
+                                if (relatedProduct != null) {
+                                    relatedProduct.setId(productId);  // Set the product ID to the product object
+                                    relatedProducts.add(relatedProduct);
+                                }
                             }
                         }
 

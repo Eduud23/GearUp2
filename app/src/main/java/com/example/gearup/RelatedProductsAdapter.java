@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,18 +40,30 @@ public class RelatedProductsAdapter extends RecyclerView.Adapter<RelatedProducts
         // Check if there are any image URLs
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
-            // Use the first image URL in the list
             String imageUrl = imageUrls.get(0);  // Modify as needed if you want to display other images
             Glide.with(holder.itemView.getContext())
-                    .load(imageUrl) // Load the first image URL from the list
-                    .placeholder(R.drawable.ic_launcher_background) // Placeholder while loading
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_launcher_background)
                     .into(holder.productImage);
         } else {
-            // Set a default image if no image URLs are available
             Glide.with(holder.itemView.getContext())
-                    .load(R.drawable.ic_launcher_background) // Default image
+                    .load(R.drawable.ic_launcher_background)
                     .into(holder.productImage);
         }
+
+        holder.itemView.setOnClickListener(v -> {
+            // Log to ensure product is valid
+            Log.d("RelatedProductsAdapter", "Product clicked: " + product);
+
+            // Pass the product to the next activity
+            Intent intent = new Intent(holder.itemView.getContext(), ProductDetailsBuyerActivity.class);
+            intent.putExtra("PRODUCT", product);  // Passing entire product object
+
+            // Log the product ID being passed
+            Log.d("RelatedProductsAdapter", "Passing Product ID to ProductDetailsActivity: " + product.getId());
+
+            holder.itemView.getContext().startActivity(intent);
+        });
     }
 
     @Override
