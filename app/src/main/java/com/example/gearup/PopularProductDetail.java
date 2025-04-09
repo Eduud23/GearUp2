@@ -50,7 +50,17 @@ public class PopularProductDetail extends AppCompatActivity {
         // Set up RecyclerView for similar products
         similarProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         similarProductAdapter = new PopularProductAdapter(new ArrayList<>(), product -> {
-            // Handle item click if needed
+            // When a similar product is clicked, navigate to its details page
+            Intent intent = new Intent(PopularProductDetail.this, PopularProductDetail.class);
+            intent.putExtra("title", product.getTitle());
+            intent.putExtra("price", product.getPrice());
+            intent.putExtra("imageUrl", product.getImageUrl());
+            intent.putExtra("itemUrl", product.getItemUrl());
+            intent.putExtra("condition", product.getCondition());
+            intent.putExtra("location", product.getLocation());
+            intent.putExtra("shippingCost", product.getShippingCost());
+            intent.putExtra("seller", product.getSeller());
+            startActivity(intent);
         });
         similarProductsRecyclerView.setAdapter(similarProductAdapter);
 
