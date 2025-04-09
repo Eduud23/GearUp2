@@ -42,8 +42,8 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         holder.titleTextView.setText(product.getTitle());
         holder.priceTextView.setText(product.getPrice());
         holder.conditionTextView.setText("Condition: " + (product.getCondition() != null ? product.getCondition() : "N/A"));
-        holder.ratedTextView.setText("Rated: " + (product.getRated() != null ? product.getRated() : "N/A"));
-        holder.discountTextView.setText("Discount: " + (product.getDiscount() != null ? product.getDiscount() : "N/A"));
+        holder.ratedTextView.setText("Rated: " + (product.getRated() != "NaN" ? product.getRated() : "N/A"));
+        holder.discountTextView.setText("Discount: " + (product.getDiscount() != "NaN" ? product.getDiscount() : "N/A"));
 
         // Load product image
         Glide.with(holder.itemView.getContext()).load(product.getImageUrl()).into(holder.productImageView);

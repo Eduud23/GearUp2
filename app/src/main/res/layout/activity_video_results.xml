@@ -30,17 +30,6 @@
             android:padding="16dp"
             android:background="@android:color/background_light">
 
-            <!-- Header Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Related Educational Videos"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/black"
-                android:layout_gravity="center"
-                android:layout_marginBottom="16dp" />
-
 
             <!-- Video Recommendations RecyclerView -->
             <androidx.cardview.widget.CardView

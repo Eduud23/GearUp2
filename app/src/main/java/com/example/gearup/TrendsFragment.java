@@ -29,23 +29,7 @@ public class TrendsFragment extends Fragment {
 
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
-        ImageView btnBack = view.findViewById(R.id.btn_back);
 
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Replace the current fragment with HomeFragmentBuyer
-                HomeFragmentBuyer homeFragmentBuyer = new HomeFragmentBuyer();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-                // You can use replace() or add() depending on your use case
-                transaction.replace(R.id.fragment_container, homeFragmentBuyer); // Use your container ID here
-                transaction.addToBackStack(null);  // Optional: Add this transaction to the back stack if needed
-
-                // Commit the transaction to make the change
-                transaction.commit();
-            }
-        });
 
 
         List<Fragment> fragments = new ArrayList<>();
