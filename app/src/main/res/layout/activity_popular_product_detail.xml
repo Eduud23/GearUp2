@@ -6,19 +6,23 @@
     android:orientation="vertical"
     android:background="@color/white">
 
-    <!-- Toolbar with Back Button -->
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        app:navigationIcon="@drawable/ic_back"
-        app:titleTextColor="@android:color/black"
-        app:title="             Product Details" />
+        android:background="@android:color/holo_blue_light"
+        app:title="Product Details"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_white"
+        android:elevation="4dp" />
+
+
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:fillViewport="true">
 
         <LinearLayout
@@ -117,7 +121,28 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp" />
 
+            <!-- Similar Products Title -->
+            <TextView
+                android:id="@+id/similarProductsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Similar Products"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
+
+            <!-- RecyclerView for similar products -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/similarProductsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:scrollbars="horizontal"
+                />
+
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

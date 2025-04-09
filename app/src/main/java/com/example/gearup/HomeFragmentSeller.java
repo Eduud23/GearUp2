@@ -388,16 +388,21 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
         RecommendationManager recommendationManager = new RecommendationManager();
 
         recommendationManager.loadRecommendations(currentUserId, recommendedProducts -> {
-            getActivity().runOnUiThread(() -> {
-                if (!recommendedProducts.isEmpty()) {
-                    recommendedProductsList.clear();
-                    recommendedProductsList.addAll(recommendedProducts);
-                    recommendationAdapter.setProductList(recommendedProductsList);
-                    viewPagerRecommended.setVisibility(View.VISIBLE);
-                } else {
-                    viewPagerRecommended.setVisibility(View.GONE);
-                }
-            });
+            // Check if the fragment is attached to an activity before calling runOnUiThread
+            if (isAdded() && getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (recommendedProducts != null && !recommendedProducts.isEmpty()) {
+                        recommendedProductsList.clear();
+                        recommendedProductsList.addAll(recommendedProducts);
+                        recommendationAdapter.setProductList(recommendedProductsList);
+                        viewPagerRecommended.setVisibility(View.VISIBLE);
+                    } else {
+                        viewPagerRecommended.setVisibility(View.GONE);
+                    }
+                });
+            } else {
+                Log.e(TAG, "Fragment is not attached to an activity, skipping UI update.");
+            }
         });
     }
     public void onRecommendedProductClick(Product clickedProduct) {

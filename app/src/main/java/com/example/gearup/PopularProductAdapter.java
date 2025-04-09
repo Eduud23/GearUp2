@@ -16,6 +16,7 @@ import java.util.List;
 public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAdapter.ProductViewHolder> {
 
     private List<PopularProduct> productList;
+    private List<PopularProduct> similarProductList;
     private OnItemClickListener onItemClickListener;
 
     public interface OnItemClickListener {
@@ -54,10 +55,17 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         }
     }
 
+    // Method to update the products list
     public void updateProducts(List<PopularProduct> newProducts) {
         this.productList.clear();
         this.productList.addAll(newProducts);
         notifyDataSetChanged();
+    }
+
+    // Method to update similar products list
+    public void setSimilarProducts(List<PopularProduct> similarProducts) {
+        this.similarProductList = similarProducts;
+        notifyDataSetChanged(); // Rebind the view if necessary
     }
 
     @Override
