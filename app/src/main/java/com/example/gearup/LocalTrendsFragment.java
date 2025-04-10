@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LocalTrendsFragment extends Fragment {
@@ -25,6 +27,7 @@ public class LocalTrendsFragment extends Fragment {
     private RecyclerView recyclerView;
     private LocalTrendsAdapter adapter;
     private List<LocalTrendsData> localTrendsList = new ArrayList<>();
+    private SwipeRefreshLayout swipeRefreshLayout;  // Declare SwipeRefreshLayout
     private static final String TAG = "LocalTrendsFragment";
 
     @Nullable
@@ -32,13 +35,22 @@ public class LocalTrendsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_local_trends, container, false);
         recyclerView = view.findViewById(R.id.recycler_view_local_trends);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);  // Initialize SwipeRefreshLayout
+
+        // Set up RecyclerView layout manager
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         // Initialize the adapter with the click listener
         adapter = new LocalTrendsAdapter(localTrendsList, this::onItemClick);
         recyclerView.setAdapter(adapter);
 
-        fetchLocalTrendsData();
+        // Set up SwipeRefreshLayout listener to refresh data
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            fetchLocalTrendsData(true);  // Pass 'true' to shuffle the list after refreshing
+        });
+
+        // Initial data fetch
+        fetchLocalTrendsData(false);  // Pass 'false' for the initial load without shuffling
         return view;
     }
 
@@ -55,7 +67,7 @@ public class LocalTrendsFragment extends Fragment {
         startActivity(intent);
     }
 
-    private void fetchLocalTrendsData() {
+    private void fetchLocalTrendsData(boolean shuffle) {
         FirebaseApp thirdApp = FirebaseApp.getInstance("gearupdataThirdApp");
         FirebaseFirestore db = FirebaseFirestore.getInstance(thirdApp);
 
@@ -132,6 +144,13 @@ public class LocalTrendsFragment extends Fragment {
 
                                 localTrendsList.add(data);
                             }
+
+                            // Shuffle the list if needed
+                            if (shuffle) {
+                                Collections.shuffle(localTrendsList);
+                            }
+
+                            // Notify adapter about data change
                             adapter.notifyDataSetChanged();
                         } else {
                             Log.e(TAG, "No data found in shopee_products");
@@ -139,6 +158,9 @@ public class LocalTrendsFragment extends Fragment {
                     } else {
                         Log.e(TAG, "Error getting documents: ", task.getException());
                     }
+
+                    // Stop the refreshing animation once data is loaded
+                    swipeRefreshLayout.setRefreshing(false);
                 });
     }
 }

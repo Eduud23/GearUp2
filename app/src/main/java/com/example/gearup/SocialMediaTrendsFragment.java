@@ -14,11 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.Entry;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.FirebaseApp;
@@ -30,13 +31,14 @@ import java.util.Map;
 public class SocialMediaTrendsFragment extends Fragment {
 
     private FirebaseFirestore db;
-    private BarChart searchQueryChart;
-    private BarChart productMentionChart;
-    private BarChart hashtagChart;
+    private LineChart searchQueryChart;
+    private LineChart productMentionChart;
+    private LineChart hashtagChart;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    private ArrayList<BarEntry> searchQueryEntries = new ArrayList<>();
-    private ArrayList<BarEntry> productMentionEntries = new ArrayList<>();
-    private ArrayList<BarEntry> hashtagEntries = new ArrayList<>();
+    private ArrayList<Entry> searchQueryEntries = new ArrayList<>();
+    private ArrayList<Entry> productMentionEntries = new ArrayList<>();
+    private ArrayList<Entry> hashtagEntries = new ArrayList<>();
 
     private ArrayList<String> hashtagNames = new ArrayList<>();
 
@@ -51,13 +53,31 @@ public class SocialMediaTrendsFragment extends Fragment {
         // Access the Firestore instance of the fourth Firebase app
         db = FirebaseFirestore.getInstance(FirebaseApp.getInstance("gearupdataFourthApp"));
 
-        // Initialize BarChart views
+        // Initialize the SwipeRefreshLayout
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+
+        // Initialize LineChart views
         searchQueryChart = view.findViewById(R.id.searchQueryChart);
         productMentionChart = view.findViewById(R.id.productMentionChart);
         hashtagChart = view.findViewById(R.id.hashtagChart);
 
         // Fetch data
         fetchData();
+
+        // Set up SwipeRefreshLayout listener
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            // Reset the data
+            searchQueryEntries.clear();
+            productMentionEntries.clear();
+            hashtagEntries.clear();
+
+            searchQueryCountMap.clear();
+            productNames.clear();
+            hashtagNames.clear();
+
+            // Refresh the data
+            fetchData();
+        });
 
         return view;
     }
@@ -101,7 +121,7 @@ public class SocialMediaTrendsFragment extends Fragment {
                         sortedSearchQueryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue())); // Sort in descending order
 
                         for (Map.Entry<String, Integer> entry : sortedSearchQueryList.subList(0, Math.min(10, sortedSearchQueryList.size()))) {
-                            searchQueryEntries.add(new BarEntry(index, entry.getValue())); // Adding queryCount as value
+                            searchQueryEntries.add(new Entry(index, entry.getValue())); // Adding queryCount as value
                             index++;
                         }
 
@@ -142,12 +162,12 @@ public class SocialMediaTrendsFragment extends Fragment {
                             }
 
                             // Add product data to lists
-                            productMentionEntries.add(new BarEntry(productMentionEntries.size(), mentions)); // Sequential x-values
+                            productMentionEntries.add(new Entry(productMentionEntries.size(), mentions)); // Sequential x-values
                             productNames.add(product); // Save product names in parallel with the entries
                         }
 
                         // Sort product mentions by count in descending order and limit to top 10
-                        ArrayList<BarEntry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
+                        ArrayList<Entry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
                         sortedProductMentionEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by mentions
 
                         // Limit to top 10 product mentions
@@ -165,9 +185,9 @@ public class SocialMediaTrendsFragment extends Fragment {
                         productMentionEntries.clear();
                         productNames.clear();
                         for (int i = 0; i < sortedProductMentionEntries.size(); i++) {
-                            BarEntry entry = sortedProductMentionEntries.get(i);
+                            Entry entry = sortedProductMentionEntries.get(i);
                             // Set x-values to be sequential (i.e., 0, 1, 2, ..., 9) to prevent gaps
-                            productMentionEntries.add(new BarEntry(i, entry.getY()));
+                            productMentionEntries.add(new Entry(i, entry.getY()));
                             productNames.add(topProducts.get(i)); // Add the corresponding product name
                         }
                         fetchHashtags();
@@ -176,9 +196,6 @@ public class SocialMediaTrendsFragment extends Fragment {
                     }
                 });
     }
-
-
-
 
     private void fetchHashtags() {
         db.collection("hashtags")
@@ -209,12 +226,12 @@ public class SocialMediaTrendsFragment extends Fragment {
                             }
 
                             // Add hashtag data to lists
-                            hashtagEntries.add(new BarEntry(hashtagEntries.size(), hashtagCount));
+                            hashtagEntries.add(new Entry(hashtagEntries.size(), hashtagCount));
                             hashtagNames.add(hashtag); // Save hashtag names in parallel with the entries
                         }
 
                         // Sort hashtags by count in descending order and limit to top 10
-                        ArrayList<BarEntry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
+                        ArrayList<Entry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
                         sortedHashtagEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by hashtag count
 
                         // Limit to top 10 hashtags
@@ -232,38 +249,41 @@ public class SocialMediaTrendsFragment extends Fragment {
                         hashtagEntries.clear();
                         hashtagNames.clear();
                         for (int i = 0; i < sortedHashtagEntries.size(); i++) {
-                            BarEntry entry = sortedHashtagEntries.get(i);
+                            Entry entry = sortedHashtagEntries.get(i);
                             // Set x-values to be sequential (i.e., 0, 1, 2, ..., 9) to prevent gaps
-                            hashtagEntries.add(new BarEntry(i, entry.getY()));
+                            hashtagEntries.add(new Entry(i, entry.getY()));
                             hashtagNames.add(topHashtags.get(i)); // Add the corresponding hashtag name
                         }
 
-                        // Set up the BarChart with updated data
+                        // Set up the LineChart with updated data
                         populateCharts();
+
+                        // Stop the swipe refresh animation once data is fetched and charts are populated
+                        swipeRefreshLayout.setRefreshing(false);
                     } else {
                         Toast.makeText(getContext(), "Error fetching hashtags", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-
-
-
     private void populateCharts() {
-        // Create datasets and set them to the charts
-        BarDataSet searchQueryDataSet = new BarDataSet(searchQueryEntries, "Search Queries");
-        searchQueryDataSet.setColor(Color.BLUE);  // Example: Set color of the bars
+        // Create LineDataSets and set them to the charts
+        LineDataSet searchQueryDataSet = new LineDataSet(searchQueryEntries, "Search Queries");
+        searchQueryDataSet.setColor(Color.BLUE);  // Example: Set color of the line
+        searchQueryDataSet.setValueTextColor(Color.BLACK); // Optional: Set text color for values
 
-        BarDataSet productMentionDataSet = new BarDataSet(productMentionEntries, "Product Mentions");
-        productMentionDataSet.setColor(Color.GREEN);  // Example: Set color of the bars
+        LineDataSet productMentionDataSet = new LineDataSet(productMentionEntries, "Product Mentions");
+        productMentionDataSet.setColor(Color.GREEN);  // Example: Set color of the line
+        productMentionDataSet.setValueTextColor(Color.BLACK);
 
-        BarDataSet hashtagDataSet = new BarDataSet(hashtagEntries, "Hashtags");
-        hashtagDataSet.setColor(Color.RED);  // Example: Set color of the bars
+        LineDataSet hashtagDataSet = new LineDataSet(hashtagEntries, "Hashtags");
+        hashtagDataSet.setColor(Color.RED);  // Example: Set color of the line
+        hashtagDataSet.setValueTextColor(Color.BLACK);
 
-        // Create BarData for each chart
-        BarData searchQueryData = new BarData(searchQueryDataSet);
-        BarData productMentionData = new BarData(productMentionDataSet);
-        BarData hashtagData = new BarData(hashtagDataSet);
+        // Create LineData for each chart
+        LineData searchQueryData = new LineData(searchQueryDataSet);
+        LineData productMentionData = new LineData(productMentionDataSet);
+        LineData hashtagData = new LineData(hashtagDataSet);
 
         // Set data to the charts
         searchQueryChart.setData(searchQueryData);
@@ -307,16 +327,16 @@ public class SocialMediaTrendsFragment extends Fragment {
         // Update Product Mention Counts
         StringBuilder productMentionText = new StringBuilder("Top 10 Product Mentions:\n");
         // Sort the product mentions by count in descending order
-        ArrayList<BarEntry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
+        ArrayList<Entry> sortedProductMentionEntries = new ArrayList<>(productMentionEntries);
         sortedProductMentionEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by mentions in descending order
 
         // Display top 10 product mentions
         int productCounter = 1;
         for (int i = 0; i < Math.min(10, sortedProductMentionEntries.size()); i++) {
-            BarEntry entry = sortedProductMentionEntries.get(i);
+            Entry entry = sortedProductMentionEntries.get(i);
             productMentionText.append(productCounter)
                     .append(". ")
-                    .append(productNames.get(i)) // Get the product name
+                    .append(productNames.get(i)) // Get the corresponding product name
                     .append("\n");
             productCounter++;
         }
@@ -328,13 +348,13 @@ public class SocialMediaTrendsFragment extends Fragment {
         StringBuilder hashtagText = new StringBuilder("Top 10 Hashtags:\n");
 
         // Sort the hashtags by count in descending order
-        ArrayList<BarEntry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
+        ArrayList<Entry> sortedHashtagEntries = new ArrayList<>(hashtagEntries);
         sortedHashtagEntries.sort((entry1, entry2) -> Float.compare(entry2.getY(), entry1.getY())); // Sort by hashtag count in descending order
 
         // Display top 10 hashtags
         int hashtagCounter = 1;
         for (int i = 0; i < Math.min(10, sortedHashtagEntries.size()); i++) {
-            BarEntry entry = sortedHashtagEntries.get(i);
+            Entry entry = sortedHashtagEntries.get(i);
             String hashtag = hashtagNames.get(i);  // Access the hashtag name
             hashtagText.append(hashtagCounter)
                     .append(". ")
@@ -346,5 +366,4 @@ public class SocialMediaTrendsFragment extends Fragment {
         // Set the top 10 hashtags in the TextView
         ((TextView) getView().findViewById(R.id.hashtagPercentages)).setText(hashtagText.toString());
     }
-
 }
