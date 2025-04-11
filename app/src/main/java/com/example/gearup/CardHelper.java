@@ -7,24 +7,25 @@ import android.widget.EditText;
 public class CardHelper {
 
     // Identifies the card type based on the card number
-    public static String identifyCardType(String cardNum) {
+    public static int identifyCardType(String cardNum) {
         String cleanCardNum = cardNum.replaceAll("\\s", ""); // Remove spaces for validation
 
         if (cleanCardNum.startsWith("4")) {
-            return "Visa";
+            return R.drawable.visa;  // Replace with the actual image resource ID for Visa
         } else if (cleanCardNum.matches("^5[1-5].*") || cleanCardNum.matches("^222[1-9].*") ||
                 cleanCardNum.matches("^22[3-9].*") || cleanCardNum.matches("^2[3-6].*") ||
                 cleanCardNum.matches("^27[01].*") || cleanCardNum.matches("^2720.*")) {
-            return "MasterCard";
+            return R.drawable.master;  // Replace with the actual image resource ID for MasterCard
         } else if (cleanCardNum.startsWith("34") || cleanCardNum.startsWith("37")) {
-            return "American Express";
+            return R.drawable.amex;  // Replace with the actual image resource ID for American Express
         } else if (cleanCardNum.startsWith("6011") || cleanCardNum.matches("^622(12[6-9]|1[3-9]\\d|[2-8]\\d\\d|9[01]\\d|92[0-5]).*") ||
                 cleanCardNum.matches("^64[4-9].*") || cleanCardNum.startsWith("65")) {
-            return "Discover";
+            return R.drawable.discover;  // Replace with the actual image resource ID for Discover
         } else {
-            return "Unknown";
+            return R.drawable.unknown;  // Replace with the actual image resource ID for Unknown card
         }
     }
+
 
     // Formats the card number with spaces every 4 digits
     public static void setupCardNumberFormatting(final EditText cardNumber) {
@@ -117,14 +118,19 @@ public class CardHelper {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String cardType = identifyCardType(cardNumber.getText().toString());
-                int maxLength = cardType.equals("American Express") ? 4 : 3;
+                // Identify the card type by the resource ID returned by identifyCardType
+                int cardTypeImageResId = identifyCardType(cardNumber.getText().toString());
+
+                // Define max length for CVV based on card type
+                int maxLength = (cardTypeImageResId == R.drawable.amex) ? 4 : 3;  // Check if the card is American Express
 
                 if (s.length() > maxLength) {
+                    // Limit the length of CVV input based on the card type
                     cvv.setText(s.subSequence(0, maxLength));
-                    cvv.setSelection(maxLength);
+                    cvv.setSelection(maxLength);  // Set the cursor position at the end of the input
                 }
             }
         });
     }
+
 }

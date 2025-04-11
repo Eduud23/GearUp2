@@ -27,11 +27,11 @@ import java.util.Map;
 public class CheckoutFormActivity extends AppCompatActivity {
 
     // Your UI components
-    private TextView productName, productBrand, productYear, productPrice, productQuantity, cardTypeTextView;
+    private TextView productName, productBrand, productYear, productPrice, productQuantity;
     private EditText shippingAddress, cardName, cardNumber, expiryDate, cvv, riderMessage, fullNameField, emailField, phoneNumberField, zipCodeField;
     private RadioGroup deliveryOption;
     private Button confirmPayment;
-    private ImageView productImage;
+    private ImageView productImage, cardTypeImageView;
     private double finalPrice;
 
     @Override
@@ -57,7 +57,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         cvv = findViewById(R.id.cvv);
         riderMessage = findViewById(R.id.rider_message);
         confirmPayment = findViewById(R.id.confirm_payment);
-        cardTypeTextView = findViewById(R.id.card_type);
+        cardTypeImageView = findViewById(R.id.card_type_image);
         deliveryOption = findViewById(R.id.delivery_option);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -101,13 +101,17 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String cardType = CardHelper.identifyCardType(s.toString());
-                cardTypeTextView.setText("Card Type: " + cardType);
+                // Get the card type image resource
+                int cardImageResId = CardHelper.identifyCardType(s.toString());
+
+                // Update the ImageView with the corresponding card image
+                cardTypeImageView.setImageResource(cardImageResId);
             }
 
             @Override
             public void afterTextChanged(Editable s) {}
         });
+
     }
 
     private void processPayment() {
@@ -134,8 +138,8 @@ public class CheckoutFormActivity extends AppCompatActivity {
         }
 
         // Identify card type
-        String cardType = CardHelper.identifyCardType(cardNum);
-        if (cardType.equals("Unknown")) {
+        int cardTypeImageResId = CardHelper.identifyCardType(cardNum); // Now returns an int (image resource ID)
+        if (cardTypeImageResId == R.drawable.unknown) { // If the card type is "Unknown", handle it accordingly
             Toast.makeText(this, "Invalid card number", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -174,7 +178,6 @@ public class CheckoutFormActivity extends AppCompatActivity {
         }
         orderDetails.put("status", "Pending");
 
-
         // Store customer info in a sub-map
         Map<String, Object> customerInfo = new HashMap<>();
         customerInfo.put("email", email);
@@ -190,9 +193,8 @@ public class CheckoutFormActivity extends AppCompatActivity {
         paymentDetails.put("cardNumber", cardNum);
         paymentDetails.put("expiryDate", expiry);
         paymentDetails.put("cvv", cvvCode);
-        paymentDetails.put("cardType", cardType);
+        paymentDetails.put("cardType", cardTypeImageResId); // Store the image resource ID, not the name
         orderDetails.put("payment", paymentDetails);
-
 
         // Save to Firestore
         db.collection("orders")
@@ -213,6 +215,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     showCustomDialog(false);
                 });
     }
+
 
     private void showCustomDialog(boolean isSuccess) {
         // Inflate the custom dialog layout
