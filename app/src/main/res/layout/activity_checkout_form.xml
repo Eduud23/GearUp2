@@ -170,32 +170,43 @@
                 <EditText
                     android:id="@+id/email"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
                     android:hint="Email" />
 
                 <EditText
                     android:id="@+id/fullName"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
                     android:hint="Full Name" />
 
                 <EditText
                     android:id="@+id/phone_number"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
                     android:inputType="phone"
                     android:hint="Phone Number" />
 
                 <EditText
                     android:id="@+id/shipping_address"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
                     android:hint="Shipping Address" />
 
                 <EditText
                     android:id="@+id/zip_code"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
                     android:hint="Zip Code" />
 
                 <EditText
                     android:id="@+id/rider_message"
                     style="@style/CustomInputField"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
                     android:hint="Message to Rider (Optional)" />
 
                 <TextView
@@ -220,11 +231,13 @@
                         android:id="@+id/card_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:inputType="text"
                         android:hint="Name on card" />
 
                     <EditText
                         android:id="@+id/card_number"
                         android:layout_width="match_parent"
+                        android:imeOptions="actionNext"
                         android:layout_height="wrap_content"
                         android:hint="Card Number"
                         android:inputType="number"
@@ -248,6 +261,7 @@
                             android:id="@+id/expiry_date"
                             android:layout_width="0dp"
                             android:layout_weight="1"
+                            android:imeOptions="actionNext"
                             android:layout_height="wrap_content"
                             android:hint="MM / YY"
                             android:inputType="number" />
@@ -258,6 +272,7 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:hint="CVC"
+                            android:imeOptions="actionNext"
                             android:inputType="number"
                             android:drawableEnd="@drawable/lock" />
                     </LinearLayout>

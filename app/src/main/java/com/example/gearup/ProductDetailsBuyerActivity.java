@@ -233,7 +233,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         // Ensure productCategory is not null and has valid value
         if (productCategory == null || productCategory.isEmpty()) {
             Log.e("FetchRelatedProducts", "Product category is missing or empty");
-            Toast.makeText(this, "No category found for the current product", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -249,7 +248,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                     if (queryDocumentSnapshots.isEmpty()) {
                         // If no related products found
                         Log.d("FetchRelatedProducts", "No related products found with the specified category.");
-                        Toast.makeText(this, "No related products found", Toast.LENGTH_SHORT).show();
                     } else {
                         List<Product> relatedProducts = new ArrayList<>();
                         for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
@@ -266,7 +264,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
                         if (relatedProducts.isEmpty()) {
                             Log.d("FetchRelatedProducts", "No related products found excluding the current product.");
-                            Toast.makeText(this, "No related products found", Toast.LENGTH_SHORT).show();
                         } else {
                             Log.d("FetchRelatedProducts", "Found " + relatedProducts.size() + " related products.");
                             setRelatedProducts(relatedProducts);  // Update RecyclerView with related products
@@ -275,7 +272,6 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FetchRelatedProducts", "Error fetching related products", e);  // Log the actual error for debugging
-                    Toast.makeText(this, "Error fetching related products", Toast.LENGTH_SHORT).show();
                 });
     }
 

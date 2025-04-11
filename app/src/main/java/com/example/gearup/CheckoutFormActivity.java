@@ -60,6 +60,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         cardTypeImageView = findViewById(R.id.card_type_image);
         deliveryOption = findViewById(R.id.delivery_option);
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
@@ -141,7 +142,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         int cardTypeImageResId = CardHelper.identifyCardType(cardNum); // Now returns an int (image resource ID)
         if (cardTypeImageResId == R.drawable.unknown) { // If the card type is "Unknown", handle it accordingly
             Toast.makeText(this, "Invalid card number", Toast.LENGTH_SHORT).show();
-            return;
+            return;  // Do not proceed with payment
         }
 
         // Get user and seller IDs
@@ -215,6 +216,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     showCustomDialog(false);
                 });
     }
+
 
 
     private void showCustomDialog(boolean isSuccess) {
