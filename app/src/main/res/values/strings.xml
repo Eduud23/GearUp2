@@ -28,4 +28,8 @@
     <string name="tab_order_products">Ordered Products</string>
     <string name="desc_add_to_cart">Navigate to the Add to Cart section</string>
     <string name="desc_ordered_products">Navigate to the Ordered Products section</string>
+
+    <string name="stripe_publishable_key">pk_test_51RCZenGOyh7ipFHaKnvndVXO4IaWEhGsBTB6zYhBJyiYXUQwDdnquOtsdpPgOjNbllqsflyipkgbV69CnzFojRz400VS4WD0Sd</string>
+    <string name="stripe_secret_key">sk_test_51RCZenGOyh7ipFHaXpUcrgWfFQo7LmTfxBEtwOsTZnr1oLfsBQmyhBJo6IpU3V9yHWRcuZWivBD8euwhohpJIPBC00ZOnmLlkd</string>
+
 </resources>

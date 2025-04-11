@@ -177,7 +177,7 @@ public class MeFragmentBuyer extends Fragment {
     }
     private void navigateToCartActivity() {
         // Navigate to CartActivity where the order history is displayed
-        Intent intent = new Intent(getActivity(), ServicesRecommendActivity.class);
+        Intent intent = new Intent(getActivity(), DeliveryInfoActivity.class);
         startActivity(intent);
     }
 
