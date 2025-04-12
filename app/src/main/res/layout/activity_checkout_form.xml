@@ -219,76 +219,13 @@
                     android:layout_marginTop="15dp" />
 
                 <!-- Payment Form -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@drawable/rounded_bg"
-                    android:padding="10dp"
-                    android:layout_marginTop="10dp">
-
-                    <EditText
-                        android:id="@+id/card_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:hint="Name on card" />
-
-                    <EditText
-                        android:id="@+id/card_number"
-                        android:layout_width="match_parent"
-                        android:imeOptions="actionNext"
-                        android:layout_height="wrap_content"
-                        android:hint="Card Number"
-                        android:inputType="number"
-                        android:maxLength="19"
-                        android:drawableEnd="@drawable/credit_card" />
-
-                    <ImageView
-                        android:id="@+id/card_type_image"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:src="@drawable/unknown" />  <!-- Set a default image in case of unknown card -->
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="5dp">
-
-                        <EditText
-                            android:id="@+id/expiry_date"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:imeOptions="actionNext"
-                            android:layout_height="wrap_content"
-                            android:hint="MM / YY"
-                            android:inputType="number" />
-
-                        <EditText
-                            android:id="@+id/cvv"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:hint="CVC"
-                            android:imeOptions="actionNext"
-                            android:inputType="number"
-                            android:drawableEnd="@drawable/lock" />
-                    </LinearLayout>
-                </LinearLayout>
 
                 <Button
-                    android:id="@+id/confirm_payment"
+                    android:id="@+id/btn_stripe_payment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Confirm Payment"
-                    android:textColor="@color/white"
-                    android:backgroundTint="@color/primary"
-                    android:layout_marginTop="15dp"
-                    android:padding="10dp"
-                    android:textSize="18sp"
-                    android:layout_gravity="center" />
+                    android:text="Pay with Stripe" />
+
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

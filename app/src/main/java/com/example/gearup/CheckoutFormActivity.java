@@ -2,13 +2,12 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,57 +15,59 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.stripe.android.PaymentConfiguration;
+import com.stripe.android.paymentsheet.PaymentSheet;
+import com.stripe.android.paymentsheet.PaymentSheetResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class CheckoutFormActivity extends AppCompatActivity {
 
-    // Your UI components
     private TextView productName, productBrand, productYear, productPrice, productQuantity;
-    private EditText shippingAddress, cardName, cardNumber, expiryDate, cvv, riderMessage, fullNameField, emailField, phoneNumberField, zipCodeField;
-    private RadioGroup deliveryOption;
-    private Button confirmPayment;
-    private ImageView productImage, cardTypeImageView;
+    private ImageView productImage;
+    private Button btnStripePayment;
+
     private double finalPrice;
+
+    // Stripe
+    private PaymentSheet paymentSheet;
+    private String clientSecret;
+
+    private final String secretKey = "sk_test_51PF3ByC6MmcIFikTxmE9dhgo5ZLxCWlNgqBaBMwZUKCCeRd0pkgKBQZOBO9UymYma2sNPpNIKlU2befDh0JeISU700OoXXptWX";
+    private final String publishableKey = "pk_test_51PF3ByC6MmcIFikTjKhzCftwVaWmffD2iAqfquBroHxyujRLOG6QJ07t0tljO8FzDYbsNZld6sSjbTSTFUfT8J1c00D2b0tfvg";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout_form);
 
-        // Initialize your UI components (same as before)
+        // Initialize views
         productName = findViewById(R.id.product_name);
         productBrand = findViewById(R.id.product_brand);
         productYear = findViewById(R.id.product_year);
         productPrice = findViewById(R.id.product_price);
         productQuantity = findViewById(R.id.product_quantity);
         productImage = findViewById(R.id.product_image);
-        shippingAddress = findViewById(R.id.shipping_address);
-        fullNameField = findViewById(R.id.fullName);
-        cardName = findViewById(R.id.card_name);
-        cardNumber = findViewById(R.id.card_number);
-        phoneNumberField = findViewById(R.id.phone_number);
-        zipCodeField = findViewById(R.id.zip_code);
-        emailField = findViewById(R.id.email);
-        expiryDate = findViewById(R.id.expiry_date);
-        cvv = findViewById(R.id.cvv);
-        riderMessage = findViewById(R.id.rider_message);
-        confirmPayment = findViewById(R.id.confirm_payment);
-        cardTypeImageView = findViewById(R.id.card_type_image);
-        deliveryOption = findViewById(R.id.delivery_option);
-
+        btnStripePayment = findViewById(R.id.btn_stripe_payment);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-
-        // Retrieve product data from the intent and set the UI
+        // Retrieve the product details from the intent
         Intent intent = getIntent();
         if (intent != null) {
             productName.setText(intent.getStringExtra("PRODUCT_NAME"));
@@ -74,185 +75,162 @@ public class CheckoutFormActivity extends AppCompatActivity {
             productYear.setText(intent.getStringExtra("PRODUCT_YEAR_MODEL"));
             double price = intent.getDoubleExtra("PRODUCT_PRICE", 0.0);
             int quantity = intent.getIntExtra("PRODUCT_QUANTITY", 1);
-
-            // Multiply price by quantity
             finalPrice = price * quantity;
             productPrice.setText("₱" + price);
             productQuantity.setText("Quantity: " + quantity);
-
             String imageUrl = intent.getStringExtra("PRODUCT_IMAGE");
             if (imageUrl != null) {
                 Glide.with(this).load(imageUrl).into(productImage);
             }
         }
 
-        // Update the confirm payment button text to show the final price
-        confirmPayment.setText("Confirm Payment ( ₱" + finalPrice + ")");
-        confirmPayment.setOnClickListener(v -> processPayment());
+        // Initialize Stripe payment configuration
+        PaymentConfiguration.init(this, publishableKey);
+        paymentSheet = new PaymentSheet(this, this::onPaymentResult);
 
-        // Use the CardHelper class for formatting
-        CardHelper.setupCardNumberFormatting(cardNumber);
-        CardHelper.setupExpiryDateFormatting(expiryDate);
-        CardHelper.setupCvvFormatting(cvv, cardNumber);
+        // Set up the Stripe payment button
+        btnStripePayment.setText("Pay with Stripe (₱" + finalPrice + ")");
+        btnStripePayment.setOnClickListener(v -> createPaymentIntent(finalPrice)); // Trigger Stripe payment when clicked
+    }
 
-        // Add listener to detect card type dynamically
-        cardNumber.addTextChangedListener(new TextWatcher() {
+    // Create a PaymentIntent to get client secret from your backend
+    private void createPaymentIntent(double amount) {
+        StringRequest request = new StringRequest(Request.Method.POST, "https://api.stripe.com/v1/payment_intents",
+                response -> {
+                    try {
+                        JSONObject object = new JSONObject(response);
+                        clientSecret = object.getString("client_secret");
+                        presentPaymentSheet();
+                    } catch (JSONException e) {
+                        Log.e("StripeError", "Error creating payment intent: " + e.getMessage());
+                    }
+                }, error -> {
+            Toast.makeText(this, "Payment Intent creation failed", Toast.LENGTH_SHORT).show();
+        }) {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Get the card type image resource
-                int cardImageResId = CardHelper.identifyCardType(s.toString());
-
-                // Update the ImageView with the corresponding card image
-                cardTypeImageView.setImageResource(cardImageResId);
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + secretKey);
+                return headers;
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
-        });
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("amount", String.valueOf((int) (amount * 100))); // in cents
+                params.put("currency", "usd");
+                return params;
+            }
+        };
 
+        RequestQueue queue = Volley.newRequestQueue(this);
+        queue.add(request);
     }
 
-    private void processPayment() {
-        String address = shippingAddress.getText().toString().trim();
-        String nameOnCard = cardName.getText().toString().trim();
-        String cardNum = cardNumber.getText().toString().trim();
-        String expiry = expiryDate.getText().toString().trim();
-        String cvvCode = cvv.getText().toString().trim();
-        String message = riderMessage.getText().toString().trim();
-        String email = emailField.getText().toString().trim();
-        String fullName = fullNameField.getText().toString().trim();
-        String phoneNumber = phoneNumberField.getText().toString().trim();
-        String zipCode = zipCodeField.getText().toString().trim();
+    // Show the Stripe Payment Sheet using the client secret
+    private void presentPaymentSheet() {
+        paymentSheet.presentWithPaymentIntent(clientSecret,
+                new PaymentSheet.Configuration("GearUp Rentals"));
+    }
 
-        int selectedOption = deliveryOption.getCheckedRadioButtonId();
-        String deliveryType = selectedOption == R.id.radio_delivery ? "Delivery" : "Pickup";
-
-        // Validate input fields
-        if (cardNum.isEmpty() || expiry.isEmpty() || cvvCode.isEmpty() || nameOnCard.isEmpty() ||
-                email.isEmpty() || fullName.isEmpty() || phoneNumber.isEmpty() || zipCode.isEmpty() ||
-                (selectedOption == R.id.radio_delivery && address.isEmpty())) {
-            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
-            return;
+    // Handle the result of the payment
+    private void onPaymentResult(PaymentSheetResult paymentSheetResult) {
+        if (paymentSheetResult instanceof PaymentSheetResult.Completed) {
+            Toast.makeText(this, "Payment successful", Toast.LENGTH_SHORT).show();
+            saveOrderToFirestore();
+        } else {
+            Toast.makeText(this, "Payment cancelled or failed", Toast.LENGTH_SHORT).show();
         }
+    }
 
-        // Identify card type
-        int cardTypeImageResId = CardHelper.identifyCardType(cardNum); // Now returns an int (image resource ID)
-        if (cardTypeImageResId == R.drawable.unknown) { // If the card type is "Unknown", handle it accordingly
-            Toast.makeText(this, "Invalid card number", Toast.LENGTH_SHORT).show();
-            return;  // Do not proceed with payment
-        }
-
-        // Get user and seller IDs
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
+    // Save the order details to Firebase Firestore
+    private void saveOrderToFirestore() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
             Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
             return;
         }
-        String userId = currentUser.getUid();
-        String sellerId = getIntent().getStringExtra("SELLER_ID");
 
-        // Get the image URL from the intent
-        String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
-
-        // Firestore instance
+        String userId = user.getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Create the main order map
+        // Retrieve user inputs
+        String email = ((EditText) findViewById(R.id.email)).getText().toString();
+        String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString();
+        String phoneNumber = ((EditText) findViewById(R.id.phone_number)).getText().toString();
+        String shippingAddress = ((EditText) findViewById(R.id.shipping_address)).getText().toString();
+        String zipCode = ((EditText) findViewById(R.id.zip_code)).getText().toString();
+        String riderMessage = ((EditText) findViewById(R.id.rider_message)).getText().toString();
+        String deliveryOption = ((RadioButton) findViewById(R.id.radio_delivery)).isChecked() ? "Delivery" : "Pickup";
+
+        // Create the product structure with userId and imageUrl inside it
         Map<String, Object> product = new HashMap<>();
-        product.put("userId", userId);
-        product.put("sellerId", sellerId);
         product.put("productName", productName.getText().toString());
-        product.put("quantity", Integer.parseInt(productQuantity.getText().toString().replace("Quantity: ", "")));
-        product.put("totalPrice", finalPrice);
-        product.put("deliveryType", deliveryType);
-        product.put("imageUrl", imageUrl);
-
-        Map<String, Object> orderDetails = new HashMap<>();
-        orderDetails.put("product", product);
-        orderDetails.put("deliveryType", deliveryType);
-
-        if (deliveryType.equals("Delivery")) {
-            orderDetails.put("shippingAddress", address);
+        product.put("productBrand", productBrand.getText().toString());
+        product.put("productYear", productYear.getText().toString());
+        product.put("productQuantity", productQuantity.getText().toString());
+        product.put("productPrice", finalPrice);
+        product.put("paymentMethod", "Stripe");
+        product.put("userId", userId); // Move userId inside product
+        String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
+        if (imageUrl != null) {
+            product.put("imageUrl", imageUrl); // Move imageUrl inside product
         }
+
+        // Create the customer info structure
+        Map<String, Object> customerInfo = new HashMap<String, Object>() {{
+            put("email", email);
+            put("fullName", fullName);
+            put("phoneNumber", phoneNumber);
+            put("zipCode", zipCode);
+            put("riderMessage", riderMessage);
+        }};
+
+        // Create the order structure
+        Map<String, Object> orderDetails = new HashMap<>();
         orderDetails.put("status", "Pending");
-
-        // Store customer info in a sub-map
-        Map<String, Object> customerInfo = new HashMap<>();
-        customerInfo.put("email", email);
-        customerInfo.put("fullName", fullName);
-        customerInfo.put("phoneNumber", phoneNumber);
-        customerInfo.put("zipCode", zipCode);
-        customerInfo.put("riderMessage", message);
+        orderDetails.put("shippingAddress", shippingAddress);
+        orderDetails.put("deliveryType", deliveryOption);
         orderDetails.put("customerInfo", customerInfo);
+        orderDetails.put("product", product); // Add the product map
 
-        // Store payment details in a sub-map
-        Map<String, Object> paymentDetails = new HashMap<>();
-        paymentDetails.put("cardName", nameOnCard);
-        paymentDetails.put("cardNumber", cardNum);
-        paymentDetails.put("expiryDate", expiry);
-        paymentDetails.put("cvv", cvvCode);
-        paymentDetails.put("cardType", cardTypeImageResId); // Store the image resource ID, not the name
-        orderDetails.put("payment", paymentDetails);
-
-        // Save to Firestore
+        // Save the order to Firestore
         db.collection("orders")
                 .add(orderDetails)
-                .addOnSuccessListener(documentReference -> {
-                    // Log the purchase interaction
-                    UserInteractionLogger.logPurchaseInteraction(
-                            userId,
-                            getIntent().getStringExtra("PRODUCT_ID"),
-                            getIntent().getStringExtra("PRODUCT_NAME"),
-                            sellerId,
-                            finalPrice
-                    );
-
-                    showCustomDialog(true);
-                })
-                .addOnFailureListener(e -> {
-                    showCustomDialog(false);
-                });
+                .addOnSuccessListener(docRef -> showCustomDialog(true))
+                .addOnFailureListener(e -> showCustomDialog(false));
     }
 
 
-
+    // Show a custom dialog for the payment result
     private void showCustomDialog(boolean isSuccess) {
-        // Inflate the custom dialog layout
         View dialogView = getLayoutInflater().inflate(R.layout.custom_dialog, null);
-
         TextView title = dialogView.findViewById(R.id.dialogTitle);
         TextView message = dialogView.findViewById(R.id.dialogMessage);
         Button okButton = dialogView.findViewById(R.id.dialogButton);
         ImageView icon = dialogView.findViewById(R.id.dialogIcon);
 
-        // Customize based on success or failure
         if (isSuccess) {
             title.setText("Payment Successful");
             message.setText("Your order has been confirmed.");
-            icon.setImageResource(R.drawable.success);
+            icon.setImageResource(R.drawable.success);  // Assuming you have a success icon
         } else {
             title.setText("Payment Failed");
             message.setText("Something went wrong. Please try again.");
-            icon.setImageResource(R.drawable.error);
+            icon.setImageResource(R.drawable.error);    // Assuming you have an error icon
         }
 
-        // Build the AlertDialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         dialog.show();
 
-        // Handle the button click
         okButton.setOnClickListener(v -> {
             dialog.dismiss();
             if (isSuccess) {
-                finish();  // Close the activity after successful payment
+                finish();
             }
         });
     }
-
 }
