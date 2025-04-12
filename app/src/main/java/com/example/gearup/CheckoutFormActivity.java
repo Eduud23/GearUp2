@@ -147,6 +147,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
     }
 
     // Save the order details to Firebase Firestore
+    // Save the order details to Firebase Firestore
     private void saveOrderToFirestore() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -171,6 +172,9 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String quantityStr = parts.length > 1 ? parts[1].trim() : "1"; // Take the numeric part and trim any extra spaces
         int quantity = Integer.parseInt(quantityStr);
 
+        // Retrieve the sellerId (assumed to be passed with product or from another source)
+        String sellerId = getIntent().getStringExtra("SELLER_ID"); // Get sellerId from intent, if passed
+
         // Create the product structure with userId and imageUrl inside it
         Map<String, Object> product = new HashMap<>();
         product.put("productName", productName.getText().toString());
@@ -181,6 +185,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         product.put("paymentMethod", "Stripe");
         product.put("paymentIntentId", paymentIntentId);
         product.put("userId", userId); // Move userId inside product
+        product.put("sellerId", sellerId); // Add sellerId to the product map
         String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
         if (imageUrl != null) {
             product.put("imageUrl", imageUrl); // Move imageUrl inside product
@@ -209,6 +214,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                 .addOnSuccessListener(docRef -> showCustomDialog(true))
                 .addOnFailureListener(e -> showCustomDialog(false));
     }
+
 
 
     // Show a custom dialog for the payment result

@@ -42,7 +42,9 @@ public class OrderedProductsFragment extends Fragment {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
         orderedItems = new ArrayList<>();
-        purchasedAdapter = new PurchasedAdapter(orderedItems);
+
+        // Pass both Context and the list of orderedItems to the adapter constructor
+        purchasedAdapter = new PurchasedAdapter(getContext(), orderedItems); // This line is now fixed
         recyclerViewOrdered.setAdapter(purchasedAdapter);
 
         // Get the current user's ID
@@ -112,10 +114,11 @@ public class OrderedProductsFragment extends Fragment {
                             // Retrieve other fields
                             String deliveryOption = (String) doc.get("deliveryType");
                             String orderStatus = (String) doc.get("status");
+                            String sellerId = (String) doc.get("product.sellerId");
 
                             // Create an OrderItem object and add it to the list
                             OrderItem orderItem = new OrderItem(orderId, productName, productQuantity, productPrice,
-                                    customerName, shippingAddress, deliveryOption, orderStatus, imageUrl);
+                                    customerName, shippingAddress, deliveryOption, orderStatus, deliveryOption, imageUrl,sellerId);
 
                             // Add the order item to the list
                             orderedItems.add(orderItem);

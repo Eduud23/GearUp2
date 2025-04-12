@@ -1,5 +1,7 @@
 package com.example.gearup;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +17,19 @@ import java.util.List;
 
 public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.ViewHolder> {
     private final List<OrderItem> purchasedItems;
+    private final Context context;
 
-    public PurchasedAdapter(List<OrderItem> purchasedItems) {
+    // Pass context and the list of purchased items to the constructor
+    public PurchasedAdapter(Context context, List<OrderItem> purchasedItems) {
+        this.context = context;
         this.purchasedItems = purchasedItems;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the updated layout for each item
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_purchased, parent, false);
+        // Inflate the layout for each item in the RecyclerView
+        View view = LayoutInflater.from(context).inflate(R.layout.item_purchased, parent, false);
         return new ViewHolder(view);
     }
 
@@ -44,6 +49,22 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
 
         // Set the order status
         holder.tvOrderStatus.setText("Status: " + orderItem.getOrderStatus());
+
+        // Set the item click listener to navigate to the OrderDetailsActivity
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, OrderDetailsActivity.class);
+            intent.putExtra("orderId", orderItem.getOrderId());
+            intent.putExtra("productName", orderItem.getProductName());
+            intent.putExtra("productQuantity", orderItem.getQuantity());
+            intent.putExtra("productPrice", orderItem.getTotalPrice());
+            intent.putExtra("customerName", orderItem.getCustomerName());
+            intent.putExtra("shippingAddress", orderItem.getShippingAddress());
+            intent.putExtra("deliveryOption", orderItem.getDeliveryOption());
+            intent.putExtra("orderStatus", orderItem.getOrderStatus());
+            intent.putExtra("imageUrl", orderItem.getImageUrl());
+            intent.putExtra("sellerId", orderItem.getSellerId());
+            context.startActivity(intent);  // Start OrderDetailsActivity with the passed data
+        });
     }
 
     @Override
