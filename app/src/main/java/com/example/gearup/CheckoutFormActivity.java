@@ -121,7 +121,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 params.put("amount", String.valueOf((int) (amount * 100))); // in cents
-                params.put("currency", "usd");
+                params.put("currency", "php");
                 return params;
             }
         };

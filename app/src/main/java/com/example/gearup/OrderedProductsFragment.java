@@ -115,10 +115,11 @@ public class OrderedProductsFragment extends Fragment {
                             String deliveryOption = (String) doc.get("deliveryType");
                             String orderStatus = (String) doc.get("status");
                             String sellerId = (String) doc.get("product.sellerId");
+                            String paymentIntentId = (String) doc.get("product.paymentIntentId");
 
                             // Create an OrderItem object and add it to the list
                             OrderItem orderItem = new OrderItem(orderId, productName, productQuantity, productPrice,
-                                    customerName, shippingAddress, deliveryOption, orderStatus, deliveryOption, imageUrl,sellerId);
+                                    customerName, shippingAddress, deliveryOption, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId);
 
                             // Add the order item to the list
                             orderedItems.add(orderItem);

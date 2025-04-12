@@ -15,16 +15,17 @@ public class OrderItem implements Parcelable {
     private String deliveryOption;  // New field for delivery option
     private String imageUrl;
     private String sellerId; // Added sellerId field
+    private String paymentIntentId; // Added paymentIntentId field
 
     // No-argument constructor for Firestore deserialization
     public OrderItem() {
         // Default constructor
     }
 
-    // Constructor to initialize all fields, including sellerId
+    // Constructor to initialize all fields, including paymentIntentId and sellerId
     public OrderItem(String orderId, String productName, Long quantity, double totalPrice,
                      String customerName, String shippingAddress, String paymentMethod, String orderStatus,
-                     String deliveryOption, String imageUrl, String sellerId) {
+                     String deliveryOption, String imageUrl, String sellerId, String paymentIntentId) {
         this.orderId = orderId;
         this.productName = productName;
         this.quantity = quantity;
@@ -36,6 +37,7 @@ public class OrderItem implements Parcelable {
         this.deliveryOption = deliveryOption;  // Initialize delivery option
         this.imageUrl = imageUrl;
         this.sellerId = sellerId;  // Initialize sellerId
+        this.paymentIntentId = paymentIntentId;  // Initialize paymentIntentId
     }
 
     // Getters and setters for each field
@@ -50,6 +52,7 @@ public class OrderItem implements Parcelable {
     public String getDeliveryOption() { return deliveryOption; }  // Getter for delivery option
     public String getImageUrl() { return imageUrl; }
     public String getSellerId() { return sellerId; }  // Getter for sellerId
+    public String getPaymentIntentId() { return paymentIntentId; } // Getter for paymentIntentId
 
     // Setters
     public void setOrderId(String orderId) { this.orderId = orderId; }
@@ -63,6 +66,7 @@ public class OrderItem implements Parcelable {
     public void setDeliveryOption(String deliveryOption) { this.deliveryOption = deliveryOption; }  // Setter for delivery option
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public void setSellerId(String sellerId) { this.sellerId = sellerId; }  // Setter for sellerId
+    public void setPaymentIntentId(String paymentIntentId) { this.paymentIntentId = paymentIntentId; }  // Setter for paymentIntentId
 
     // Parcelable methods
 
@@ -84,6 +88,7 @@ public class OrderItem implements Parcelable {
         dest.writeString(deliveryOption);
         dest.writeString(imageUrl);
         dest.writeString(sellerId); // Write sellerId to the Parcel
+        dest.writeString(paymentIntentId); // Write paymentIntentId to the Parcel
     }
 
     // Creator field to recreate objects from a Parcel
@@ -101,7 +106,8 @@ public class OrderItem implements Parcelable {
                     in.readString(), // orderStatus
                     in.readString(), // deliveryOption
                     in.readString(), // imageUrl
-                    in.readString()  // sellerId
+                    in.readString(), // sellerId
+                    in.readString()  // paymentIntentId
             );
         }
 

@@ -89,10 +89,11 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         String imageUrl = document.getString("product.imageUrl");
                         String deliveryOption = document.getString("deliveryType");
                         String sellerId = document.getString("sellerId");
+                        String paymentIntentId = document.getString("paymentIntentId");
 
                         // Create an OrderItem with the image URL
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
-                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId);
+                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId);
                         orderList.add(orderItem);
                     }
                     adapter.notifyDataSetChanged();
@@ -162,7 +163,8 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     newStatus,
                     orderItem.getDeliveryOption(),
                     orderItem.getImageUrl(),
-                    orderItem.getSellerId()// Keep the image URL unchanged
+                    orderItem.getSellerId(),
+                    orderItem.getPaymentIntentId()// Keep the image URL unchanged
             );
 
             // Update the order in the list

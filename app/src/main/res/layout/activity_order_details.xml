@@ -3,63 +3,124 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#F5F5F5">
 
+    <!-- Product Image -->
     <ImageView
         android:id="@+id/iv_product_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/product_image_desc"/>
 
+    <!-- Product Name -->
     <TextView
         android:id="@+id/tv_product_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Product Name"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:paddingTop="16dp"/>
+        android:textColor="#212121"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:layout_marginBottom="12dp"/>
 
+    <!-- Product Quantity -->
     <TextView
         android:id="@+id/tv_product_quantity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Quantity: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
 
+    <!-- Product Price -->
     <TextView
         android:id="@+id/tv_product_price"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Price: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
 
+    <!-- Shop Name -->
     <TextView
         android:id="@+id/tv_shop_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Shop: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
 
+    <!-- Shipping Address -->
     <TextView
         android:id="@+id/tv_shipping_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Shipping Address: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
 
+    <!-- Delivery Option -->
     <TextView
         android:id="@+id/tv_delivery_option"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Delivery Option: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
 
+    <!-- Order Status -->
     <TextView
         android:id="@+id/tv_order_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Order Status: "
+        android:textSize="16sp"
+        android:textColor="#757575"
         android:paddingTop="8dp"/>
+
+    <!-- Payment Status -->
+    <TextView
+        android:id="@+id/tv_payment_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Status: "
+        android:textSize="16sp"
+        android:textColor="#757575"
+        android:paddingTop="8dp"/>
+
+    <TextView
+        android:id="@+id/tv_payment_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Details will appear here"
+        android:textSize="16sp"
+        android:textColor="#424242"
+        android:layout_marginTop="16dp"/>
+    <TextView
+        android:id="@+id/tv_payment_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Payment Details"
+        android:textSize="12sp"
+        android:textColor="#212121"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/card_background"
+        android:padding="8dp"
+        android:autoLink="web"
+        android:linksClickable="true"/>
+
+
 
 </LinearLayout>
