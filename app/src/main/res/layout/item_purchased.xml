@@ -2,73 +2,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@drawable/item_background"
+    android:layout_marginBottom="12dp"
+    android:elevation="4dp">
 
-    <!-- Product Image -->
+    <!-- Product Image on the Left -->
     <ImageView
         android:id="@+id/iv_product_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:layout_gravity="center"
-        android:src="@drawable/gear" />
+        android:src="@drawable/gear"
+        android:contentDescription="Product Image"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/rounded_bg"/>
 
-    <!-- Product Name -->
-    <TextView
-        android:id="@+id/tv_product_name"
-        android:layout_width="wrap_content"
+    <!-- Product Info on the Right -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Product Name"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:layout_weight="1">
 
-    <!-- Product Quantity -->
-    <TextView
-        android:id="@+id/tv_product_quantity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Quantity: 1"
-        android:textSize="14sp" />
+        <!-- Product Name with Stylish Font -->
+        <TextView
+            android:id="@+id/tv_product_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Product Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="4dp"
+            android:maxLines="1"
+            android:ellipsize="end"/>
 
-    <!-- Product Price -->
-    <TextView
-        android:id="@+id/tv_product_price"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="₱0.00"
-        android:textSize="14sp" />
+        <!-- Product Quantity -->
+        <TextView
+            android:id="@+id/tv_product_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity: 1"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:layout_marginBottom="4dp"/>
 
-    <!-- Order Status -->
-    <TextView
-        android:id="@+id/tv_order_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status: Pending"
-        android:textSize="14sp"
-        android:textColor="@android:color/holo_green_dark" />
+        <!-- Product Price with Accent Color -->
+        <TextView
+            android:id="@+id/tv_product_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₱0.00"
+            android:textSize="16sp"
+            android:textColor="#FF5722"
+            android:layout_marginBottom="4dp"/>
 
-    <!-- Customer Name -->
-    <TextView
-        android:id="@+id/tv_customer_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Customer: John Doe"
-        android:textSize="14sp" />
+        <!-- Order Status with Dynamic Color -->
+        <TextView
+            android:id="@+id/tv_order_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: Pending"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_green_dark"/>
 
-    <!-- Shipping Address -->
-    <TextView
-        android:id="@+id/tv_shipping_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Address: 123 Main St, City"
-        android:textSize="14sp" />
-
-    <!-- Payment Method -->
-    <TextView
-        android:id="@+id/tv_payment_method"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Payment: Credit Card"
-        android:textSize="14sp" />
-
+    </LinearLayout>
 </LinearLayout>

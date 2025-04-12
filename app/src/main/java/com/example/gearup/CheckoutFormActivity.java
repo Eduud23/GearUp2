@@ -45,6 +45,8 @@ public class CheckoutFormActivity extends AppCompatActivity {
     // Stripe
     private PaymentSheet paymentSheet;
     private String clientSecret;
+    private String paymentIntentId;
+
 
     private final String secretKey = "sk_test_51PF3ByC6MmcIFikTxmE9dhgo5ZLxCWlNgqBaBMwZUKCCeRd0pkgKBQZOBO9UymYma2sNPpNIKlU2befDh0JeISU700OoXXptWX";
     private final String publishableKey = "pk_test_51PF3ByC6MmcIFikTjKhzCftwVaWmffD2iAqfquBroHxyujRLOG6QJ07t0tljO8FzDYbsNZld6sSjbTSTFUfT8J1c00D2b0tfvg";
@@ -100,6 +102,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     try {
                         JSONObject object = new JSONObject(response);
                         clientSecret = object.getString("client_secret");
+                        paymentIntentId = object.getString("id");
                         presentPaymentSheet();
                     } catch (JSONException e) {
                         Log.e("StripeError", "Error creating payment intent: " + e.getMessage());
@@ -163,14 +166,20 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String riderMessage = ((EditText) findViewById(R.id.rider_message)).getText().toString();
         String deliveryOption = ((RadioButton) findViewById(R.id.radio_delivery)).isChecked() ? "Delivery" : "Pickup";
 
+        String quantityText = productQuantity.getText().toString();
+        String[] parts = quantityText.split(":"); // Split the string based on ":"
+        String quantityStr = parts.length > 1 ? parts[1].trim() : "1"; // Take the numeric part and trim any extra spaces
+        int quantity = Integer.parseInt(quantityStr);
+
         // Create the product structure with userId and imageUrl inside it
         Map<String, Object> product = new HashMap<>();
         product.put("productName", productName.getText().toString());
         product.put("productBrand", productBrand.getText().toString());
         product.put("productYear", productYear.getText().toString());
-        product.put("productQuantity", productQuantity.getText().toString());
+        product.put("productQuantity", quantity);
         product.put("productPrice", finalPrice);
         product.put("paymentMethod", "Stripe");
+        product.put("paymentIntentId", paymentIntentId);
         product.put("userId", userId); // Move userId inside product
         String imageUrl = getIntent().getStringExtra("PRODUCT_IMAGE");
         if (imageUrl != null) {

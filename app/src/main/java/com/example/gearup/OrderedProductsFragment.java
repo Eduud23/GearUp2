@@ -22,6 +22,7 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OrderedProductsFragment extends Fragment {
     private RecyclerView recyclerViewOrdered;
@@ -57,7 +58,7 @@ public class OrderedProductsFragment extends Fragment {
     // Fetch ordered items for the logged-in user
     private void fetchOrderedItems() {
         orderedListenerRegistration = db.collection("orders")
-                .whereEqualTo("userId", currentUserId) // Filter orders by current user's ID
+                .whereEqualTo("product.userId", currentUserId) // Filter orders by current user's ID
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -68,23 +69,60 @@ public class OrderedProductsFragment extends Fragment {
                         // Clear the existing list of orders and update with new ones
                         orderedItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
-                            // Manually retrieve the fields if necessary (to avoid issues with nested fields)
+                            // Manually retrieve the fields, handling nested fields
                             String orderId = doc.getId();
-                            String productName = doc.getString("productName");
-                            Long quantity = doc.getLong("quantity");
-                            double totalPrice = doc.getDouble("totalPrice");
-                            String customerName = doc.getString("customerInfo.fullName");
-                            String shippingAddress = doc.getString("shippingAddress");
-                            String paymentMethod = doc.getString("payment.cardType");
-                            String orderStatus = doc.getString("status");
-                            String imageUrl = doc.getString("imageUrl");
 
-                            // Create an OrderItem and add it to the list
-                            OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
-                                    customerName, shippingAddress, paymentMethod, orderStatus, imageUrl);
+                            // Retrieve the 'product' map and its fields
+                            Map<String, Object> productMap = (Map<String, Object>) doc.get("product");
+                            String productName = (String) productMap.get("productName");
+                            String productBrand = (String) productMap.get("productBrand");
+                            String productYear = (String) productMap.get("productYear");
+
+                            // Safely retrieve and cast productQuantity
+                            Object productQuantityObj = productMap.get("productQuantity");
+                            Long productQuantity = null;
+
+                            if (productQuantityObj instanceof Long) {
+                                productQuantity = (Long) productQuantityObj;
+                            } else if (productQuantityObj instanceof String) {
+                                try {
+                                    productQuantity = Long.parseLong((String) productQuantityObj); // Parse the string into a Long
+                                } catch (NumberFormatException e) {
+                                    // Handle invalid format here (log or set a default value)
+                                    productQuantity = 0L;  // Default value in case of parsing failure
+                                }
+                            } else {
+                                // Handle the case where the quantity is neither a Long nor a String (invalid data)
+                                productQuantity = 0L; // Default value
+                            }
+
+                            // Safely retrieve and check if productPrice is null
+                            Double productPrice = (Double) productMap.get("productPrice");
+                            if (productPrice == null) {
+                                productPrice = 0.0; // Default to 0.0 if productPrice is null
+                            }
+
+                            String imageUrl = (String) productMap.get("imageUrl");
+
+                            // Retrieve the 'customerInfo' map and its fields
+                            Map<String, Object> customerInfo = (Map<String, Object>) doc.get("customerInfo");
+                            String customerName = (String) customerInfo.get("fullName");
+                            String shippingAddress = (String) doc.get("shippingAddress");
+
+                            // Retrieve other fields
+                            String deliveryOption = (String) doc.get("deliveryType");
+                            String orderStatus = (String) doc.get("status");
+
+                            // Create an OrderItem object and add it to the list
+                            OrderItem orderItem = new OrderItem(orderId, productName, productQuantity, productPrice,
+                                    customerName, shippingAddress, deliveryOption, orderStatus, imageUrl);
+
+                            // Add the order item to the list
                             orderedItems.add(orderItem);
                         }
-                        purchasedAdapter.notifyDataSetChanged(); // Notify the adapter that the data set has changed
+
+                        // Notify the adapter that the data set has changed
+                        purchasedAdapter.notifyDataSetChanged();
                     }
                 });
     }

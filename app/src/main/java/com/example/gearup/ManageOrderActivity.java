@@ -77,13 +77,14 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     orderList.clear();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        // Retrieve order details from Firestore
                         String orderId = document.getId();
-                        String productName = document.getString("prouduct.productName");
-                        Long quantity = document.getLong("product.quantity");
-                        double totalPrice = document.getDouble("product.totalPrice");
+                        String productName = document.getString("product.productName");
+                        Long quantity = document.getLong("product.productQuantity");
+                        double totalPrice = document.getDouble("product.productPrice");
                         String customerName = document.getString("customerInfo.fullName");
                         String shippingAddress = document.getString("shippingAddress");
-                        String paymentMethod = document.getString("payment.cardType");
+                        String paymentMethod = document.getString("product.paymentMethod");
                         String orderStatus = document.getString("status");
                         String imageUrl = document.getString("product.imageUrl");
 
@@ -113,7 +114,6 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
 
         adapter.notifyDataSetChanged();
     }
-
 
     @Override
     public void onStatusUpdate(OrderItem orderItem) {
@@ -172,20 +172,10 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     .update("status", newStatus)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Order status updated to " + newStatus, Toast.LENGTH_SHORT).show();
-
-                        // After status update, refresh the RecyclerView by re-fetching orders if needed
-                        refreshRecyclerView();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                     });
         }
     }
-
-    private void refreshRecyclerView() {
-        // Re-fetch the orders to ensure we have the latest data
-        fetchOrdersFromFirestore();
-    }
-
-
 }
