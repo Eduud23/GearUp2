@@ -38,10 +38,8 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
         holder.productName.setText(order.getProductName());
         holder.quantity.setText("Quantity: " + order.getQuantity());
         holder.totalPrice.setText("₱" + order.getTotalPrice());
-        holder.customerName.setText("Customer: " + order.getCustomerName());
-        holder.shippingAddress.setText("Address: " + order.getShippingAddress());
-        holder.paymentMethod.setText("Payment: " + order.getPaymentMethod());
-        holder.orderStatus.setText("Status: " + order.getOrderStatus());
+
+        holder.deliveryType.setText("Delivery Type: " + order.getDeliveryOption());
 
         // Load the product image using Glide
         Glide.with(holder.productImageView.getContext())
@@ -61,7 +59,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
     }
 
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, quantity, totalPrice, customerName, shippingAddress, paymentMethod, orderStatus;
+        TextView productName, quantity, totalPrice, customerName, shippingAddress, paymentMethod, orderStatus, deliveryType;
         Button updateStatusButton;
         ImageView productImageView;  // ImageView for displaying the product image
 
@@ -70,10 +68,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
             productName = itemView.findViewById(R.id.product_name);
             quantity = itemView.findViewById(R.id.product_quantity);
             totalPrice = itemView.findViewById(R.id.product_price);
-            customerName = itemView.findViewById(R.id.customer_name);
-            shippingAddress = itemView.findViewById(R.id.customer_address);
-            paymentMethod = itemView.findViewById(R.id.payment_method);
-            orderStatus = itemView.findViewById(R.id.order_status);
+            deliveryType = itemView.findViewById(R.id.delivery_type);
             updateStatusButton = itemView.findViewById(R.id.update_status_button);
             productImageView = itemView.findViewById(R.id.product_image);  // Initialize ImageView
         }
