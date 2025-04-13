@@ -112,7 +112,7 @@ public class PaymentActivity extends AppCompatActivity {
 
     private void presentPaymentSheet() {
         paymentSheet.presentWithPaymentIntent(clientSecret,
-                new PaymentSheet.Configuration("GearUp Rentals"));
+                new PaymentSheet.Configuration("GearUp"));
     }
 
     private void onPaymentResult(PaymentSheetResult paymentSheetResult) {

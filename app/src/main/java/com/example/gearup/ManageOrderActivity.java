@@ -80,20 +80,26 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         // Retrieve order details from Firestore
                         String orderId = document.getId();
                         String productName = document.getString("product.productName");
-                        Long quantity = document.getLong("product.productQuantity");
-                        double totalPrice = document.getDouble("product.productPrice");
+                        Long quantityObj = document.getLong("product.productQuantity");
+                        long quantity = quantityObj != null ? quantityObj : 0;
+
+                        Double totalPriceObj = document.getDouble("product.totalPrice");
+                        double totalPrice = totalPriceObj != null ? totalPriceObj : 0.0;
+
                         String customerName = document.getString("customerInfo.fullName");
                         String shippingAddress = document.getString("shippingAddress");
                         String paymentMethod = document.getString("product.paymentMethod");
                         String orderStatus = document.getString("status");
                         String imageUrl = document.getString("product.imageUrl");
                         String deliveryOption = document.getString("deliveryType");
-                        String sellerId = document.getString("sellerId");
-                        String paymentIntentId = document.getString("paymentIntentId");
+                        String sellerId = document.getString("product.sellerId");
+                        String paymentIntentId = document.getString("product.paymentIntentId");
+                        String productId = document.getString("product.productId");
+
 
                         // Create an OrderItem with the image URL
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
-                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId);
+                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId, productId);
                         orderList.add(orderItem);
                     }
                     adapter.notifyDataSetChanged();
@@ -141,17 +147,18 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
     }
 
     private void updateOrderStatus(OrderItem orderItem, String newStatus) {
-        // Find the position of the orderItem in the list
-        int position = -1;
+        int foundPosition = -1;
         for (int i = 0; i < orderList.size(); i++) {
             if (orderList.get(i).getOrderId().equals(orderItem.getOrderId())) {
-                position = i;
+                foundPosition = i;
                 break;
             }
         }
 
-        if (position != -1) {
-            // Create a new OrderItem with the updated status
+        if (foundPosition != -1) {
+            final int position = foundPosition; // ✅ Make it final or effectively final
+
+            // Continue with the update
             OrderItem updatedOrderItem = new OrderItem(
                     orderItem.getOrderId(),
                     orderItem.getProductName(),
@@ -164,24 +171,64 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderItem.getDeliveryOption(),
                     orderItem.getImageUrl(),
                     orderItem.getSellerId(),
-                    orderItem.getPaymentIntentId()// Keep the image URL unchanged
+                    orderItem.getPaymentIntentId(),
+                    orderItem.getProductId()
             );
 
-            // Update the order in the list
+            // Update local list
             orderList.set(position, updatedOrderItem);
-            adapter.notifyItemChanged(position); // Notify the adapter to refresh the item
+            adapter.notifyItemChanged(position);
 
-            // Update the status in Firestore
+            // Update Firestore
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("orders")
                     .document(orderItem.getOrderId())
                     .update("status", newStatus)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Order status updated to " + newStatus, Toast.LENGTH_SHORT).show();
+
+                        // ✅ Subtract quantity when shipped or delivered
+                        if (newStatus.equals("Shipping") || newStatus.equals("Delivered")) {
+                            subtractProductQuantity(orderItem.getProductId(), orderItem.getQuantity());
+                        }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                     });
+
         }
+
     }
+    private void subtractProductQuantity(String productId, long orderedQuantity) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collectionGroup("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        if (doc.getId().equals(productId)) {
+                            Long currentQuantity = doc.getLong("quantity");
+
+                            if (currentQuantity != null) {
+                                long newQuantity = currentQuantity - orderedQuantity;
+                                if (newQuantity < 0) newQuantity = 0;
+
+                                doc.getReference().update("quantity", newQuantity)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(this, "Product quantity updated", Toast.LENGTH_SHORT).show();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Failed to update product quantity", Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                            break; // Exit loop after finding the product
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to fetch product data", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
 }

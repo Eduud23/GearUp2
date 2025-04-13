@@ -133,7 +133,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
     // Show the Stripe Payment Sheet using the client secret
     private void presentPaymentSheet() {
         paymentSheet.presentWithPaymentIntent(clientSecret,
-                new PaymentSheet.Configuration("GearUp Rentals"));
+                new PaymentSheet.Configuration("GearUp"));
     }
 
     // Handle the result of the payment
@@ -170,11 +170,13 @@ public class CheckoutFormActivity extends AppCompatActivity {
         String quantityStr = parts.length > 1 ? parts[1].trim() : "1"; // Take the numeric part and trim any extra spaces
         int quantity = Integer.parseInt(quantityStr);
 
+        String productId = getIntent().getStringExtra("PRODUCT_ID");
         // Retrieve the sellerId (assumed to be passed with product or from another source)
         String sellerId = getIntent().getStringExtra("SELLER_ID"); // Get sellerId from intent, if passed
 
         // Create the product structure with userId and imageUrl inside it
         Map<String, Object> product = new HashMap<>();
+        product.put("productId", productId);
         product.put("productName", productName.getText().toString());
         product.put("productBrand", productBrand.getText().toString());
         product.put("productYear", productYear.getText().toString());
