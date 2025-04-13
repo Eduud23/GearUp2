@@ -1,126 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#F5F5F5">
+    android:fitsSystemWindows="true"
+    android:background="@android:color/background_light">
 
-    <!-- Product Image -->
-    <ImageView
-        android:id="@+id/iv_product_image"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/product_image_desc"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/holo_blue_light"
+        app:title="Order Product Details"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_white"
+        android:elevation="4dp" />
 
-    <!-- Product Name -->
-    <TextView
-        android:id="@+id/tv_product_name"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Product Name"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="#212121"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
-        android:layout_marginBottom="12dp"/>
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
-    <!-- Product Quantity -->
-    <TextView
-        android:id="@+id/tv_product_quantity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Quantity: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:orientation="vertical">
 
-    <!-- Product Price -->
-    <TextView
-        android:id="@+id/tv_product_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Price: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+            <!-- Product Image -->
+            <ImageView
+                android:id="@+id/iv_product_image"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="@string/product_image_desc" />
 
-    <!-- Shop Name -->
-    <TextView
-        android:id="@+id/tv_shop_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Shop: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+            <!-- CardView for Product Details -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                cardview:cardCornerRadius="8dp"
+                cardview:cardElevation="4dp"
+                android:backgroundTint="#FFFFFF">
 
-    <!-- Shipping Address -->
-    <TextView
-        android:id="@+id/tv_shipping_address"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Shipping Address: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-    <!-- Delivery Option -->
-    <TextView
-        android:id="@+id/tv_delivery_option"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Delivery Option: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+                    <!-- Product Name -->
+                    <TextView
+                        android:id="@+id/tv_product_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Product Name"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="#212121"
+                        android:paddingBottom="8dp" />
 
-    <!-- Order Status -->
-    <TextView
-        android:id="@+id/tv_order_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Order Status: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+                    <!-- Product Quantity -->
+                    <TextView
+                        android:id="@+id/tv_product_quantity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Quantity: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
 
-    <!-- Payment Status -->
-    <TextView
-        android:id="@+id/tv_payment_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Payment Status: "
-        android:textSize="16sp"
-        android:textColor="#757575"
-        android:paddingTop="8dp"/>
+                    <!-- Product Price -->
+                    <TextView
+                        android:id="@+id/tv_product_price"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Price: "
+                        android:textSize="16sp"
+                        android:textColor="#f51c29"
+                        android:paddingTop="8dp" />
 
-    <TextView
-        android:id="@+id/tv_payment_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Payment Details will appear here"
-        android:textSize="16sp"
-        android:textColor="#424242"
-        android:layout_marginTop="16dp"/>
-    <TextView
-        android:id="@+id/tv_payment_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Payment Details"
-        android:textSize="12sp"
-        android:textColor="#212121"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/card_background"
-        android:padding="8dp"
-        android:autoLink="web"
-        android:linksClickable="true"/>
+                    <!-- Shop Name -->
+                    <TextView
+                        android:id="@+id/tv_shop_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Shop: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
+
+                    <!-- Shipping Address -->
+                    <TextView
+                        android:id="@+id/tv_shipping_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Shipping Address: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
+
+                    <!-- Delivery Option -->
+                    <TextView
+                        android:id="@+id/tv_delivery_option"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Delivery Option: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
+
+                    <!-- Order Status -->
+                    <TextView
+                        android:id="@+id/tv_order_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Order Status: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
+
+                    <!-- Payment Status -->
+                    <TextView
+                        android:id="@+id/tv_payment_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Status: "
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:paddingTop="8dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- CardView for Payment Info -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                cardview:cardCornerRadius="8dp"
+                cardview:cardElevation="4dp"
+                android:backgroundTint="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:orientation="vertical">
+
+                    <!-- Payment Info -->
+                    <TextView
+                        android:id="@+id/tv_payment_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Details will appear here"
+                        android:textSize="16sp"
+                        android:textColor="#424242" />
+
+                    <!-- Label and URL (in one line) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="16dp">
+
+                        <!-- Receipt URL Label -->
+                        <TextView
+                            android:id="@+id/tv_receipt_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Receipt Url:"
+                            android:textSize="14sp"
+                            android:textColor="#757575"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- Receipt URL Link -->
+                        <TextView
+                            android:id="@+id/tv_payment_details"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Payment Details"
+                            android:textSize="14sp"
+                            android:textColor="#212121"
+                            android:autoLink="web"
+                            android:linksClickable="true" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
 
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

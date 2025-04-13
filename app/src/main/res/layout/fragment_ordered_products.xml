@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:background="@drawable/add_tocart_border"
     android:clipToPadding="false">
 
     <!-- Header Section with Title -->
@@ -35,6 +36,6 @@
         android:paddingBottom="16dp"
         android:overScrollMode="never"
         android:scrollbars="vertical"
-        android:background="@drawable/add_tocart_border"/>
+       />
 
 </LinearLayout>

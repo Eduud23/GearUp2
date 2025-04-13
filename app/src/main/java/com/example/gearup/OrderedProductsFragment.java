@@ -99,7 +99,7 @@ public class OrderedProductsFragment extends Fragment {
                             }
 
                             // Safely retrieve and check if productPrice is null
-                            Double productPrice = (Double) productMap.get("productPrice");
+                            Double productPrice = (Double) productMap.get("totalPrice");
                             if (productPrice == null) {
                                 productPrice = 0.0; // Default to 0.0 if productPrice is null
                             }

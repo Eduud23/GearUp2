@@ -7,6 +7,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -57,10 +58,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
         TextView tvPaymentDetails = findViewById(R.id.tv_payment_details); // TextView to show all payment details
         ImageView ivProductImage = findViewById(R.id.iv_product_image);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
         // Set the data to the UI elements
-        tvProductName.setText(productName);
+        tvProductName.setText("Product Name: " + productName);
         tvProductQuantity.setText("Quantity: " + productQuantity);
-        tvProductPrice.setText(String.format("₱%.2f", productPrice));
+        tvProductPrice.setText(String.format("Total Price: ₱%.2f", productPrice));
         tvShippingAddress.setText("Shipping Address: " + shippingAddress);
         tvDeliveryOption.setText("Delivery Option: " + deliveryOption);
         tvOrderStatus.setText("Order Status: " + orderStatus);
@@ -82,18 +87,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
     }
 
     private void fetchPaymentSummary(String paymentIntentId, TextView tvPaymentStatus, TextView tvPaymentDetails) {
-        // Define the URL to send the GET request
         String urlString = "https://payment-summary-git-master-eduud23s-projects.vercel.app/payment-summary?payment_intent_id=" + paymentIntentId;
 
-        // Perform the network request on a background thread
         new Thread(() -> {
             try {
-                // Set up the connection
                 URL url = new URL(urlString);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
 
-                // Read the response
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder response = new StringBuilder();
                 String line;
@@ -102,40 +103,24 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 }
                 reader.close();
 
-                // Parse the response JSON
                 JSONObject jsonResponse = new JSONObject(response.toString());
-                String status = jsonResponse.optString("status", "Unknown");
-                double amount = jsonResponse.optDouble("amount", 0.0);
-                String currency = jsonResponse.optString("currency", "USD");
-                String cardBrand = jsonResponse.optString("card_brand", "Unknown");
-                String cardLast4 = jsonResponse.optString("card_last4", "****");
-                int expMonth = jsonResponse.optInt("card_exp_month", 0);
-                int expYear = jsonResponse.optInt("card_exp_year", 0);
-                String paymentMethodId = jsonResponse.optString("payment_method_id", "Unknown");
                 String receiptUrl = jsonResponse.optString("receipt_url", "Not Available");
 
-                // Update the UI with the payment details
                 runOnUiThread(() -> {
-                    tvPaymentStatus.setText("Payment Status: " + status);
-                    String paymentDetails = "Amount: " + amount + " " + currency + "\n" +
-                            "Card: " + cardBrand + " " + cardLast4 + "\n" +
-                            "Expiration: " + expMonth + "/" + expYear + "\n" +
-                            "Payment Method ID: " + paymentMethodId + "\n" +
-                            "Receipt: " + receiptUrl;
-                    tvPaymentDetails.setText(paymentDetails);
-
-                    // Optionally, show a Toast with summarized payment info
-                    Toast.makeText(OrderDetailsActivity.this, "Payment Summary Loaded", Toast.LENGTH_SHORT).show();
+                    tvPaymentStatus.setText("Payment Status: Success");
+                    tvPaymentDetails.setText(receiptUrl);
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     tvPaymentStatus.setText("Payment Status: Error fetching data");
+                    tvPaymentDetails.setText("No receipt available");
                 });
             }
         }).start();
     }
+
 
     private void fetchShopName(String sellerId, TextView tvShopName) {
         // Ensure the sellerId is not null or empty

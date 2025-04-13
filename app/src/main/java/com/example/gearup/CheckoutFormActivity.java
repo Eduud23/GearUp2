@@ -146,8 +146,6 @@ public class CheckoutFormActivity extends AppCompatActivity {
         }
     }
 
-    // Save the order details to Firebase Firestore
-    // Save the order details to Firebase Firestore
     private void saveOrderToFirestore() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
@@ -181,7 +179,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
         product.put("productBrand", productBrand.getText().toString());
         product.put("productYear", productYear.getText().toString());
         product.put("productQuantity", quantity);
-        product.put("productPrice", finalPrice);
+        product.put("totalPrice", finalPrice);
         product.put("paymentMethod", "Stripe");
         product.put("paymentIntentId", paymentIntentId);
         product.put("userId", userId); // Move userId inside product
