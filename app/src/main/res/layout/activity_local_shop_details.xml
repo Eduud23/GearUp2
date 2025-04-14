@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:rowCount="5"
+                android:rowCount="6"
                 android:layout_marginBottom="16dp"
                 android:alignmentMode="alignMargins">
 
@@ -108,28 +108,70 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp" />
+
+                <!-- Distance TextView -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Distance: "
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/wallet_holo_blue_light"
+                    android:textSize="16sp" />
             </GridLayout>
 
-            <Button
-                android:id="@+id/callButton"
+            <!-- Horizontal LinearLayout for buttons -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Call"
-                android:layout_marginTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
 
-            <Button
-                android:id="@+id/websiteButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Visit Website"
-                android:layout_marginTop="4dp" />
+                <ImageButton
+                    android:id="@+id/callButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/call"
+                    android:layout_marginEnd="50dp" />
 
-            <Button
-                android:id="@+id/navigateButton"
+                <ImageButton
+                    android:id="@+id/websiteButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/web"
+                    android:layout_marginEnd="50dp" />
+
+                <ImageButton
+                    android:id="@+id/navigateButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/navigation" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/similarProductsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Navigate"
-                android:layout_marginTop="4dp" />
+                android:text="Similar Shops"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp" />
+
+            <!-- Horizontal RecyclerView for similar shops -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/similarShopsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:scrollbars="horizontal"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
