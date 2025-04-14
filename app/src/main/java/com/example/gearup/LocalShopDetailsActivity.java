@@ -44,7 +44,7 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private FusedLocationProviderClient fusedLocationClient;
-    private double currentLatitude, currentLongitude;
+    private double currentLatitude = 0.0, currentLongitude = 0.0;
 
     private static final int LOCATION_REQUEST_CODE = 100;
 
@@ -125,8 +125,12 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
             place.setText(location);
             ratings.setText("Ratings: " + rating);
 
-            double calculatedDistance = calculateDistance(currentLatitude, currentLongitude, latitude, longitude);
-            distanceTextView.setText(String.format("Distance: %.2f km", calculatedDistance));
+            // Ensure we get current location before calculating distance
+            if (currentLatitude != 0.0 && currentLongitude != 0.0) {
+                calculateAndDisplayDistance(latitude, longitude);
+            } else {
+                distanceTextView.setText("Location unavailable. Please wait...");
+            }
 
             Glide.with(this)
                     .load(imageUrl)
@@ -181,16 +185,31 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                         currentLongitude = location.getLongitude();
                         Log.d(TAG, "Current location: " + currentLatitude + ", " + currentLongitude);
 
-                        // Load similar shops with distance now that we have the location
-                        String kindOfRepair = getIntent().getStringExtra("kindOfRepair");
-                        loadSimilarShops(kindOfRepair);
+                        // Calculate and display the distance after getting the current location
+                        Intent intent = getIntent();
+                        if (intent != null) {
+                            double latitude = intent.getDoubleExtra("latitude", 0.0);
+                            double longitude = intent.getDoubleExtra("longitude", 0.0);
+                            calculateAndDisplayDistance(latitude, longitude);
+                        }
                     } else {
                         Log.e(TAG, "Failed to get current location");
+                        distanceTextView.setText("Unable to fetch location.");
                     }
                 });
     }
 
-    // Calculate the distance between two points (Haversine formula)
+    // Calculate and display the distance
+    private void calculateAndDisplayDistance(double shopLatitude, double shopLongitude) {
+        if (currentLatitude != 0.0 && currentLongitude != 0.0) {
+            double calculatedDistance = calculateDistance(currentLatitude, currentLongitude, shopLatitude, shopLongitude);
+            distanceTextView.setText(String.format("%.2f km", calculatedDistance));
+        } else {
+            distanceTextView.setText("Location unavailable.");
+        }
+    }
+
+    // Haversine formula to calculate distance between two points
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // Radius of the earth in km
         double latDistance = Math.toRadians(lat2 - lat1);
@@ -216,14 +235,23 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
 
         if (db != null) {
             db.collection("auto_parts_shops")
-                    .whereEqualTo("kind_of_service", kindOfRepair)  // You can adjust this to fit your criteria
-                    .limit(5)  // Limit to 5 similar shops
+                    .whereEqualTo("kind_of_service", kindOfRepair)  // Adjust the criteria if needed
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
-                            similarShopsList.clear();  // Clear previous data
+                            similarShopsList.clear();  // Clear previous similar shops before adding new ones
+
+                            // Get the current shop's name (you can use the shopName or a unique ID if preferred)
+                            String currentShopName = getIntent().getStringExtra("shopName");
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String shopName = document.getString("shop_name");
+
+                                // Skip the current shop from being displayed in similar shops
+                                if (shopName != null && shopName.equals(currentShopName)) {
+                                    continue;  // Skip this iteration if the shop name matches the current shop
+                                }
+
                                 String image = document.getString("image");
                                 String kind = document.getString("kind_of_service");
                                 String time = document.getString("time_schedule");
@@ -266,4 +294,6 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                     });
         }
     }
+
+
 }

@@ -195,7 +195,6 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
         intent.putExtra("latitude", shop.getLatitude());
         intent.putExtra("longitude", shop.getLongitude());
         intent.putExtra("distance", shop.getDistance());
-
         requireContext().startActivity(intent);
     }
 }
