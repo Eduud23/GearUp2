@@ -8,13 +8,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
-
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
-
-import java.util.Objects;
 
 public class LocalShopDetailsActivity extends AppCompatActivity {
 
@@ -40,7 +36,6 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
-
 
         // Get data from intent
         Intent intent = getIntent();
@@ -68,18 +63,31 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                     .error(R.drawable.gear)
                     .into(shopImage);
 
-            // Call button action
-            callButton.setOnClickListener(v -> {
-                Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                callIntent.setData(Uri.parse("tel:" + contactNumber));
-                startActivity(callIntent);
-            });
+            // Set visibility of call button based on the contact number
+            if (contactNumber == null || contactNumber.isEmpty()) {
+                callButton.setVisibility(View.GONE);
+            } else {
+                callButton.setVisibility(View.VISIBLE);
+                callButton.setOnClickListener(v -> {
+                    Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                    callIntent.setData(Uri.parse("tel:" + contactNumber));
+                    startActivity(callIntent);
+                });
+            }
 
-            // Website button action
-            websiteButton.setOnClickListener(v -> {
-                Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
-                startActivity(webIntent);
-            });
+            // Set visibility of website button based on the website URL
+            if (website == null || website.isEmpty() || website.equalsIgnoreCase("none")) {
+                websiteButton.setVisibility(View.GONE);
+            } else {
+                websiteButton.setVisibility(View.VISIBLE);
+                websiteButton.setOnClickListener(v -> {
+                    // Check if website URL is not empty or null before attempting to launch it
+                    if (website != null && !website.isEmpty()) {
+                        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
+                        startActivity(webIntent);
+                    }
+                });
+            }
 
             // Navigation button action
             navigateButton.setOnClickListener(v -> {

@@ -35,9 +35,10 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
     public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         OrderItem order = orderList.get(position);
 
-        holder.productName.setText(order.getProductName());
+        holder.productName.setText("Product Name: " + order.getProductName());
         holder.quantity.setText("Quantity: " + order.getQuantity());
         holder.totalPrice.setText("₱" + order.getTotalPrice());
+        holder.orderStatus.setText("Status: "+ order.getOrderStatus());
 
         holder.deliveryType.setText("Delivery Type: " + order.getDeliveryOption());
 
@@ -69,6 +70,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
             quantity = itemView.findViewById(R.id.product_quantity);
             totalPrice = itemView.findViewById(R.id.product_price);
             deliveryType = itemView.findViewById(R.id.delivery_type);
+            orderStatus = itemView.findViewById(R.id.order_status);
             updateStatusButton = itemView.findViewById(R.id.update_status_button);
             productImageView = itemView.findViewById(R.id.product_image);  // Initialize ImageView
         }

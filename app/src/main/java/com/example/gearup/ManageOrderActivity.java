@@ -1,11 +1,11 @@
 package com.example.gearup;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -26,7 +26,9 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
     private ManageOrderAdapter adapter;
     private List<OrderItem> orderList;
     private List<OrderItem> filteredOrderList;
-    private Spinner spinnerOrderStatus;
+    private ImageButton imageButtonOrderStatus;  // Changed to ImageButton
+    private EditText searchView;  // Search field
+    private String selectedStatus = "Pending";  // Default status for filtering
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,29 +47,44 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        // Spinner for Order Status
-        spinnerOrderStatus = findViewById(R.id.spinner_order_status);
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(this,
-                R.array.order_status_array, android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerOrderStatus.setAdapter(spinnerAdapter);
+        imageButtonOrderStatus = findViewById(R.id.imageButton_order_status);
+        searchView = findViewById(R.id.search_view); // Initialize search view
 
-        // Set a listener on the Spinner
-        spinnerOrderStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        // Set OnClickListener for ImageButton (Order Status)
+        imageButtonOrderStatus.setOnClickListener(v -> showOrderStatusDialog());
+
+        // Set listener for the search field
+        searchView.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedStatus = parentView.getItemAtPosition(position).toString();
-                filterOrdersByStatus(selectedStatus);
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                // Get the search query and filter the orders
+                String searchQuery = charSequence.toString().trim();
+                filterOrdersByStatusAndSearch(selectedStatus, searchQuery);
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // Do nothing or you can reset the list if needed
-            }
+            public void afterTextChanged(Editable editable) {}
         });
 
         // Fetch orders from Firestore
         fetchOrdersFromFirestore();
+    }
+
+    private void showOrderStatusDialog() {
+        final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Delivered"};
+
+        new AlertDialog.Builder(this)
+                .setTitle("Select Order Status")
+                .setItems(statuses, (dialog, which) -> {
+                    selectedStatus = statuses[which];
+                    // Filter orders by selected status and current search query
+                    filterOrdersByStatusAndSearch(selectedStatus, searchView.getText().toString());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void fetchOrdersFromFirestore() {
@@ -77,7 +94,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     orderList.clear();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        // Retrieve order details from Firestore
+                        // Retrieve order details
                         String orderId = document.getId();
                         String productName = document.getString("product.productName");
                         Long quantityObj = document.getLong("product.productQuantity");
@@ -96,27 +113,26 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         String paymentIntentId = document.getString("product.paymentIntentId");
                         String productId = document.getString("product.productId");
 
-
-                        // Create an OrderItem with the image URL
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
                                 customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId, productId);
                         orderList.add(orderItem);
                     }
-                    adapter.notifyDataSetChanged();
-
-                    // Optionally, filter by default status (e.g., "Pending")
-                    filterOrdersByStatus("Pending");
+                    // Apply filter by default status
+                    filterOrdersByStatusAndSearch(selectedStatus, "");
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to load orders", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void filterOrdersByStatus(String status) {
+    private void filterOrdersByStatusAndSearch(String status, String searchQuery) {
         filteredOrderList.clear();
 
         for (OrderItem orderItem : orderList) {
-            if (orderItem.getOrderStatus().equalsIgnoreCase(status) || status.equals("Default")) {
+            boolean matchesStatus = orderItem.getOrderStatus().equalsIgnoreCase(status) || status.equals("Default");
+            boolean matchesSearch = orderItem.getProductName().toLowerCase().contains(searchQuery.toLowerCase());
+
+            if (matchesStatus && matchesSearch) {
                 filteredOrderList.add(orderItem);
             }
         }
@@ -126,21 +142,13 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
 
     @Override
     public void onStatusUpdate(OrderItem orderItem) {
-        // Create an array of possible status options
         final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Delivered"};
 
-        // Create an AlertDialog to choose a new status
         new AlertDialog.Builder(this)
                 .setTitle("Select Order Status")
-                .setItems(statuses, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Get the selected status from the list
-                        String newStatus = statuses[which];
-
-                        // Update the order status and refresh the RecyclerView
-                        updateOrderStatus(orderItem, newStatus);
-                    }
+                .setItems(statuses, (dialog, which) -> {
+                    String newStatus = statuses[which];
+                    updateOrderStatus(orderItem, newStatus);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -156,9 +164,8 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
         }
 
         if (foundPosition != -1) {
-            final int position = foundPosition; // ✅ Make it final or effectively final
+            final int position = foundPosition;
 
-            // Continue with the update
             OrderItem updatedOrderItem = new OrderItem(
                     orderItem.getOrderId(),
                     orderItem.getProductName(),
@@ -175,7 +182,6 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderItem.getProductId()
             );
 
-            // Update local list
             orderList.set(position, updatedOrderItem);
             adapter.notifyItemChanged(position);
 
@@ -187,7 +193,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Order status updated to " + newStatus, Toast.LENGTH_SHORT).show();
 
-                        // ✅ Subtract quantity when shipped or delivered
+                        // Subtract quantity when shipped or delivered
                         if (newStatus.equals("Shipping") || newStatus.equals("Delivered")) {
                             subtractProductQuantity(orderItem.getProductId(), orderItem.getQuantity());
                         }
@@ -195,10 +201,9 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                     });
-
         }
-
     }
+
     private void subtractProductQuantity(String productId, long orderedQuantity) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -229,6 +234,4 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     Toast.makeText(this, "Failed to fetch product data", Toast.LENGTH_SHORT).show();
                 });
     }
-
-
 }
