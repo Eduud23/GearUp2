@@ -121,10 +121,23 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
             return;
         }
 
-        Intent intent = new Intent(getActivity(), CheckoutListFormActivity.class);
+        // Calculate the total amount
+        double totalAmount = 0;
+        for (CartItem cartItem : cartItems) {
+            totalAmount += cartItem.getTotalPrice();
+        }
+
+        // Format the total amount
+        String formattedTotalAmount = formatPrice(totalAmount);
+
+        // Pass the cart items and total amount to the PaymentActivity
+        Intent intent = new Intent(getActivity(), PaymentActivity.class);
         intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(cartItems)); // Pass cart items
+        intent.putExtra("totalAmount", formattedTotalAmount); // Pass totalAmount
+
         startActivity(intent);
     }
+
 
     private void updateTotal() {
         double total = 0;

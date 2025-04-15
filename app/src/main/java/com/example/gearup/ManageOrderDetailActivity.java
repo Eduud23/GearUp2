@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -9,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.json.JSONObject;
 
@@ -21,6 +25,11 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
 
     private TextView productName, quantity, totalPrice, orderStatus, deliveryOption, tvPaymentStatus, tvPaymentDetails;
     private ImageView productImageView;
+    private TextView customerEmail, customerFullName, customerPhoneNumber, customerRiderMessage, customerZipCode;
+    private FirebaseFirestore db;
+
+    // Customer info layout
+    private View customerInfoLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +45,19 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
         productImageView = findViewById(R.id.product_image);
         tvPaymentStatus = findViewById(R.id.payment_status);
         tvPaymentDetails = findViewById(R.id.payment_details);
+
+        // Customer info views
+        customerEmail = findViewById(R.id.customer_email);
+        customerFullName = findViewById(R.id.customer_full_name);
+        customerPhoneNumber = findViewById(R.id.customer_phone_number);
+        customerRiderMessage = findViewById(R.id.customer_rider_message);
+        customerZipCode = findViewById(R.id.customer_zip_code);
+
+        // Customer info layout
+        customerInfoLayout = findViewById(R.id.customer_info_layout);
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -72,6 +94,14 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
             tvPaymentStatus.setText("Payment Status: Not Available");
             tvPaymentDetails.setText("Receipt not available.");
         }
+
+        // If the delivery option is "Delivery", fetch the customer info and make it visible
+        if ("Delivery".equalsIgnoreCase(deliveryOptionValue)) {
+            customerInfoLayout.setVisibility(View.VISIBLE);  // Show customer info layout
+            fetchCustomerInfo(orderId);
+        } else {
+            customerInfoLayout.setVisibility(View.GONE);  // Hide customer info layout
+        }
     }
 
     private void fetchPaymentSummary(String paymentIntentId) {
@@ -98,7 +128,7 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
                 // Update UI on the main thread
                 runOnUiThread(() -> {
                     tvPaymentStatus.setText("Payment Status: Success");
-                    tvPaymentDetails.setText("Receipt URL: " + receiptUrl);
+                    tvPaymentDetails.setText(receiptUrl);
                 });
 
             } catch (Exception e) {
@@ -109,5 +139,35 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void fetchCustomerInfo(String orderId) {
+        // Firestore reference to the order document using the orderId
+        DocumentReference orderRef = db.collection("orders").document(orderId);
+
+        orderRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    // Extract customer info from Firestore
+                    String email = document.getString("customerInfo.email");
+                    String fullName = document.getString("customerInfo.fullName");
+                    String phoneNumber = document.getString("customerInfo.phoneNumber");
+                    String riderMessage = document.getString("customerInfo.riderMessage");
+                    String zipCode = document.getString("customerInfo.zipCode");
+
+                    // Update UI with customer info
+                    customerEmail.setText("Email: " + email);
+                    customerFullName.setText("Full Name: " + fullName);
+                    customerPhoneNumber.setText("Phone Number: " + phoneNumber);
+                    customerRiderMessage.setText("Rider Message: " + riderMessage);
+                    customerZipCode.setText("Zip Code: " + zipCode);
+                } else {
+                    customerEmail.setText("Customer Info not available.");
+                }
+            } else {
+                customerEmail.setText("Error fetching customer info");
+            }
+        });
     }
 }

@@ -3,15 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cardview="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@android:color/background_light">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/holo_blue_light"
-        app:title="Order Details"
+        app:title="Order Product Details"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_back_white"
         android:elevation="4dp" />
@@ -21,81 +23,244 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Inner LinearLayout for vertical arrangement of views -->
+        <!-- Wrapper LinearLayout to hold multiple views -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Product Image -->
-            <ImageView
-                android:id="@+id/product_image"
+            <!-- CardView for displaying order details -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_gravity="center" />
-
-            <!-- Product Name -->
-            <TextView
-                android:id="@+id/product_name"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Product Name"
-                android:textSize="18sp"
-                android:layout_marginTop="16dp" />
+                android:layout_marginBottom="16dp"
+                cardview:cardCornerRadius="8dp"
+                cardview:cardElevation="4dp"
+                android:backgroundTint="#FFFFFF">
 
-            <!-- Quantity -->
-            <TextView
-                android:id="@+id/quantity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quantity"
-                android:textSize="16sp" />
+                <!-- Inner LinearLayout for vertical arrangement of views -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <!-- Total Price -->
-            <TextView
-                android:id="@+id/total_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total Price"
-                android:textSize="16sp" />
+                    <!-- Product Image -->
+                    <ImageView
+                        android:id="@+id/product_image"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:layout_marginBottom="16dp"
+                        android:contentDescription="@string/product_image_desc" />
 
-            <!-- Order Status -->
-            <TextView
-                android:id="@+id/order_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Order Status"
-                android:textSize="16sp" />
+                    <!-- Product Name -->
+                    <TextView
+                        android:id="@+id/product_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Product Name"
+                        android:textSize="18sp"
+                        android:layout_marginTop="16dp"
+                        android:textStyle="bold"
+                        android:textColor="#212121" />
 
-            <!-- Delivery Option -->
-            <TextView
-                android:id="@+id/delivery_option"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delivery Option"
-                android:textSize="16sp" />
+                    <!-- Quantity -->
+                    <TextView
+                        android:id="@+id/quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quantity"
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:layout_marginTop="8dp" />
 
-            <!-- Payment Status -->
-            <TextView
-                android:id="@+id/payment_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Payment Status"
-                android:textSize="16sp"
-                android:layout_marginTop="20dp" />
+                    <!-- Total Price -->
+                    <TextView
+                        android:id="@+id/total_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total Price"
+                        android:textSize="16sp"
+                        android:textColor="#f51c29"
+                        android:layout_marginTop="8dp" />
 
-            <!-- Payment Details (Receipt URL or error message) -->
-            <TextView
-                android:id="@+id/payment_details"
-                android:layout_width="wrap_content"
+                    <!-- Order Status -->
+                    <TextView
+                        android:id="@+id/order_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Order Status"
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Delivery Option -->
+                    <TextView
+                        android:id="@+id/delivery_option"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delivery Option"
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:layout_marginTop="8dp" />
+
+                    <!-- Payment Status (Added here) -->
+                    <TextView
+                        android:id="@+id/payment_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Status"
+                        android:textSize="16sp"
+                        android:textColor="#757575"
+                        android:layout_marginTop="20dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- CardView for Customer Information -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/customer_info_card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Payment Details"
-                android:textSize="16sp"
-                android:autoLink="web"
-                android:linksClickable="true" />
+                android:layout_marginBottom="16dp"
+                cardview:cardCornerRadius="8dp"
+                cardview:cardElevation="4dp"
+                android:backgroundTint="#FFFFFF">
+
+                <!-- Inner LinearLayout for customer info -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:id="@+id/customer_info_layout">
+
+                    <TextView
+                        android:id="@+id/cutomerLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Customer Info"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#212121" />
+
+                    <TextView
+                        android:id="@+id/customer_email"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Email: "
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:layout_marginTop="10dp" />
+
+                    <TextView
+                        android:id="@+id/customer_full_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Full Name: "
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/customer_phone_number"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phone Number: "
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/customer_rider_message"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rider Message: "
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/customer_zip_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Zip Code: "
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:layout_marginTop="8dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- CardView for Payment Details -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                cardview:cardCornerRadius="8dp"
+                cardview:cardElevation="4dp"
+                android:backgroundTint="#FFFFFF">
+
+                <!-- Inner LinearLayout for payment info -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical">
+
+                    <!-- Payment Info Text -->
+                    <TextView
+                        android:id="@+id/tv_payment_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Payment Details"
+                        android:textSize="18sp"
+                        android:textColor="#424242"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Horizontal Layout for Receipt URL -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="8dp">
+
+                        <!-- Receipt URL Label -->
+                        <TextView
+                            android:id="@+id/tv_receipt_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Receipt Url:"
+                            android:textSize="14sp"
+                            android:textColor="#757575"
+                            android:layout_marginEnd="8dp" />
+
+                        <!-- Payment Details Link -->
+                        <TextView
+                            android:id="@+id/payment_details"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Payment Details"
+                            android:textSize="14sp"
+                            android:textColor="#212121"
+                            android:autoLink="web"
+                            android:linksClickable="true" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
 
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

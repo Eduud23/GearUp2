@@ -8,6 +8,9 @@ import android.widget.*;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -24,6 +27,7 @@ import com.stripe.android.paymentsheet.PaymentSheetResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,15 +63,30 @@ public class PaymentActivity extends AppCompatActivity {
         deliveryOption = findViewById(R.id.delivery_option);
         btnStripePayment = findViewById(R.id.btn_stripe_payment);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        RecyclerView recyclerViewCheckout = findViewById(R.id.recyclerView_checkout);
+        recyclerViewCheckout.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
 
         cartItems = getIntent().getParcelableArrayListExtra("cartItems");
         String totalAmount = getIntent().getStringExtra("totalAmount");
 
         if (totalAmount != null) {
-            totalAmount = totalAmount.replaceAll("[^\\d.]", "");
+            totalAmount = totalAmount.replaceAll("[^\\d.]", ""); // Remove currency symbols
             finalPrice = Double.parseDouble(totalAmount);
-            totalAmountText.setText("₱" + totalAmount);
+
+            // Format the price with commas and two decimal places
+            DecimalFormat formatter = new DecimalFormat("#,###,###.00");
+            String formattedPrice = formatter.format(finalPrice);
+
+            // Display the formatted price with the currency symbol
+            totalAmountText.setText("₱" + formattedPrice);
         }
+        CheckoutAdapter checkoutAdapter = new CheckoutAdapter(cartItems);
+        recyclerViewCheckout.setAdapter(checkoutAdapter);
 
         PaymentConfiguration.init(this, publishableKey);
         paymentSheet = new PaymentSheet(this, this::onPaymentResult);
