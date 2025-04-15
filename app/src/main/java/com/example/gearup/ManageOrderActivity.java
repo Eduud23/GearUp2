@@ -40,7 +40,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
 
         orderList = new ArrayList<>();
         filteredOrderList = new ArrayList<>();
-        adapter = new ManageOrderAdapter(filteredOrderList, this);
+        adapter = new ManageOrderAdapter(filteredOrderList, this, this);
         recyclerView.setAdapter(adapter);
 
         Toolbar toolbar = findViewById(R.id.toolbar);

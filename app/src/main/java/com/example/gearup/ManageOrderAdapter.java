@@ -1,5 +1,7 @@
 package com.example.gearup;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +20,12 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
 
     private List<OrderItem> orderList;
     private OnStatusUpdateListener statusUpdateListener;
+    private Context context;
 
-    public ManageOrderAdapter(List<OrderItem> orderList, OnStatusUpdateListener statusUpdateListener) {
+    public ManageOrderAdapter(List<OrderItem> orderList, OnStatusUpdateListener statusUpdateListener, Context context) {
         this.orderList = orderList;
         this.statusUpdateListener = statusUpdateListener;
+        this.context = context;
     }
 
     @NonNull
@@ -38,8 +42,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
         holder.productName.setText("Product Name: " + order.getProductName());
         holder.quantity.setText("Quantity: " + order.getQuantity());
         holder.totalPrice.setText("₱" + order.getTotalPrice());
-        holder.orderStatus.setText("Status: "+ order.getOrderStatus());
-
+        holder.orderStatus.setText("Status: " + order.getOrderStatus());
         holder.deliveryType.setText("Delivery Type: " + order.getDeliveryOption());
 
         // Load the product image using Glide
@@ -47,6 +50,29 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
                 .load(order.getImageUrl())  // The image URL from the OrderItem object
                 .into(holder.productImageView);  // Load the image into the ImageView
 
+        // Handle item click to open the ManageOrderDetailActivity
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ManageOrderDetailActivity.class);
+            // Pass all necessary order details
+            intent.putExtra("orderId", order.getOrderId());
+            intent.putExtra("productName", order.getProductName());
+            intent.putExtra("productQuantity", order.getQuantity());
+            intent.putExtra("totalPrice", order.getTotalPrice());
+            intent.putExtra("orderStatus", order.getOrderStatus());
+            intent.putExtra("deliveryOption", order.getDeliveryOption());
+            intent.putExtra("imageUrl", order.getImageUrl());
+            intent.putExtra("customerName", order.getCustomerName());
+            intent.putExtra("shippingAddress", order.getShippingAddress());
+            intent.putExtra("paymentMethod", order.getPaymentMethod());
+            intent.putExtra("sellerId", order.getSellerId());
+            intent.putExtra("paymentIntentId", order.getPaymentIntentId());
+            intent.putExtra("productId", order.getProductId());
+
+            // Start the activity
+            context.startActivity(intent);
+        });
+
+        // Handle status update button click
         holder.updateStatusButton.setOnClickListener(v -> {
             if (statusUpdateListener != null) {
                 statusUpdateListener.onStatusUpdate(order);
@@ -60,9 +86,9 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
     }
 
     public static class OrderViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, quantity, totalPrice, customerName, shippingAddress, paymentMethod, orderStatus, deliveryType;
+        TextView productName, quantity, totalPrice, orderStatus, deliveryType;
         Button updateStatusButton;
-        ImageView productImageView;  // ImageView for displaying the product image
+        ImageView productImageView;
 
         public OrderViewHolder(View itemView) {
             super(itemView);
@@ -72,7 +98,7 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
             deliveryType = itemView.findViewById(R.id.delivery_type);
             orderStatus = itemView.findViewById(R.id.order_status);
             updateStatusButton = itemView.findViewById(R.id.update_status_button);
-            productImageView = itemView.findViewById(R.id.product_image);  // Initialize ImageView
+            productImageView = itemView.findViewById(R.id.product_image);
         }
     }
 
