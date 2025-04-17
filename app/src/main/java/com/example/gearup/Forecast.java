@@ -82,7 +82,7 @@ public class Forecast extends AppCompatActivity {
                             // Process the data for this product line
                             for (DocumentSnapshot document : productData) {
                                 String dateString = document.getString("date");
-                                Double total = document.getDouble("total");
+                                Double total = document.getDouble("total_php");
 
                                 if (dateString != null && total != null) {
                                     try {
@@ -110,13 +110,27 @@ public class Forecast extends AppCompatActivity {
                                 // Perform linear regression
                                 double[] regressionResults = performLinearRegression(x, y);
 
-                                // Forecast sales for the next month (30 days)
+                                // Get the current date
+                                Date currentDate = new Date();
+
+                                // Forecast sales for the next 30 days based on the current date
+                                Date forecastDate = new Date(currentDate.getTime() + (30L * 24 * 60 * 60 * 1000)); // Add 30 days
+
+                                // Get the current and forecast month range
+                                String currentMonth = getMonthFromDate(currentDate);
+                                String forecastMonth = getMonthFromDate(forecastDate);
+
+                                // Forecast the sales for the next month using linear regression
                                 double forecastNextMonth = regressionResults[0] * (x.length + 30) + regressionResults[1];
+
+                                // Get the current year
+                                String currentYear = getCurrentYear();
 
                                 // Display the forecasted sales for the next month in the TextView
                                 forecastTextView.append("\n\n-----------------------------\n");
                                 forecastTextView.append("Product Line: " + productLine + "\n");
-                                forecastTextView.append("Forecast for the next month: " + String.format("%.2f", forecastNextMonth) + " units\n");
+                                forecastTextView.append("Forecast for " + currentMonth + " " + currentYear + " to " + forecastMonth + " " + currentYear + ": "
+                                        + String.format("%.2f", forecastNextMonth) + " sales\n");
 
                                 // Create a BarEntry for each product line (each forecast)
                                 barEntries.add(new BarEntry(index, (float) forecastNextMonth));
@@ -164,8 +178,6 @@ public class Forecast extends AppCompatActivity {
                 });
     }
 
-
-
     // Method to get a unique color for each product line (you can customize this)
     private int getColorForProductLine(int index) {
         // You can define a color array to cycle through colors
@@ -175,12 +187,22 @@ public class Forecast extends AppCompatActivity {
                 0xFFFF9800,  // Orange
                 0xFFF44336,  // Red
                 0xFF9C27B0,  // Purple
-                0xFF2196F3   // Light Blue
+                0xFF000000   // Black
         };
         return colors[index % colors.length];  // Cycle through colors if more than 6 product lines
     }
 
+    // Helper method to convert Date to Month String
+    private String getMonthFromDate(Date date) {
+        SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM");
+        return monthFormat.format(date);
+    }
 
+    // Helper method to get the current year
+    private String getCurrentYear() {
+        SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+        return yearFormat.format(new Date());  // Return the current year
+    }
 
     // Group data by product line
     private Map<String, List<DocumentSnapshot>> groupDataByProductLine(List<DocumentSnapshot> documents) {
