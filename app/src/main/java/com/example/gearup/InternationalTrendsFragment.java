@@ -68,12 +68,19 @@ public class InternationalTrendsFragment extends Fragment {
     private void fetchProducts() {
         if (db == null) {
             Log.e(TAG, "❌ Firestore not initialized.");
-            swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
+            if (isAdded()) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
             return;
         }
 
         executorService.execute(() -> db.collection("ebay_popular_product").get()
                 .addOnCompleteListener(task -> {
+                    if (!isAdded()) {
+                        Log.w(TAG, "❗ Fragment is not attached. Skipping UI update.");
+                        return;
+                    }
+
                     if (task.isSuccessful()) {
                         List<PopularProduct> fetchedProducts = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -92,18 +99,21 @@ public class InternationalTrendsFragment extends Fragment {
                             fetchedProducts.add(product);
                         }
 
-                        // Shuffle the products every time we fetch them
                         Collections.shuffle(fetchedProducts);
 
-                        // Update the UI on the main thread
-                        requireActivity().runOnUiThread(() -> {
-                            updateAdapter(fetchedProducts);
-                            swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation
-                        });
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() -> {
+                                updateAdapter(fetchedProducts);
+                                swipeRefreshLayout.setRefreshing(false);
+                            });
+                        }
 
                     } else {
                         Log.e(TAG, "❌ Error fetching products", task.getException());
-                        swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation on error
+                        if (isAdded()) {
+                            requireActivity().runOnUiThread(() ->
+                                    swipeRefreshLayout.setRefreshing(false));
+                        }
                     }
                 }));
     }

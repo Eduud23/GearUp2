@@ -46,7 +46,7 @@ public class TrendsFragment extends Fragment {
                     tab.setText("International");
                     break;
                 case 1:
-                    tab.setText("Local");
+                    tab.setText("Philippines");
                     break;
                 case 2:
                     tab.setText("Social Media");

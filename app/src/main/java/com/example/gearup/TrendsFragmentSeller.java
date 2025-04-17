@@ -30,23 +30,6 @@ public class TrendsFragmentSeller extends Fragment {
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
 
-        ImageView btnBack = view.findViewById(R.id.btn_back);
-
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Replace the current fragment with HomeFragmentBuyer
-                HomeFragmentSeller homeFragmentSeller = new HomeFragmentSeller();
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-                // You can use replace() or add() depending on your use case
-                transaction.replace(R.id.fragment_container, homeFragmentSeller); // Use your container ID here
-                transaction.addToBackStack(null);  // Optional: Add this transaction to the back stack if needed
-
-                // Commit the transaction to make the change
-                transaction.commit();
-            }
-        });
 
 
 
@@ -64,7 +47,7 @@ public class TrendsFragmentSeller extends Fragment {
                     tab.setText("International");
                     break;
                 case 1:
-                    tab.setText("Local");
+                    tab.setText("Philippines");
                     break;
                 case 2:
                     tab.setText("Social Media");
