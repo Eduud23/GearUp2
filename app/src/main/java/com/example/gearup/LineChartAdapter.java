@@ -35,13 +35,13 @@ public class LineChartAdapter extends RecyclerView.Adapter<LineChartAdapter.Char
         ForecastModel data = forecastList.get(position);
         holder.productTitle.setText(data.getProductLine());
 
-        // Prepare entries for the chart
+        // Prepare entries for the chart (Sales Forecast)
         List<Entry> entries = new ArrayList<>();
         for (int i = 0; i < data.getXValues().size(); i++) {
             entries.add(new Entry(data.getXValues().get(i), data.getYValues().get(i)));
         }
 
-        // Create dataset
+        // Create dataset for sales forecast
         LineDataSet dataSet = new LineDataSet(entries, "Sales Forecast");
         dataSet.setColor(0xFF1E88E5);  // Line color
         dataSet.setCircleColor(0xFF1E88E5);  // Circle color
@@ -57,9 +57,13 @@ public class LineChartAdapter extends RecyclerView.Adapter<LineChartAdapter.Char
         holder.chart.getDescription().setEnabled(false);  // Disable chart description
         holder.chart.invalidate();  // Refresh chart
 
-        // Show forecast information and trend direction
+        // Round forecasted quantity to nearest whole number
+        int roundedForecastQuantity = Math.round(data.getForecastQuantity());
+
+        // Show forecast information (both sales and quantity)
         String forecastText = "Forecast Date: " + data.getForecastDate() +
-                "\nPredicted Sales: ₱" + String.format("%.2f", data.getForecastValue()) +
+                "\nPredicted Sales: ₱" + String.format("%.2f", data.getForecastSales()) +
+                "\nPredicted Quantity: " + roundedForecastQuantity + " units" +
                 "\nTrend: " + data.getTrendDirection();
 
         holder.forecastInfo.setText(forecastText);

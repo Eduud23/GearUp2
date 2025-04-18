@@ -3,7 +3,6 @@ package com.example.gearup;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,10 +25,6 @@ public class Forecast extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         FirebaseApp gearupdataFifthApp = FirebaseApp.getInstance("gearupdataFifthApp");
         db = FirebaseFirestore.getInstance(gearupdataFifthApp);
@@ -56,6 +51,7 @@ public class Forecast extends AppCompatActivity {
 
                             List<Float> x = new ArrayList<>();
                             List<Float> y = new ArrayList<>();
+                            List<Float> quantity = new ArrayList<>();
                             List<String> labels = new ArrayList<>();
 
                             Date firstDate = null;
@@ -64,8 +60,9 @@ public class Forecast extends AppCompatActivity {
                                 for (DocumentSnapshot doc : data) {
                                     String dateString = doc.getString("date");
                                     Double total = doc.getDouble("total_php");
+                                    Double qty = doc.getDouble("quantity");
 
-                                    if (dateString != null && total != null) {
+                                    if (dateString != null && total != null && qty != null) {
                                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                                         Date date = sdf.parse(dateString);
 
@@ -74,12 +71,16 @@ public class Forecast extends AppCompatActivity {
 
                                         x.add((float) days);
                                         y.add(total.floatValue());
+                                        quantity.add(qty.floatValue());
                                         labels.add(dateString);
                                     }
                                 }
 
                                 if (x.size() > 1) {
-                                    double[] regression = performLinearRegression(x, y);
+                                    // Perform regression for sales (total_php)
+                                    double[] regressionSales = performLinearRegression(x, y);
+                                    // Perform regression for quantity (units sold)
+                                    double[] regressionQuantity = performLinearRegression(x, quantity);
 
                                     // Forecast from current date
                                     Date currentDate = new Date();
@@ -87,10 +88,14 @@ public class Forecast extends AppCompatActivity {
                                     float todayX = (float) daysFromFirstToNow;
 
                                     float forecastX = todayX + 30;
-                                    float forecastY = (float) (regression[0] * forecastX + regression[1]);
+
+                                    // Calculate forecasted sales and quantity
+                                    float forecastSales = (float) (regressionSales[0] * forecastX + regressionSales[1]);
+                                    float forecastQuantity = (float) (regressionQuantity[0] * forecastX + regressionQuantity[1]);
 
                                     x.add(forecastX);
-                                    y.add(forecastY);
+                                    y.add(forecastSales);
+                                    quantity.add(forecastQuantity);
                                     labels.add("Forecast");
 
                                     // Forecast date = today + 30 days
@@ -100,24 +105,24 @@ public class Forecast extends AppCompatActivity {
                                     String forecastDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
 
                                     // Determine trend direction
-                                    // Determine trend direction based on last actual value vs forecast
-                                    float lastActualY = y.get(y.size() - 2); // -2 because last one is forecast
+                                    float lastActualSales = y.get(y.size() - 2); // Last actual value (sales)
+                                    float lastActualQuantity = quantity.get(quantity.size() - 2); // Last actual value (quantity)
                                     String trendDirection;
 
-                                    if (forecastY > lastActualY) {
+                                    if (forecastSales > lastActualSales) {
                                         trendDirection = "Increasing";
-                                    } else if (forecastY < lastActualY) {
+                                    } else if (forecastSales < lastActualSales) {
                                         trendDirection = "Decreasing";
                                     } else {
                                         trendDirection = "Flat";
                                     }
 
-
                                     chartDataList.add(new ForecastModel(
                                             productLine,
                                             x, y, labels,
                                             forecastDate,
-                                            forecastY,
+                                            forecastSales,
+                                            forecastQuantity,
                                             trendDirection
                                     ));
                                 }
@@ -133,6 +138,7 @@ public class Forecast extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Firestore fetch failed", e));
     }
+
 
     private Map<String, List<DocumentSnapshot>> groupDataByProductLine(List<DocumentSnapshot> documents) {
         Map<String, List<DocumentSnapshot>> map = new HashMap<>();
