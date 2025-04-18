@@ -3,6 +3,7 @@ package com.example.gearup;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +26,10 @@ public class Forecast extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         FirebaseApp gearupdataFifthApp = FirebaseApp.getInstance("gearupdataFifthApp");
         db = FirebaseFirestore.getInstance(gearupdataFifthApp);
@@ -95,14 +100,18 @@ public class Forecast extends AppCompatActivity {
                                     String forecastDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
 
                                     // Determine trend direction
+                                    // Determine trend direction based on last actual value vs forecast
+                                    float lastActualY = y.get(y.size() - 2); // -2 because last one is forecast
                                     String trendDirection;
-                                    if (regression[0] > 0) {
+
+                                    if (forecastY > lastActualY) {
                                         trendDirection = "Increasing";
-                                    } else if (regression[0] < 0) {
+                                    } else if (forecastY < lastActualY) {
                                         trendDirection = "Decreasing";
                                     } else {
                                         trendDirection = "Flat";
                                     }
+
 
                                     chartDataList.add(new ForecastModel(
                                             productLine,
