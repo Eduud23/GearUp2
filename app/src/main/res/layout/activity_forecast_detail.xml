@@ -2,25 +2,47 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:padding="12dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Product Title TextView -->
-    <TextView
-        android:id="@+id/productTitleText"
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_bg"
+        android:elevation="6dp"
+        android:padding="8dp"
+        android:layout_gravity="start"/>
+
+
+    <!-- Inner LinearLayout for product title -->
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Product Title"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="@android:color/black"/>
+        android:padding="16dp">
+
+        <!-- Product Title TextView -->
+        <TextView
+            android:id="@+id/productTitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
 
     <!-- RecyclerView for Forecast Product Items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/forecastDetailRecycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:scrollbars="vertical"/>
 </LinearLayout>

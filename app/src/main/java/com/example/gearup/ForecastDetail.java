@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +30,9 @@ public class ForecastDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast_detail);
+
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> onBackPressed());
 
         String productTitle = getIntent().getStringExtra("productTitle");
 
