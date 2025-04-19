@@ -3,6 +3,7 @@ package com.example.gearup;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +34,10 @@ public class Forecast extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         fetchDataAndForecast();
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
     }
 
     private void fetchDataAndForecast() {
@@ -143,7 +148,7 @@ public class Forecast extends AppCompatActivity {
     private Map<String, List<DocumentSnapshot>> groupDataByProductLine(List<DocumentSnapshot> documents) {
         Map<String, List<DocumentSnapshot>> map = new HashMap<>();
         for (DocumentSnapshot doc : documents) {
-            String productLine = doc.getString("product_line");
+            String productLine = doc.getString("category");
             if (productLine != null) {
                 map.computeIfAbsent(productLine, k -> new ArrayList<>()).add(doc);
             }

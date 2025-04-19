@@ -26,6 +26,7 @@ public class MyApp extends Application {
         initializeThirdFirebaseApp();
         initializeFourthFirebaseApp();
         initializeFifthFirebaseApp();
+        initializeSixthFirebaseApp();
 
     }
 
@@ -135,6 +136,34 @@ public class MyApp extends Application {
             Log.d(TAG, "Fifth Firebase app initialized: " + fifthAppName);
         } else {
             Log.d(TAG, "Fifth Firebase app already initialized: " + fifthAppName);
+        }
+    }
+    private void initializeSixthFirebaseApp() {
+        String SixthAppName = "gearupdataSixthApp";
+        boolean isInitialized = false;
+
+        // Check if the Firebase app is already initialized
+        for (FirebaseApp app : FirebaseApp.getApps(this)) {
+            if (app.getName().equals(SixthAppName)) {
+                isInitialized = true;
+                break;
+            }
+        }
+
+        // If the fifth Firebase app is not initialized, initialize it
+        if (!isInitialized) {
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setApplicationId("1:852626210125:android:45ed84b8f1d733a712cb04") // Replace with actual Firebase App ID
+                    .setApiKey("AIzaSyAtej_Uj9kfPQTCZaK2bIpNzkjCFVzu0qQ") // Replace with your actual API Key
+                    .setProjectId("forecastproduct") // Replace with your Project ID
+                    .setStorageBucket("forecastproduct.appspot.com") // Replace with your Storage Bucket
+                    .setGcmSenderId("364697597374") // Replace with your Sender ID
+                    .build();
+
+            FirebaseApp.initializeApp(this, options, SixthAppName);
+            Log.d(TAG, "Sixth Firebase app initialized: " + SixthAppName);
+        } else {
+            Log.d(TAG, "Sixth Firebase app already initialized: " + SixthAppName);
         }
     }
 }

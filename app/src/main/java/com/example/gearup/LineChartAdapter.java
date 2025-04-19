@@ -1,5 +1,7 @@
 package com.example.gearup;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.data.*;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +71,14 @@ public class LineChartAdapter extends RecyclerView.Adapter<LineChartAdapter.Char
                 "\nTrend: " + data.getTrendDirection();
 
         holder.forecastInfo.setText(forecastText);
+
+        // Handle click to go to DetailActivity
+        holder.itemView.setOnClickListener(view -> {
+            Context context = view.getContext();
+            Intent intent = new Intent(context, ForecastDetail.class);
+            intent.putExtra("productTitle", data.getProductLine());
+            context.startActivity(intent);
+        });
     }
 
     @Override
