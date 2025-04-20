@@ -45,7 +45,7 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         holder.priceTextView.setText(product.getPrice());
         holder.conditionTextView.setText("Condition: " + (product.getCondition() != null ? product.getCondition() : "N/A"));
         holder.ratedTextView.setText("Rated: " + (product.getRated() != "NaN" ? product.getRated() : "N/A"));
-        holder.discountTextView.setText("Discount: " + (product.getDiscount() != "NaN" ? product.getDiscount() : "N/A"));
+       // holder.discountTextView.setText("Discount: " + (product.getDiscount() != "NaN" ? product.getDiscount() : "N/A"));
 
         // Load product image using Glide
         Glide.with(holder.itemView.getContext()).load(product.getImageUrl()).into(holder.productImageView);
@@ -88,7 +88,6 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
             priceTextView = itemView.findViewById(R.id.product_price);
             conditionTextView = itemView.findViewById(R.id.product_condition);
             ratedTextView = itemView.findViewById(R.id.product_rated);
-            discountTextView = itemView.findViewById(R.id.product_discount);
             productImageView = itemView.findViewById(R.id.product_image);
         }
     }

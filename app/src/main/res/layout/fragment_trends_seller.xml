@@ -1,18 +1,22 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="#FAFAFA"
     android:fitsSystemWindows="true"
-    android:orientation="vertical">
+    >
 
+    <!-- Top Search Bar -->
     <LinearLayout
         android:id="@+id/top"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:padding="10dp"
         android:gravity="center_vertical"
         android:background="@android:color/holo_blue_light"
+        android:elevation="4dp"
         tools:ignore="MissingConstraints">
 
         <EditText
@@ -24,20 +28,39 @@
             android:hint="Search Products"
             android:inputType="text"
             android:drawablePadding="8dp"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginTop="2dp"
             android:background="@drawable/search_bar_background"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- TabLayout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:elevation="2dp" />
 
+    <!-- ViewPager2 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Fancy Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_see_forecast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="See Forecast"
+        android:textAllCaps="false"
+        android:layout_marginHorizontal="16dp"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:fontFamily="sans-serif-medium"
+        android:elevation="6dp"
+         />
 
 </LinearLayout>

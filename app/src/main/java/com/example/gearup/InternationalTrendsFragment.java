@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +35,7 @@ public class InternationalTrendsFragment extends Fragment {
     private FirebaseFirestore db;
 
     private SwipeRefreshLayout swipeRefreshLayout;
+    private String searchQuery = "";
 
     @Nullable
     @Override
@@ -62,10 +62,17 @@ public class InternationalTrendsFragment extends Fragment {
         }
 
         fetchProducts(); // Initial product fetch
+
+        // Retrieve the search query passed from TrendsFragment
+        if (getArguments() != null) {
+            searchQuery = getArguments().getString("search_query", "");
+        }
+
         return view;
     }
 
-    private void fetchProducts() {
+    // Fetch products from Firestore
+    public void fetchProducts() {
         if (db == null) {
             Log.e(TAG, "❌ Firestore not initialized.");
             if (isAdded()) {
@@ -82,7 +89,7 @@ public class InternationalTrendsFragment extends Fragment {
                     }
 
                     if (task.isSuccessful()) {
-                        List<PopularProduct> fetchedProducts = new ArrayList<>();
+                        List<PopularProduct> rawProducts = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             PopularProduct product = new PopularProduct(
                                     document.getString("title"),
@@ -96,14 +103,23 @@ public class InternationalTrendsFragment extends Fragment {
                                     String.valueOf(document.get("rated")),
                                     document.getString("seller")
                             );
-                            fetchedProducts.add(product);
+                            rawProducts.add(product);
                         }
 
-                        Collections.shuffle(fetchedProducts);
+                        List<PopularProduct> finalProducts;
+
+                        // Apply filter if search query is present
+                        if (!searchQuery.isEmpty()) {
+                            finalProducts = filterProducts(rawProducts, searchQuery);
+                        } else {
+                            finalProducts = rawProducts;
+                        }
+
+                        Collections.shuffle(finalProducts);
 
                         if (isAdded()) {
                             requireActivity().runOnUiThread(() -> {
-                                updateAdapter(fetchedProducts);
+                                updateAdapter(finalProducts);  // ✅ No error, finalProducts is effectively final
                                 swipeRefreshLayout.setRefreshing(false);
                             });
                         }
@@ -116,6 +132,39 @@ public class InternationalTrendsFragment extends Fragment {
                         }
                     }
                 }));
+    }
+
+    public void setSearchQuery(String query) {
+        this.searchQuery = query;
+        fetchProducts();
+    }
+
+    // Filter products based on the search query using simple substring matching
+    private List<PopularProduct> filterProducts(List<PopularProduct> products, String query) {
+        List<PopularProduct> filtered = new ArrayList<>();
+
+        for (PopularProduct product : products) {
+            if (
+                    containsIgnoreCase(product.getTitle(), query) ||
+                            containsIgnoreCase(product.getPrice(), query) ||
+                            containsIgnoreCase(product.getImageUrl(), query) ||
+                            containsIgnoreCase(product.getItemUrl(), query) ||
+                            containsIgnoreCase(product.getCondition(), query) ||
+                            containsIgnoreCase(product.getLocation(), query) ||
+                            containsIgnoreCase(product.getShippingCost(), query) ||
+                            containsIgnoreCase(product.getDiscount(), query) ||
+                            containsIgnoreCase(product.getRated(), query) ||
+                            containsIgnoreCase(product.getSeller(), query)
+            ) {
+                filtered.add(product);
+            }
+        }
+
+        return filtered;
+    }
+
+    private boolean containsIgnoreCase(String fieldValue, String query) {
+        return fieldValue != null && query != null && fieldValue.toLowerCase().contains(query.toLowerCase());
     }
 
     private void updateAdapter(List<PopularProduct> fetchedProducts) {

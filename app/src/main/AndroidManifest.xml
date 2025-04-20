@@ -34,9 +34,6 @@
             android:name=".OrderDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".Sample"
-            android:exported="false" />
-        <activity
             android:name=".PaymentActivity"
             android:exported="false" />
         <activity
@@ -53,9 +50,6 @@
             android:exported="false" />
         <activity
             android:name=".VideoResultsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".VideosActivity"
             android:exported="false" />
         <activity
             android:name=".SeeAllServicesActivity"

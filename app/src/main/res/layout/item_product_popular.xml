@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:scaleType="centerCrop"
+        android:background="@drawable/rounded_bg"
         android:layout_gravity="center" />
 
     <LinearLayout
@@ -55,13 +56,6 @@
             android:textColor="@android:color/darker_gray"
             android:paddingTop="2dp"/>
 
-        <TextView
-            android:id="@+id/product_discount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@android:color/holo_green_dark"
-            android:paddingTop="2dp"/>
     </LinearLayout>
 
 </LinearLayout>

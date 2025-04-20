@@ -1,9 +1,12 @@
 package com.example.gearup;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -21,21 +24,35 @@ public class TrendsFragment extends Fragment {
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private TrendsPagerAdapter pagerAdapter;
+    private EditText etSearch;
+
+    // Keep references to the fragments so we can access them later
+    private InternationalTrendsFragment internationalTrendsFragment;
+    private LocalTrendsFragment localTrendsFragment;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_trends, container, false);
 
+        etSearch = view.findViewById(R.id.et_search);
         tabLayout = view.findViewById(R.id.tabLayout);
         viewPager = view.findViewById(R.id.viewPager);
 
-
-
         List<Fragment> fragments = new ArrayList<>();
-        fragments.add(new InternationalTrendsFragment()); // International
-        fragments.add(new LocalTrendsFragment());        // Local
-        fragments.add(new SocialMediaTrendsFragment());  // Social Media
+
+        internationalTrendsFragment = new InternationalTrendsFragment();
+        localTrendsFragment = new LocalTrendsFragment();
+        SocialMediaTrendsFragment socialMediaTrendsFragment = new SocialMediaTrendsFragment();
+
+        // Default search argument for international
+        Bundle searchBundle = new Bundle();
+        searchBundle.putString("search_query", "");
+        internationalTrendsFragment.setArguments(searchBundle);
+
+        fragments.add(internationalTrendsFragment);
+        fragments.add(localTrendsFragment);
+        fragments.add(socialMediaTrendsFragment);
 
         pagerAdapter = new TrendsPagerAdapter(this, fragments);
         viewPager.setAdapter(pagerAdapter);
@@ -53,6 +70,21 @@ public class TrendsFragment extends Fragment {
                     break;
             }
         }).attach();
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                String searchQuery = charSequence.toString();
+                internationalTrendsFragment.setSearchQuery(searchQuery);
+                localTrendsFragment.setSearchQuery(searchQuery); // 🔍 added line
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
 
         return view;
     }
