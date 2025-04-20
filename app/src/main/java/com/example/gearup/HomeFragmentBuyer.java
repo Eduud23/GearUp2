@@ -408,6 +408,9 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             return;
         }
 
+        // Log the category value
+        Log.d("RecommendationClick", "Clicked Product Category: " + clickedProduct.getCategory());
+
         // Get current user ID
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
@@ -427,6 +430,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         intent.putExtra("PRODUCT", clickedProduct);
         startActivity(intent);
     }
+
 
 
 

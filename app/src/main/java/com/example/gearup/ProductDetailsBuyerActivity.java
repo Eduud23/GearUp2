@@ -47,8 +47,8 @@ import java.util.Locale;
 
 public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
-    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel, tvAverageRating;
-    private Button addToCartButton, checkoutButton, addReviewButton;
+    private TextView productName, productPrice, productDescription, availableQuantityText, sellerName, productBrand, productYearModel, tvAverageRating, addReviewButton;
+    private Button addToCartButton, checkoutButton;
     private EditText productQuantity;
     private ListenerRegistration reviewsListener;
     private ViewPager2 viewPager;
@@ -84,13 +84,20 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         relatedProductsRecyclerView = findViewById(R.id.recycler_related_products);
 
 
-        Button viewReviewsButton = findViewById(R.id.btn_view_reviews);
+        TextView viewReviewsButton = findViewById(R.id.btn_view_reviews);
         viewReviewsButton.setOnClickListener(v -> {
             Intent intent = new Intent(ProductDetailsBuyerActivity.this, ProductReviewsActivity.class);
             intent.putExtra("PRODUCT_ID", product.getId());
             startActivity(intent);
         });
 
+        TextView seeAllTextView = findViewById(R.id.see_all);
+        seeAllTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(ProductDetailsBuyerActivity.this, SeeAllRelatedProducts.class);
+            intent.putExtra("category", product.getCategory()); // Pass the category to fetch related
+            intent.putExtra("productId", product.getId()); // Optional: exclude current product
+            startActivity(intent);
+        });
 
 
 
@@ -230,33 +237,26 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         startActivity(intent);
     }
     private void fetchRelatedProducts(String productCategory) {
-        // Ensure productCategory is not null and has valid value
         if (productCategory == null || productCategory.isEmpty()) {
             Log.e("FetchRelatedProducts", "Product category is missing or empty");
             return;
         }
 
-        // Get the current product's document ID (used as the product ID)
-        String currentProductId = product.getId();  // Assuming product.getId() gives the current product's document ID
-        Log.d("FetchRelatedProducts", "Current product ID: " + currentProductId);
-
-        // Query to fetch related products based on the category, excluding the current product by its document ID
-        db.collectionGroup("products")  // Use collectionGroup to get products from all subcollections
-                .whereEqualTo("category", productCategory)  // Match category of the current product
+        String currentProductId = product.getId();
+        db.collectionGroup("products")
+                .whereEqualTo("category", productCategory)  // Ensure we are querying the correct category
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        // If no related products found
-                        Log.d("FetchRelatedProducts", "No related products found with the specified category.");
+                        Log.d("FetchRelatedProducts", "No related products found for category: " + productCategory);
                     } else {
                         List<Product> relatedProducts = new ArrayList<>();
                         for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            // Get the product ID (which is the document ID itself)
                             String productId = documentSnapshot.getId();
                             if (!productId.equals(currentProductId)) {  // Exclude the current product
                                 Product relatedProduct = documentSnapshot.toObject(Product.class);
                                 if (relatedProduct != null) {
-                                    relatedProduct.setId(productId);  // Set the product ID to the product object
+                                    relatedProduct.setId(productId);
                                     relatedProducts.add(relatedProduct);
                                 }
                             }
@@ -271,9 +271,10 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("FetchRelatedProducts", "Error fetching related products", e);  // Log the actual error for debugging
+                    Log.e("FetchRelatedProducts", "Error fetching related products", e);
                 });
     }
+
 
 
 
@@ -294,6 +295,8 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
             Toast.makeText(this, "No related products available", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
 
     private void addToCart(Product product) {

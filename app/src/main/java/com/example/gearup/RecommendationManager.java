@@ -55,6 +55,7 @@ public class RecommendationManager {
                             String yearModel = productDoc.getString("yearModel");
                             List<String> imageUrls = (List<String>) productDoc.get("imageUrls");
                             String sellerId = productDoc.getString("sellerId");
+                            String category = productDoc.getString("category");
                             Long quantityValue = productDoc.getLong("quantity");
                             int quantity = (quantityValue != null) ? quantityValue.intValue() : 0;
 
@@ -68,6 +69,7 @@ public class RecommendationManager {
                                 product.setYearModel(yearModel);
                                 product.setImageUrls(imageUrls);
                                 product.setSellerId(sellerId);
+                                product.setCategory(category);
                                 product.setQuantity(quantity);
 
                                 tempProductList.add(product);
