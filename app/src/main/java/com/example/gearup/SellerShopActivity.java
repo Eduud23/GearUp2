@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +59,9 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         seeDetailsTextView = findViewById(R.id.tv_see_details);
         searchEditText = findViewById(R.id.et_search); // Initialize search bar
 
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> onBackPressed());
+
         // Set GridLayoutManager with 2 columns for the RecyclerView
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         productsRecyclerView.setLayoutManager(gridLayoutManager);
@@ -82,6 +84,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             Toast.makeText(this, "Seller ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+
         seeDetailsTextView.setOnClickListener(v -> {
             Intent intent = new Intent(SellerShopActivity.this, SellerDetailsActivity.class);
             intent.putExtra("SELLER_ID", sellerId); // Only passing the sellerId
@@ -145,9 +148,18 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
 
     private void filterProducts(String query) {
         List<Product> filteredList = new ArrayList<>();
+        if (query == null || query.trim().isEmpty()) {
+            productAdapter.updateList(fullProductList); // Show all products if query is empty
+            return;
+        }
+
+        query = query.toLowerCase(); // Convert query to lowercase for case-insensitive matching
+
         for (Product product : fullProductList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase()) ||
-                    product.getBrand().toLowerCase().contains(query.toLowerCase())) {
+            String name = product.getName() != null ? product.getName().toLowerCase() : "";
+            String brand = product.getBrand() != null ? product.getBrand().toLowerCase() : "";
+
+            if (name.contains(query) || brand.contains(query)) {
                 filteredList.add(product);
             }
         }
