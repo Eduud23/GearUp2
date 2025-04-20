@@ -88,6 +88,15 @@ public class ProductList extends AppCompatActivity {
                                 Product product = document.toObject(Product.class);
                                 if (product != null) {
                                     product.setId(document.getId()); // Set the document ID as the product ID
+
+                                    // Get the sellerId from the product
+                                    String sellerId = product.getSellerId();
+
+                                    // Fetch the seller's profile image from the 'sellers' collection
+                                    if (sellerId != null && !sellerId.isEmpty()) {
+                                        fetchSellerProfileImage(sellerId, product);
+                                    }
+
                                     products.add(product);
                                 }
                             }
@@ -99,6 +108,26 @@ public class ProductList extends AppCompatActivity {
                     }
                 });
     }
+
+    private void fetchSellerProfileImage(String sellerId, Product product) {
+        db.collection("sellers")
+                .document(sellerId) // Fetch the seller's document by sellerId
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                            product.setSellerProfileImageUrl(profileImageUrl);
+                            productAdapter.notifyDataSetChanged(); // Notify adapter that the profile image URL is updated
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure to fetch seller's profile image
+                    Toast.makeText(ProductList.this, "Failed to load seller profile image", Toast.LENGTH_SHORT).show();
+                });
+    }
+
 
     private void onProductClick(int position) {
         Intent intent = new Intent(this, ProductDetails.class);

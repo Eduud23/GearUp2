@@ -204,27 +204,53 @@ public class LocalTrendsFragment extends Fragment {
     }
 
     // Simplified search filter method
+    // Filter local trends based on the search query using word-by-word matching
     private List<LocalTrendsData> filterLocalTrends(List<LocalTrendsData> rawData, String query) {
         List<LocalTrendsData> filtered = new ArrayList<>();
+
+        // Split the search query into words by spaces
+        String[] queryWords = query.trim().toLowerCase().split("\\s+");
+
         for (LocalTrendsData data : rawData) {
-            // Check if the search query is contained within the relevant fields
-            if (
-                    containsIgnoreCase(data.getName(), query) ||
-                            containsIgnoreCase(data.getPlace(), query) ||
-                            containsIgnoreCase(String.valueOf(data.getPrice()), query) ||
-                            containsIgnoreCase(data.getPromo(), query) ||
-                            containsIgnoreCase(data.getSold(), query) ||
-                            containsIgnoreCase(String.valueOf(data.getRatings()), query)
-            ) {
+            int matchCount = 0;
+
+            // Check each word in the query against each field in the data
+            for (String word : queryWords) {
+                if (containsIgnoreCase(data.getName(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(data.getPlace(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(String.valueOf(data.getPrice()), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(data.getPromo(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(data.getSold(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(String.valueOf(data.getRatings()), word)) {
+                    matchCount++;
+                }
+            }
+
+            // If there was a match, set the match count and add it to the filtered list
+            if (matchCount > 0) {
+                data.setMatchCount(matchCount);
                 filtered.add(data);
             }
         }
+
+        // Sort the filtered products by match count in descending order (higher match count first)
+        Collections.sort(filtered, (d1, d2) -> Integer.compare(d2.getMatchCount(), d1.getMatchCount()));
+
         return filtered;
     }
 
-    // Helper method for case-insensitive substring matching
+    // Helper method to check if a field contains a word, ignoring case
     private boolean containsIgnoreCase(String fieldValue, String query) {
-        if (fieldValue == null || query == null || query.isEmpty()) return false;
-        return fieldValue.toLowerCase().contains(query);
+        return fieldValue != null && query != null && fieldValue.toLowerCase().contains(query);
     }
 }

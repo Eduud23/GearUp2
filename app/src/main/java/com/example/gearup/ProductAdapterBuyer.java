@@ -44,8 +44,8 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
         if (firstProductIndex < displayedProducts.size()) {
             Product firstProduct = displayedProducts.get(firstProductIndex);
             holder.productName[0].setText(firstProduct.getName());
-            holder.productPrice[0].setText(String.format("₱%,.2f", firstProduct.getPrice()));
-            holder.productDescription[0].setText(firstProduct.getDescription());
+            holder.productPrice[0].setText("Price: "+ String.format("₱%,.2f", firstProduct.getPrice()));
+            holder.productDescription[0].setText("Description: " + firstProduct.getDescription());
 
             // Load product image
             List<String> imageUrls = firstProduct.getImageUrls();
@@ -77,8 +77,8 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
         if (secondProductIndex < displayedProducts.size()) {
             Product secondProduct = displayedProducts.get(secondProductIndex);
             holder.productName[1].setText(secondProduct.getName());
-            holder.productPrice[1].setText(String.format("₱%,.2f", secondProduct.getPrice()));
-            holder.productDescription[1].setText(secondProduct.getDescription());
+            holder.productPrice[1].setText("Price: " + String.format("₱%,.2f", secondProduct.getPrice()));
+            holder.productDescription[1].setText("Description: " + secondProduct.getDescription());
 
             // Load product image
             List<String> imageUrls = secondProduct.getImageUrls();

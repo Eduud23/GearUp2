@@ -39,12 +39,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = products.get(position);
 
         holder.productName.setText(product.getName());
-        holder.productPrice.setText(String.format("₱%.2f", product.getPrice()));
-        holder.productDescription.setText(product.getDescription());
+        holder.productPrice.setText("Price: " + String.format("₱%.2f", product.getPrice()));
+        holder.productDescription.setText("Description: " + product.getDescription());
 
         // Bind brand and year model
-        holder.productBrand.setText(product.getBrand());
-        holder.productYearModel.setText(product.getYearModel());
+        holder.productBrand.setText("Brand: " + product.getBrand());
+        holder.productYearModel.setText("Year Model: " + product.getYearModel());
 
         // Load the first product image from the list of URLs
         List<String> imageUrls = product.getImageUrls();
@@ -56,7 +56,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Placeholder image
         }
 
-        // Load seller profile image
+        // Load seller profile image using the seller's profile image URL
         String profileImageUrl = product.getSellerProfileImageUrl();
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())

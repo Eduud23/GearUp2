@@ -12,7 +12,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -196,24 +200,43 @@ public class InventoryFragment extends Fragment {
     }
 
     private void showAddProductDialog() {
-        bottomSheetDialog = new BottomSheetDialog(requireContext()); // Assign to class variable
+        bottomSheetDialog = new BottomSheetDialog(requireContext());
         dialogView = getLayoutInflater().inflate(R.layout.dialog_add_product, null);
         bottomSheetDialog.setContentView(dialogView);
 
-        // Initialize dialog views
+        // Set BottomSheetDialog to be full screen if needed
+        bottomSheetDialog.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        // Initialize the scroll view and enable it to scroll properly
+        ScrollView scrollView = dialogView.findViewById(R.id.scroll_container);
+        scrollView.setNestedScrollingEnabled(true);  // Allow nested scrolling to happen
+        scrollView.setSmoothScrollingEnabled(true);  // Enable smooth scrolling
+
+        // Close button behavior
+        ImageView closeButton = dialogView.findViewById(R.id.btn_close);
+        closeButton.setOnClickListener(v -> {
+            if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        // Initialize dialog views (all the EditText, Spinner, and Button initializations...)
         EditText productNameInput = dialogView.findViewById(R.id.et_product_name);
         EditText brandInput = dialogView.findViewById(R.id.et_product_brand);
         EditText yearModelInput = dialogView.findViewById(R.id.et_product_year_model);
         EditText descriptionInput = dialogView.findViewById(R.id.et_product_description);
-        TextView tvRecommendPrice = dialogView.findViewById(R.id.tvRecommendPrice);
         EditText predictedPriceText = dialogView.findViewById(R.id.et_product_price);
         predictedPriceText.setEnabled(true); // Make it non-editable
         EditText quantityInput = dialogView.findViewById(R.id.et_product_quantity);
 
         Button addProductButton = dialogView.findViewById(R.id.btn_add_product);
         Button selectImageButton = dialogView.findViewById(R.id.btn_choose_image);
-        Button predictPriceButton = dialogView.findViewById(R.id.btn_predict_price);
         Spinner categorySpinner = dialogView.findViewById(R.id.spinner_category);
+
+        // Progress bar initialization (initially hidden)
+        FrameLayout progressBarContainer = dialogView.findViewById(R.id.progress_bar_container);
+        ProgressBar progressBar = dialogView.findViewById(R.id.progress_bar);
+        progressBar.setVisibility(View.GONE);
 
         // Populate the spinner with categories
         List<String> categoryList = new ArrayList<>(categorizedProducts.keySet());
@@ -224,44 +247,6 @@ public class InventoryFragment extends Fragment {
 
         // Image selection button listener
         selectImageButton.setOnClickListener(v -> openImageChooser());
-
-        // Predict price button listener
-        predictPriceButton.setOnClickListener(v -> {
-            String productName = productNameInput.getText().toString().trim().toLowerCase();
-            String brand = brandInput.getText().toString().trim().toLowerCase();
-            String yearModelString = yearModelInput.getText().toString().trim();
-
-            if (yearModelString.isEmpty()) {
-                Toast.makeText(getContext(), "Please enter the year model.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            int yearModel;
-            try {
-                yearModel = Integer.parseInt(yearModelString);
-            } catch (NumberFormatException e) {
-                Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            PriceRequest request = new PriceRequest(productName, brand, yearModel);
-            priceApi.predictPrice(request).enqueue(new Callback<PriceResponse>() {
-                @Override
-                public void onResponse(Call<PriceResponse> call, Response<PriceResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        double predictedPrice = response.body().getPredictedPrice();
-                        tvRecommendPrice.setText("₱" + String.format("%.2f", predictedPrice));
-                    } else {
-                        Toast.makeText(getContext(), "Prediction failed. Please try again.", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<PriceResponse> call, Throwable t) {
-                    Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
 
         // Add product button listener
         addProductButton.setOnClickListener(v -> {
@@ -294,21 +279,44 @@ public class InventoryFragment extends Fragment {
                 Toast.makeText(getContext(), "Invalid year model. Please enter a valid number.", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             int sold = 0;
             int views = 0;
             float stars = 0.0f;
 
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars, sold);
 
-            // Safely dismiss the dialog
-            if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
-                bottomSheetDialog.dismiss();
-            }
+            // Show progress bar while uploading the product
+            progressBarContainer.setVisibility(View.VISIBLE);
+
+            // Upload product images and then save product information
+            uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars, sold, new UploadCallback() {
+                @Override
+                public void onSuccess() {
+                    // Hide progress bar and show success message
+                    progressBarContainer.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Product added successfully!", Toast.LENGTH_SHORT).show();
+
+                    // Safely dismiss the dialog
+                    if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+                        bottomSheetDialog.dismiss();
+                    }
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    // Hide progress bar and show failure message
+                    progressBarContainer.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Failed to add product: " + errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         bottomSheetDialog.show();
     }
+
+
+
 
 
 
@@ -356,6 +364,10 @@ public class InventoryFragment extends Fragment {
     }
 
 
+    public interface UploadCallback {
+        void onSuccess();
+        void onFailure(String errorMessage);
+    }
 
 
     private int getImageViewId(int index) {
@@ -367,7 +379,8 @@ public class InventoryFragment extends Fragment {
         }
     }
 
-    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris, int views, float stars,int sold) {
+
+    private void uploadProductImages(String userId, String name, double price, String description, int quantity, String category, String brand, String yearModel, List<Uri> selectedImageUris, int views, float stars, int sold, UploadCallback callback) {
         List<String> imageUrls = new ArrayList<>();
         StorageReference storageRef = storage.getReference().child("products/" + userId);
 
@@ -381,12 +394,17 @@ public class InventoryFragment extends Fragment {
                         imageUrls.add(uri.toString());
                         if (imageUrls.size() == selectedImageUris.size()) {
                             saveProductToFirestore(userId, name, price, description, quantity, category, brand, yearModel, imageUrls, views, stars, sold);
+                            callback.onSuccess(); // Success callback
                         }
                     });
-                }).addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show());
+                }).addOnFailureListener(e -> {
+                    callback.onFailure("Failed to upload image: " + e.getMessage()); // Failure callback
+                    Toast.makeText(getContext(), "Failed to upload image", Toast.LENGTH_SHORT).show();
+                });
             }
         }
     }
+
 
     private void saveProductToFirestore(
             String userId, String name, double price, String description, int quantity,

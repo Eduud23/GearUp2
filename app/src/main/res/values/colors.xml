@@ -50,6 +50,9 @@
     <color name="primaryColor">#6200EE</color> <!-- Change to your desired color -->
     <color name="gray">#757575</color>
     <color name="purple_500">#6200EE</color>
+    <color name="primary_dark">#FF4500</color>
+    <color name="background_light">#F9F9F9</color> <!-- Soft off-white or light gray -->
+
 
 
 

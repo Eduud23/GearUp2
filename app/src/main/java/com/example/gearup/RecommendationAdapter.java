@@ -58,8 +58,8 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
 
     private void bindProduct(ViewHolder holder, int index, Product product) {
         holder.productName[index].setText(product.getName());
-        holder.productPrice[index].setText(String.format("₱%,.2f", product.getPrice()));
-        holder.productDescription[index].setText(product.getDescription());
+        holder.productPrice[index].setText("Price: "+ String.format("₱%,.2f", product.getPrice()));
+        holder.productDescription[index].setText("Description "+product.getDescription());
 
         // Load Product Image
         if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {

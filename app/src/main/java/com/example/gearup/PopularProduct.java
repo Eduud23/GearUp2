@@ -12,6 +12,9 @@ public class PopularProduct {
     private String rated;
     private String seller;
 
+    // New property to keep track of the match count for search results
+    private int matchCount;
+
     // Constructor
     public PopularProduct(String title, String price, String imageUrl, String itemUrl,
                           String condition, String location, String shippingCost,
@@ -26,18 +29,27 @@ public class PopularProduct {
         this.discount = discount;
         this.rated = rated;
         this.seller = seller;
+        this.matchCount = 0; // Initialize match count to 0
     }
 
-    // Getter methods
+    // Getter and setter methods for matchCount
+    public int getMatchCount() {
+        return matchCount;
+    }
+
+    public void setMatchCount(int matchCount) {
+        this.matchCount = matchCount;
+    }
+
+    // Getter methods for product fields
     public String getTitle() { return title; }
     public String getPrice() { return price; }
     public String getImageUrl() { return imageUrl; }
     public String getItemUrl() { return itemUrl; }
-    public String getCondition() { return condition; }  // <- Make sure this exists!
+    public String getCondition() { return condition; }
     public String getLocation() { return location; }
     public String getShippingCost() { return shippingCost; }
     public String getDiscount() { return discount; }
     public String getRated() { return rated; }
     public String getSeller() { return seller; }
 }
-

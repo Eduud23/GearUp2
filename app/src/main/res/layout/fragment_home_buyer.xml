@@ -45,13 +45,39 @@
             android:src="@drawable/addtocart"
             android:contentDescription="Add to Cart"/>
 
-        <ImageView
-            android:id="@+id/icon_message"
-            android:layout_width="30dp"
-            android:layout_height="50dp"
-            android:layout_marginEnd="13dp"
-            android:src="@drawable/messenger"
-            android:contentDescription="Messages"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/icon_message"
+                android:layout_width="30dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="13dp"
+                android:src="@drawable/messenger"
+                android:contentDescription="Messages"
+                app:layout_constraintStart_toEndOf="@id/icon_cart"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="NotSibling" />
+
+            <!-- Notification Badge -->
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/unread_message_count"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/badgeicon"
+                android:clickable="false"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="17sp"
+                android:editable="false"
+                android:textStyle="bold"
+                android:layout_marginStart="10dp"
+                app:layout_constraintEnd_toEndOf="@id/icon_message"
+                app:layout_constraintTop_toTopOf="@id/icon_message" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
     <!-- New LinearLayout for Marketplace and Shops -->

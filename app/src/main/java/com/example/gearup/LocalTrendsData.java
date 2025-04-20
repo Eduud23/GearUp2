@@ -10,6 +10,7 @@ public class LocalTrendsData {
     private double ratings;
     private int sale;
     private String sold;  // Changed to String
+    private int matchCount; // New field to store the number of matches
 
     // Constructor
     public LocalTrendsData(String image, String link, String name, String place, double price, String promo, double ratings, int sale, String sold) {
@@ -22,10 +23,13 @@ public class LocalTrendsData {
         this.ratings = ratings;
         this.sale = sale;
         this.sold = sold;
+        this.matchCount = 0; // Default value for match count
     }
 
     // Default Constructor
-    public LocalTrendsData() {}
+    public LocalTrendsData() {
+        this.matchCount = 0; // Initialize matchCount to 0
+    }
 
     // Getters and Setters
     public String getImage() {
@@ -98,5 +102,13 @@ public class LocalTrendsData {
 
     public void setSold(String sold) {
         this.sold = sold;
+    }
+
+    public int getMatchCount() {
+        return matchCount;
+    }
+
+    public void setMatchCount(int matchCount) {
+        this.matchCount = matchCount;
     }
 }

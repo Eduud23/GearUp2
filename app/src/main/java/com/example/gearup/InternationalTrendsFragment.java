@@ -140,32 +140,68 @@ public class InternationalTrendsFragment extends Fragment {
     }
 
     // Filter products based on the search query using simple substring matching
+    // Filter products based on the search query using word-by-word matching
     private List<PopularProduct> filterProducts(List<PopularProduct> products, String query) {
         List<PopularProduct> filtered = new ArrayList<>();
 
+        // Split the search query into words by spaces
+        String[] queryWords = query.trim().toLowerCase().split("\\s+");
+
         for (PopularProduct product : products) {
-            if (
-                    containsIgnoreCase(product.getTitle(), query) ||
-                            containsIgnoreCase(product.getPrice(), query) ||
-                            containsIgnoreCase(product.getImageUrl(), query) ||
-                            containsIgnoreCase(product.getItemUrl(), query) ||
-                            containsIgnoreCase(product.getCondition(), query) ||
-                            containsIgnoreCase(product.getLocation(), query) ||
-                            containsIgnoreCase(product.getShippingCost(), query) ||
-                            containsIgnoreCase(product.getDiscount(), query) ||
-                            containsIgnoreCase(product.getRated(), query) ||
-                            containsIgnoreCase(product.getSeller(), query)
-            ) {
+            int matchCount = 0;
+
+            // Check each word in the query against each field in the product
+            for (String word : queryWords) {
+                if (containsIgnoreCase(product.getTitle(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getPrice(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getImageUrl(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getItemUrl(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getCondition(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getLocation(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getShippingCost(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getDiscount(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getRated(), word)) {
+                    matchCount++;
+                }
+                if (containsIgnoreCase(product.getSeller(), word)) {
+                    matchCount++;
+                }
+            }
+
+            // If there was a match, set the match count and add it to the filtered list
+            if (matchCount > 0) {
+                product.setMatchCount(matchCount);
                 filtered.add(product);
             }
         }
 
+        // Sort the filtered products by match count in descending order (higher match count first)
+        Collections.sort(filtered, (p1, p2) -> Integer.compare(p2.getMatchCount(), p1.getMatchCount()));
+
         return filtered;
     }
 
+    // Helper method to check if a field contains a word, ignoring case
     private boolean containsIgnoreCase(String fieldValue, String query) {
-        return fieldValue != null && query != null && fieldValue.toLowerCase().contains(query.toLowerCase());
+        return fieldValue != null && query != null && fieldValue.toLowerCase().contains(query);
     }
+
 
     private void updateAdapter(List<PopularProduct> fetchedProducts) {
         productList.clear();

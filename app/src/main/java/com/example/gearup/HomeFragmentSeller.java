@@ -325,22 +325,47 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
 
     private void countUnreadMessages(String currentUserId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("messages")
-                .whereEqualTo("recipientId", currentUserId)
-                .whereEqualTo("status", "unread")
+
+        db.collection("chatrooms")
+                .whereArrayContains("participants", currentUserId)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        int unreadCount = 0;
-                        for (DocumentSnapshot document : task.getResult()) {
-                            unreadCount++;
-                        }
-                        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
-                        if (unreadMessageTextView != null) {
-                            unreadMessageTextView.setText(String.valueOf(unreadCount));
-                        }
+                .addOnSuccessListener(chatroomSnapshots -> {
+                    int[] unreadCount = {0}; // Using array to update inside nested listeners
+
+                    if (chatroomSnapshots.isEmpty()) {
+                        updateUnreadBadge(0);
+                        return;
                     }
+
+                    for (DocumentSnapshot chatroomDoc : chatroomSnapshots.getDocuments()) {
+                        String chatroomId = chatroomDoc.getId();
+
+                        db.collection("chatrooms").document(chatroomId)
+                                .collection("messages")
+                                .whereEqualTo("receiverId", currentUserId)
+                                .whereEqualTo("status", "unread")
+                                .get()
+                                .addOnSuccessListener(messageSnapshots -> {
+                                    unreadCount[0] += messageSnapshots.size();
+                                    updateUnreadBadge(unreadCount[0]);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to count unread messages", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void updateUnreadBadge(int count) {
+        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
+        if (unreadMessageTextView != null) {
+            if (count > 0) {
+                unreadMessageTextView.setVisibility(View.VISIBLE);
+                unreadMessageTextView.setText(String.valueOf(count));
+            } else {
+                unreadMessageTextView.setVisibility(View.GONE);
+            }
+        }
     }
 
 
