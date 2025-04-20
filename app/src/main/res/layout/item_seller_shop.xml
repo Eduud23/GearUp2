@@ -15,6 +15,7 @@
         android:contentDescription="@string/product_image_desc"
         android:scaleType="centerCrop" />
 
+    <!-- Product Name -->
     <TextView
         android:id="@+id/tv_product_name"
         android:layout_width="wrap_content"
@@ -34,17 +35,7 @@
         android:layout_marginTop="4dp"
         android:text="Brand" />
 
-    <!-- Product Category -->
-    <TextView
-        android:id="@+id/tv_product_category"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        android:text="Category" />
-
-    <!-- Product Price -->
+    <!-- Price -->
     <TextView
         android:id="@+id/tv_product_price"
         android:layout_width="wrap_content"

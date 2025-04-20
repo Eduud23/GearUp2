@@ -39,9 +39,9 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
         if (product != null) {
             // Set product name, brand, price, and category
             holder.productNameTextView.setText(product.getName());
-            holder.brandTextView.setText(product.getBrand());
-            holder.productPriceTextView.setText(String.format("₱%.2f", product.getPrice()));
-            holder.productCategoryTextView.setText(product.getCategory());
+            holder.brandTextView.setText("Brand: " + product.getBrand());
+            holder.productPriceTextView.setText("Price: " + String.format("₱%.2f", product.getPrice()));
+           // holder.productCategoryTextView.setText(product.getCategory());
 
             // Load the product image using Glide (First image from the list or fallback image)
             List<String> imageUrls = product.getImageUrls();
@@ -84,7 +84,6 @@ public class SellerShopAdapter extends RecyclerView.Adapter<SellerShopAdapter.Vi
             productNameTextView = itemView.findViewById(R.id.tv_product_name);
             brandTextView = itemView.findViewById(R.id.tv_product_brand);
             productPriceTextView = itemView.findViewById(R.id.tv_product_price);
-            productCategoryTextView = itemView.findViewById(R.id.tv_product_category); // New field for category
         }
     }
 

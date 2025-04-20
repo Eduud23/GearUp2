@@ -29,7 +29,7 @@ import java.util.List;
 
 public class SellerShopActivity extends AppCompatActivity implements SellerShopAdapter.OnProductClickListener {
 
-    private TextView shopNameTextView, phoneNumberTextView, addressTextView;
+    private TextView shopNameTextView, phoneNumberTextView, addressTextView, seeDetailsTextView;
     private RecyclerView productsRecyclerView;
     private SellerShopAdapter productAdapter;
     private List<Product> productList = new ArrayList<>();
@@ -37,9 +37,9 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     private FirebaseFirestore db;
     private String sellerId;
     private ImageView categorySpinner;
-    //private Spinner categorySpinner;
     private ImageView messageIcon, profileImageView;
     private EditText searchEditText; // Search bar for product search
+    private View profileAndMessageContainer; // The entire profile and message container
 
     private String currentUserId;
 
@@ -48,10 +48,8 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seller_shop);
 
-        ImageView backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> onBackPressed());
-
         // Initialize UI components
+        profileAndMessageContainer = findViewById(R.id.profile_and_message_container); // Initialize the profile and message container
         shopNameTextView = findViewById(R.id.tv_shop_name);
         addressTextView = findViewById(R.id.tv_address);
         phoneNumberTextView = findViewById(R.id.tv_phone_number);
@@ -59,6 +57,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         productsRecyclerView = findViewById(R.id.rv_products);
         categorySpinner = findViewById(R.id.spinner_category);
         messageIcon = findViewById(R.id.iv_message_icon);
+        seeDetailsTextView = findViewById(R.id.tv_see_details);
         searchEditText = findViewById(R.id.et_search); // Initialize search bar
 
         // Set GridLayoutManager with 2 columns for the RecyclerView
@@ -83,6 +82,11 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             Toast.makeText(this, "Seller ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+        seeDetailsTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(SellerShopActivity.this, SellerDetailsActivity.class);
+            intent.putExtra("SELLER_ID", sellerId); // Only passing the sellerId
+            startActivity(intent);
+        });
 
         // Set up the category Spinner
         setupCategorySpinner();
@@ -112,7 +116,6 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         });
     }
 
-
     private void setupSearchEditText() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -124,6 +127,13 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // Filter products as user types
                 filterProducts(s.toString());
+
+                // Hide the profile and message container when the search is in progress
+                if (s.length() > 0) {
+                    profileAndMessageContainer.setVisibility(View.GONE); // Hide the profile and message container
+                } else {
+                    profileAndMessageContainer.setVisibility(View.VISIBLE); // Show it back when search is cleared
+                }
             }
 
             @Override
@@ -192,8 +202,6 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                     Toast.makeText(this, "Error getting shop info", Toast.LENGTH_SHORT).show();
                 });
     }
-
-
 
     private void loadSellerProducts(String sellerId, String category) {
         if (category.equals("All")) {
