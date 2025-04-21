@@ -70,6 +70,7 @@ public class Login extends AppCompatActivity {
                 });
     }
 
+
     private void checkUserRole(String uid) {
         // Check if the user exists in the 'sellers' collection
         db.collection("sellers").document(uid).get()
@@ -78,7 +79,21 @@ public class Login extends AppCompatActivity {
                         DocumentSnapshot document = task.getResult();
                         if (document != null && document.exists()) {
                             // User found in 'sellers' collection
-                            navigateToHomePage("seller");
+                            String status = document.getString("status"); // Get status from seller document
+
+                            // Check if the seller is approved
+                            if ("approved".equalsIgnoreCase(status)) {
+                                navigateToHomePage("seller");
+                            } else if ("pending".equalsIgnoreCase(status)) {
+                                Toast.makeText(Login.this, "Your account is still pending approval. Please wait for admin confirmation.", Toast.LENGTH_LONG).show();
+                                mAuth.signOut(); // Sign out pending seller
+                            } else if ("rejected".equalsIgnoreCase(status)) {
+                                Toast.makeText(Login.this, "Your account was rejected. Please contact support for more info.", Toast.LENGTH_LONG).show();
+                                mAuth.signOut(); // Sign out rejected seller
+                            } else {
+                                Toast.makeText(Login.this, "Unknown account status. Please contact admin.", Toast.LENGTH_SHORT).show();
+                                mAuth.signOut(); // Sign out if status is unknown
+                            }
                         } else {
                             // User not found in 'sellers', check 'buyers' collection
                             db.collection("buyers").document(uid).get()
@@ -86,10 +101,22 @@ public class Login extends AppCompatActivity {
                                         if (task1.isSuccessful()) {
                                             DocumentSnapshot doc = task1.getResult();
                                             if (doc != null && doc.exists()) {
-                                                // User found in 'buyers' collection
-                                                navigateToHomePage("buyer");
+                                                // Check if the buyer is approved
+                                                String buyerStatus = doc.getString("status"); // Get status from buyer document
+
+                                                if ("approved".equalsIgnoreCase(buyerStatus)) {
+                                                    navigateToHomePage("buyer");
+                                                } else if ("pending".equalsIgnoreCase(buyerStatus)) {
+                                                    Toast.makeText(Login.this, "Your account is still pending approval. Please wait for admin confirmation.", Toast.LENGTH_LONG).show();
+                                                    mAuth.signOut(); // Sign out pending buyer
+                                                } else if ("rejected".equalsIgnoreCase(buyerStatus)) {
+                                                    Toast.makeText(Login.this, "Your account was rejected. Please contact support for more info.", Toast.LENGTH_LONG).show();
+                                                    mAuth.signOut(); // Sign out rejected buyer
+                                                } else {
+                                                    Toast.makeText(Login.this, "Unknown account status. Please contact admin.", Toast.LENGTH_SHORT).show();
+                                                    mAuth.signOut(); // Sign out if status is unknown
+                                                }
                                             } else {
-                                                // User not found in either collection
                                                 Toast.makeText(Login.this, "User document does not exist", Toast.LENGTH_SHORT).show();
                                             }
                                         } else {
@@ -102,6 +129,7 @@ public class Login extends AppCompatActivity {
                     }
                 });
     }
+
 
     private void navigateToHomePage(String role) {
         if ("seller".equals(role)) {

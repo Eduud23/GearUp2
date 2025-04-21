@@ -88,10 +88,12 @@ public class MeFragmentBuyer extends Fragment {
                         nameTextView.setText(fullName);
                         emailTextView.setText(email);
 
-                        // Load profile image if exists
+                        // Updated: Load profile image with context safety
                         String profileImageUrl = document.getString("profileImageUrl");
-                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                            Glide.with(this).load(profileImageUrl).into(profileImageView);
+                        if (profileImageUrl != null && isAdded()) {
+                            Glide.with(requireContext())
+                                    .load(profileImageUrl)
+                                    .into(profileImageView);
                         }
                     } else {
                         nameTextView.setText("No buyer info found.");
