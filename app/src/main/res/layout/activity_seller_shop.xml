@@ -37,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
+            android:inputType="text"
             android:hint="Search products"
             android:drawableStart="@drawable/search"
             android:background="@drawable/search_bar_background"
@@ -170,7 +171,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="24dp"
                         android:layout_gravity="center_vertical"
-                        android:text="Sold"
+                        android:text="Sold:"
                         android:layout_marginTop="5dp"/>
 
                     <TextView
@@ -188,7 +189,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="24dp"
                         android:layout_gravity="center_vertical"
-                        android:text="Reviews"
+                        android:text="Ratings:"
                         android:layout_marginTop="5dp"/>
 
                     <TextView
@@ -202,18 +203,22 @@
                         android:textColor="@color/black"/>
 
                     <!-- See Details -->
-                    <TextView
-                        android:id="@+id/tv_see_details"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="See Details"
-                        android:textColor="@color/wallet_holo_blue_light"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="8dp"
-                        android:layout_columnSpan="2" />
                 </GridLayout>
+
+
+                <TextView
+                    android:id="@+id/tv_see_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See Details"
+                    android:padding="10dp"
+                    android:background="@drawable/textview_border"
+                    android:textColor="@color/wallet_holo_blue_light"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:layout_columnSpan="2" />
             </LinearLayout>
 
             <!-- Message Icon -->

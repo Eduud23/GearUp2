@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,7 +29,7 @@ import java.util.List;
 
 public class SellerShopActivity extends AppCompatActivity implements SellerShopAdapter.OnProductClickListener {
 
-    private TextView shopNameTextView, phoneNumberTextView, addressTextView, seeDetailsTextView;
+    private TextView shopNameTextView, phoneNumberTextView, addressTextView, seeDetailsTextView, reviews;
     private RecyclerView productsRecyclerView;
     private SellerShopAdapter productAdapter;
     private List<Product> productList = new ArrayList<>();
@@ -57,6 +58,7 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
         categorySpinner = findViewById(R.id.spinner_category);
         messageIcon = findViewById(R.id.iv_message_icon);
         seeDetailsTextView = findViewById(R.id.tv_see_details);
+        reviews = findViewById(R.id.tv_review_count);
         searchEditText = findViewById(R.id.et_search); // Initialize search bar
 
         ImageView backButton = findViewById(R.id.btn_back);
@@ -113,11 +115,15 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             builder.setItems(categories, (dialog, which) -> {
                 String selectedCategory = categories[which];
                 loadSellerProducts(sellerId, selectedCategory);
+
+                // Show profile & message container again
+                profileAndMessageContainer.setVisibility(View.VISIBLE);
             });
 
             builder.show();
         });
     }
+
 
     private void setupSearchEditText() {
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -167,22 +173,45 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     }
 
     private void loadSellerInfo(String sellerId) {
+        Log.d("SellerInfo", "loadSellerInfo called for sellerId: " + sellerId);
+
         db.collection("sellers").document(sellerId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        // Fetch the review field (which is a number, not a subcollection)
+                        Double reviewValue = documentSnapshot.getDouble("review");
+
+                        // Log the review value to verify it's being fetched correctly
+                        Log.d("Review", "Fetched review value: " + reviewValue);
+
+                        // Check if reviewValue is not null, then round to 1 decimal place
+                        if (reviewValue != null) {
+                            // Round the review value to 1 decimal place
+                            String formattedReview = String.format("%.1f ⭐", reviewValue);
+
+                            // Update tv_review_count with the formatted review value
+                            TextView reviewCountTextView = findViewById(R.id.tv_review_count);
+                            reviewCountTextView.setText(formattedReview);  // Set the formatted review value here
+                        } else {
+                            TextView reviewCountTextView = findViewById(R.id.tv_review_count);
+                            reviewCountTextView.setText("No reviews yet");  // Handle case if review is null
+                        }
+
+                        // Update other fields as usual
                         shopNameTextView.setText(documentSnapshot.getString("shopName"));
                         phoneNumberTextView.setText(documentSnapshot.getString("phone"));
                         addressTextView.setText(documentSnapshot.getString("address"));
 
+                        // Update other UI elements
                         String profileImageUrl = documentSnapshot.getString("profileImageUrl");
                         Glide.with(this).load(profileImageUrl).placeholder(R.drawable.gear).into(profileImageView);
 
-                        // Get latitude & longitude
+                        // Get latitude & longitude for the map
                         Double latitude = documentSnapshot.getDouble("latitude");
                         Double longitude = documentSnapshot.getDouble("longitude");
 
-                        // Set click listener on address to open map
+                        // Set click listener for address to open map
                         addressTextView.setOnClickListener(v -> {
                             Intent intent = new Intent(SellerShopActivity.this, ShopPinLocation.class);
                             intent.putExtra("latitude", latitude);
@@ -190,21 +219,10 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                             startActivity(intent);
                         });
 
-                        // Sold & Review Count
+                        // Sold count
                         Long soldCount = documentSnapshot.getLong("sold");
                         TextView soldCountTextView = findViewById(R.id.tv_sold_count);
                         soldCountTextView.setText(soldCount != null ? String.valueOf(soldCount) : "0");
-
-                        db.collection("sellers").document(sellerId).collection("review")
-                                .get()
-                                .addOnSuccessListener(reviewSnapshots -> {
-                                    int reviewCount = reviewSnapshots.size();
-                                    TextView reviewCountTextView = findViewById(R.id.tv_review_count);
-                                    reviewCountTextView.setText(String.valueOf(reviewCount));
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(this, "Failed to load reviews", Toast.LENGTH_SHORT).show();
-                                });
 
                     } else {
                         Toast.makeText(this, "Shop not found", Toast.LENGTH_SHORT).show();
@@ -212,53 +230,37 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error getting shop info", Toast.LENGTH_SHORT).show();
+                    Log.e("SellerInfo", "Error fetching shop info", e); // Log error
                 });
     }
 
+
     private void loadSellerProducts(String sellerId, String category) {
-        if (category.equals("All")) {
-            db.collection("users").document(sellerId)
-                    .collection("products")
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        productList.clear();
-                        fullProductList.clear();
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            Product product = document.toObject(Product.class);
-                            if (product != null) {
-                                product.setId(document.getId());
-                                productList.add(product);
-                                fullProductList.add(product); // Add to full list for filtering
-                            }
+        db.collection("users").document(sellerId)
+                .collection("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    productList.clear();
+                    fullProductList.clear(); // Always clear this
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        Product product = document.toObject(Product.class);
+                        if (product != null &&
+                                (category.equals("All") || category.equalsIgnoreCase(product.getCategory()))) {
+                            product.setId(document.getId());
+                            productList.add(product);
+                            fullProductList.add(product);
                         }
-                        productAdapter.notifyDataSetChanged();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error getting products", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    });
-        } else {
-            db.collection("users").document(sellerId)
-                    .collection("products")
-                    .whereEqualTo("category", category)
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        productList.clear();
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            Product product = document.toObject(Product.class);
-                            if (product != null) {
-                                product.setId(document.getId());
-                                productList.add(product);
-                            }
-                        }
-                        productAdapter.notifyDataSetChanged();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error getting products", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
-                    });
-        }
+                    }
+
+                    productAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error getting products", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
     }
+
 
     private void setupMessageIconClickListener() {
         messageIcon.setOnClickListener(v -> {

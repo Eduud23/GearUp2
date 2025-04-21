@@ -602,9 +602,9 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                     // Calculate and display the average rating
                     if (count > 0) {
                         double averageRating = totalRating / count;
-                        tvAverageRating.setText(String.format("%.2f", averageRating));
+                        tvAverageRating.setText("Rating: " + String.format("%.2f", averageRating));
                     } else {
-                        tvAverageRating.setText("No ratings yet");
+                        tvAverageRating.setText("Rating: No ratings yet");
                     }
                 })
                 .addOnFailureListener(e -> {
