@@ -93,6 +93,30 @@
                     android:layout_marginStart="8dp" />
             </LinearLayout>
 
+            <!-- Shop Distance -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="start|center_vertical">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/distance"
+                    android:contentDescription="Distance" />
+
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Distance: 0.0 km"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/holo_blue_light"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
         </LinearLayout>
 
     </LinearLayout>

@@ -46,6 +46,13 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
                         .error(R.drawable.gear))
                 .into(holder.shopImage);
 
+        // Display distance or "N/A"
+        if (shop.getDistance() != -1) {
+            holder.distance.setText(String.format("Distance: %.2f km", shop.getDistance()));
+        } else {
+            holder.distance.setText("Distance: N/A");
+        }
+
         // Set click listener to open SellerShopActivity
         holder.itemView.setOnClickListener(v -> listener.onShopClick(shop.getSellerId()));
     }
@@ -60,7 +67,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
     }
 
     public static class ShopViewHolder extends RecyclerView.ViewHolder {
-        TextView shopName, address, phone;
+        TextView shopName, address, phone, distance;
         ImageView shopImage;
 
         public ShopViewHolder(View itemView) {
@@ -68,6 +75,7 @@ public class ShopAdapter extends RecyclerView.Adapter<ShopAdapter.ShopViewHolder
             shopName = itemView.findViewById(R.id.shopName);
             address = itemView.findViewById(R.id.address);
             phone = itemView.findViewById(R.id.phone);
+            distance = itemView.findViewById(R.id.distance); // Add this line for distance
             shopImage = itemView.findViewById(R.id.shopImage);
         }
     }

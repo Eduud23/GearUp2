@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
@@ -20,6 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +30,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SellerDetailsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -37,6 +43,10 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
     private GoogleMap mMap;
     private double sellerLatitude = 0.0;
     private double sellerLongitude = 0.0;
+
+    private RecyclerView recyclerViewReviews;
+    private ReviewAdapter reviewAdapter;
+    private List<Review> reviewsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +63,13 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
         goNowButton = findViewById(R.id.goNow);
         profileImageView = findViewById(R.id.iv_profile_image);
 
+        recyclerViewReviews = findViewById(R.id.comments_and_review);
+        recyclerViewReviews.setLayoutManager(new LinearLayoutManager(this));
+
+        reviewsList = new ArrayList<>();
+        reviewAdapter = new ReviewAdapter(reviewsList);
+        recyclerViewReviews.setAdapter(reviewAdapter);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
@@ -62,6 +79,7 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
 
         if (sellerId != null && !sellerId.isEmpty()) {
             loadSellerDetails(sellerId);
+            loadReviews(sellerId);
         } else {
             Toast.makeText(this, "Seller ID not provided", Toast.LENGTH_SHORT).show();
             finish();
@@ -114,10 +132,33 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
                 .addOnFailureListener(e -> Toast.makeText(this, "Error getting shop details", Toast.LENGTH_SHORT).show());
     }
 
+    private void loadReviews(String sellerId) {
+        db.collection("sellers").document(sellerId)
+                .collection("reviews")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        reviewsList.clear();
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                            String reviewText = documentSnapshot.getString("reviewText");
+                            Double starRating = documentSnapshot.getDouble("starRating");
+                            String userName = documentSnapshot.getString("userName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                            Timestamp timestamp = documentSnapshot.getTimestamp("timestamp");
+
+                            Review review = new Review(reviewText, starRating, null, userName, profileImageUrl, timestamp);
+                            reviewsList.add(review);
+                        }
+                        reviewAdapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(e -> Toast.makeText(SellerDetailsActivity.this, "Failed to load reviews", Toast.LENGTH_SHORT).show());
+    }
+
     private void showReviewDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_review, null);
         RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
-        EditText editTextReview = dialogView.findViewById(R.id.editTextReview); // Get reference to EditText for review text
+        EditText editTextReview = dialogView.findViewById(R.id.editTextReview);
         Button buttonSubmitReview = dialogView.findViewById(R.id.buttonSubmitReview);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -128,14 +169,13 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
 
         buttonSubmitReview.setOnClickListener(v -> {
             double rating = ratingBar.getRating();
-            String reviewText = editTextReview.getText().toString().trim(); // Get review text
+            String reviewText = editTextReview.getText().toString().trim();
 
             if (rating == 0 && reviewText.isEmpty()) {
                 Toast.makeText(SellerDetailsActivity.this, "Please provide a rating or write a review", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Fetch the seller's first and last name
             fetchSellerFullNameAndSubmitReview(rating, reviewText, dialog);
         });
 
@@ -159,70 +199,76 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
                     String userId = currentUser.getUid();
                     String profileImageUrl = currentUser.getPhotoUrl() != null ? currentUser.getPhotoUrl().toString() : null;
 
-                    // Add the new review using the seller's full name and user information
                     addNewReview(userId, rating, reviewText, fullName, profileImageUrl, dialog);
                 })
                 .addOnFailureListener(e -> Toast.makeText(SellerDetailsActivity.this, "Failed to fetch seller details", Toast.LENGTH_SHORT).show());
     }
 
     private void addNewReview(String userId, double rating, String reviewText, String fullName, String profileImageUrl, AlertDialog dialog) {
-        // Create a new Timestamp for when the review is made
         Timestamp timestamp = new Timestamp(System.currentTimeMillis() / 1000, 0);
 
-        // Create the new review object
         Review newReview = new Review(
-                reviewText,       // reviewText
-                rating,           // starRating
-                userId,           // userId
-                fullName,         // fullName
-                profileImageUrl,  // profileImageUrl
-                timestamp         // timestamp
-        );
+                reviewText, rating, userId, fullName, profileImageUrl, timestamp);
 
         DocumentReference sellerRef = db.collection("sellers").document(sellerId);
 
-        // Add the new review to Firestore
         sellerRef.collection("reviews").add(newReview)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(SellerDetailsActivity.this, "Review added", Toast.LENGTH_SHORT).show();
-                    updateSellerAverageRating();  // Update the average rating after adding the review
+                    loadReviews(sellerId);  // Refresh the reviews
+
+                    // Recalculate and update the average rating after adding the new review
+                    recalculateAndUpdateAverageRating();
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(SellerDetailsActivity.this, "Failed to add review", Toast.LENGTH_SHORT).show();
                 });
 
-        dialog.dismiss(); // Dismiss the dialog after the review is submitted
+        dialog.dismiss();
     }
 
-    private void updateSellerAverageRating() {
-        DocumentReference sellerRef = db.collection("sellers").document(sellerId);
-
-        sellerRef.collection("reviews").get()
+    private void recalculateAndUpdateAverageRating() {
+        // Get all reviews for this seller
+        db.collection("sellers").document(sellerId)
+                .collection("reviews")
+                .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    int totalReviews = querySnapshot.size();
-                    double totalRating = 0;
+                    if (!querySnapshot.isEmpty()) {
+                        double totalRating = 0;
+                        int reviewCount = 0;
 
-                    for (DocumentSnapshot document : querySnapshot) {
-                        Double rating = document.getDouble("starRating");
-                        if (rating != null) {
-                            totalRating += rating;
+                        // Loop through all reviews and calculate the total rating
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                            Double starRating = documentSnapshot.getDouble("starRating");
+                            if (starRating != null) {
+                                totalRating += starRating;
+                                reviewCount++;
+                            }
+                        }
+
+                        // Calculate the average rating
+                        if (reviewCount > 0) {
+                            double averageRating = totalRating / reviewCount;
+
+                            // Update the seller's document with the new average rating
+                            db.collection("sellers").document(sellerId)
+                                    .update("review", averageRating)
+                                    .addOnSuccessListener(aVoid -> {
+                                        // Optionally, update the UI with the new average rating
+                                        reviewTextView.setText(String.format("%.1f", averageRating));
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(SellerDetailsActivity.this, "Failed to update average rating", Toast.LENGTH_SHORT).show();
+                                    });
                         }
                     }
-
-                    double averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
-
-                    sellerRef.update("review", averageRating)
-                            .addOnSuccessListener(aVoid -> {
-                                reviewTextView.setText(String.format("%.1f", averageRating));
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(SellerDetailsActivity.this, "Failed to update seller rating", Toast.LENGTH_SHORT).show();
-                            });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to calculate average rating", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SellerDetailsActivity.this, "Failed to recalculate average rating", Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
