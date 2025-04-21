@@ -247,6 +247,7 @@
             android:layout_height="wrap_content"
             android:text="Select Profile Image"
             android:layout_marginTop="16dp"
+            android:background="@drawable/button_image"
             app:layout_constraintTop_toBottomOf="@id/input_confirm_password"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

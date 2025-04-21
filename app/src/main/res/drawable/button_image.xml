@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/button_color"/> <!-- Background color -->
+
+    <corners android:radius="12dp" /> <!-- Rounded corners -->
+
+    <padding
+        android:left="16dp"
+        android:top="16dp"
+        android:right="16dp"
+        android:bottom="16dp" />
+
+    <size
+        android:width="@dimen/cardview_compat_inset_shadow"
+        android:height="@dimen/cardview_compat_inset_shadow"/>
+
+
+    <elevation android:value="4dp" />
+
+    <!-- Optional: Adding a gradient background effect -->
+    <gradient
+        android:startColor="@color/white"
+    android:endColor="@color/button_color"
+    android:angle="45"/>
+</shape>
