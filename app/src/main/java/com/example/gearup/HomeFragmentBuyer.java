@@ -321,16 +321,25 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     }
 
     private void updateUnreadBadge(int count) {
-        TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
-        if (unreadMessageTextView != null) {
-            if (count > 0) {
-                unreadMessageTextView.setVisibility(View.VISIBLE);
-                unreadMessageTextView.setText(String.valueOf(count));
+        // Ensure the fragment is attached and the view is available
+        if (getView() != null) {
+            TextView unreadMessageTextView = getView().findViewById(R.id.unread_message_count);
+
+            if (unreadMessageTextView != null) {
+                if (count > 0) {
+                    unreadMessageTextView.setVisibility(View.VISIBLE);
+                    unreadMessageTextView.setText(String.valueOf(count));
+                } else {
+                    unreadMessageTextView.setVisibility(View.GONE);
+                }
             } else {
-                unreadMessageTextView.setVisibility(View.GONE);
+                Log.e("HomeFragmentBuyer", "Unread message count TextView not found.");
             }
+        } else {
+            Log.e("HomeFragmentBuyer", "Fragment view is not available when updating unread badge.");
         }
     }
+
 
 
     private void notifyAdapters() {

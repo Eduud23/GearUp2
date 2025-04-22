@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnItemClickListener {
+public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnItemClickListener, ShopsFragment.Searchable {
 
     private RecyclerView recyclerView;
     private LocalShopAdapter shopAdapter;
@@ -39,6 +39,8 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
     private LocationRequest locationRequest;
     private static final int LOCATION_PERMISSION_REQUEST = 100;
     private static final String TAG = "LocalShopsFragment";
+
+    private String searchQuery = "";  // Store the search query here
 
     @Nullable
     @Override
@@ -127,29 +129,30 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     try {
                         String shopName = document.getString("shop_name");
-                        Object imageField = document.get("image");
-                        String image = imageField instanceof String ? (String) imageField : "";
+                        String image = document.getString("image");
                         String kindOfRepair = document.getString("kind_of_service");
                         String timeSchedule = document.getString("time_schedule");
                         String place = document.getString("place");
-                        Object contactObj = document.get("contact_number");
-                        String contactNumber = (contactObj instanceof String) ? (String) contactObj : String.valueOf(contactObj);
+                        String contactNumber = document.getString("contact_number");
                         double ratings = document.getDouble("ratings") != null ? document.getDouble("ratings") : 0.0;
-                        Object websiteObj = document.get("website");
-                        String website = websiteObj instanceof String ? (String) websiteObj : "";
-                        Double latitudeObj = document.getDouble("latitude");
-                        Double longitudeObj = document.getDouble("longitude");
-                        double latitude = latitudeObj != null ? latitudeObj : 0.0;
-                        double longitude = longitudeObj != null ? longitudeObj : 0.0;
+                        String website = document.getString("website");
+                        double latitude = document.getDouble("latitude") != null ? document.getDouble("latitude") : 0.0;
+                        double longitude = document.getDouble("longitude") != null ? document.getDouble("longitude") : 0.0;
                         double distance = calculateDistance(userLatitude, userLongitude, latitude, longitude);
 
-                        shopList.add(new LocalShop(shopName, image, kindOfRepair, timeSchedule, place, contactNumber, ratings, website, latitude, longitude, distance));
+                        // Filter by search query
+                        if (shopName != null && shopName.toLowerCase().contains(searchQuery.toLowerCase())) {
+                            shopList.add(new LocalShop(shopName, image, kindOfRepair, timeSchedule, place, contactNumber, ratings, website, latitude, longitude, distance));
+                        }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parsing document: " + document.getId(), e);
                     }
                 }
 
+                // Sort by distance from nearest to farthest
                 Collections.sort(shopList, Comparator.comparingDouble(LocalShop::getDistance));
+
+                // Update the adapter
                 shopAdapter.notifyDataSetChanged();
             } else {
                 Log.e(TAG, "Error getting shops: ", task.getException());
@@ -161,7 +164,7 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
         if (lat1 == 0.0 && lon1 == 0.0) {
             return Double.MAX_VALUE;
         }
-        final int R = 6371;
+        final int R = 6371; // Earth radius in kilometers
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -169,6 +172,39 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                         Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    // Implementing the resetToAllShops method from Searchable interface
+    @SuppressLint("MissingPermission")
+    @Override
+    public void resetToAllShops() {
+        this.searchQuery = "";  // Reset the search query
+        // Reload shops without filtering
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+            if (location != null) {
+                loadLocalShops(location.getLatitude(), location.getLongitude());
+            } else {
+                Log.e(TAG, "Location is null, unable to reload shops.");
+            }
+        }).addOnFailureListener(e -> Log.e(TAG, "Error getting last location", e));
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void searchShops(String query) {
+        this.searchQuery = query.toLowerCase();  // Convert to lowercase for case-insensitive matching
+
+        // If we have a valid fusedLocationClient, retrieve the location and reload shops
+        if (fusedLocationClient != null) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    // Call loadLocalShops with the user's current location
+                    loadLocalShops(location.getLatitude(), location.getLongitude());
+                } else {
+                    Log.e(TAG, "Location is null, unable to reload shops.");
+                }
+            }).addOnFailureListener(e -> Log.e(TAG, "Error getting last location", e));
+        }
     }
 
     @Override
