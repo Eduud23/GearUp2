@@ -45,6 +45,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
     private List<Product> bodyList = new ArrayList<>();
     private List<Product> connectorsList = new ArrayList<>();
     private List<Product> peripheralsList = new ArrayList<>();
+    private TextView labelRecommendedProducts, text_see_all_recommended;
     private List<Product> recommendedProductsList = new ArrayList<>();
 
     private RecommendationAdapter recommendationAdapter;
@@ -64,6 +65,8 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         searchBar = view.findViewById(R.id.search_bar);
         viewPagerRecommended = view.findViewById(R.id.viewPager_recommended_products);
         recommendationAdapter = new RecommendationAdapter(this::onRecommendedProductClick);
+        labelRecommendedProducts = view.findViewById(R.id.label_recommended_products);
+        text_see_all_recommended = view.findViewById(R.id.text_see_all_recommended);
 
         TextView unreadMessageTextView = view.findViewById(R.id.unread_message_count);
 
@@ -401,8 +404,24 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
                         recommendedProductsList.addAll(recommendedProducts);
                         recommendationAdapter.setProductList(recommendedProductsList);
                         viewPagerRecommended.setVisibility(View.VISIBLE);
+
+                        // Make the TextView visible when there are recommended products
+                        labelRecommendedProducts.setVisibility(View.VISIBLE);
+                        text_see_all_recommended.setVisibility(View.VISIBLE);
+
+                        // Set up click listener for "See All"
+                        text_see_all_recommended.setOnClickListener(v -> {
+                            // Pass the list of recommended products to the new activity
+                            Intent intent = new Intent(getContext(), AllRecommendedProductsActivity.class);
+                            intent.putParcelableArrayListExtra("RECOMMENDED_PRODUCTS", new ArrayList<>(recommendedProductsList));
+                            startActivity(intent);
+                        });
                     } else {
                         viewPagerRecommended.setVisibility(View.GONE);
+
+                        // Make the TextView invisible when there are no recommended products
+                        labelRecommendedProducts.setVisibility(View.GONE);
+                        text_see_all_recommended.setVisibility(View.GONE);
                     }
                 });
             } else {
@@ -410,6 +429,7 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
             }
         });
     }
+
 
     public void onRecommendedProductClick(Product clickedProduct) {
         if (clickedProduct == null) {

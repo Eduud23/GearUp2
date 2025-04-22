@@ -32,6 +32,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     // Interface for removing item
     public interface RemoveItemListener {
         void onItemLongPress(CartItem cartItem); // Method that will be called for long press
+        void onItemSelectionChanged(List<CartItem> selectedItems); // Method for selected items
     }
 
     public CartAdapter(List<CartItem> cartItems, OnItemClickListener listener, RemoveItemListener removeItemListener) {
@@ -59,7 +60,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         String imageUrl = cartItem.getImageUrl();
 
         holder.tvProductName.setText(productName);
-        holder.tvProductPrice.setText("₱" + formattedPrice);
+        holder.tvProductPrice.setText("Total Price: ₱" + formattedPrice);
         holder.tvProductQuantity.setText("Quantity: " + cartItem.getQuantity());
 
         // Load product image
@@ -84,7 +85,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             } else {
                 selectedItems.remove(cartItem);
             }
-            listener.onItemClick(cartItem);
+            removeItemListener.onItemSelectionChanged(selectedItems);
         });
 
         // Long press listener to show the checkboxes and trigger the remove item dialog
@@ -103,6 +104,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             if (showCheckboxes) {
                 showCheckboxes = false;
                 notifyDataSetChanged(); // Hide checkboxes if an item is clicked
+            } else {
+                listener.onItemClick(cartItem); // Handle normal click if not in delete mode
             }
         });
     }

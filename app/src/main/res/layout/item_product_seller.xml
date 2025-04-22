@@ -10,6 +10,7 @@
     android:layout_margin="4dp"
     android:elevation="4dp">
 
+    <!-- Product Image -->
     <ImageView
         android:id="@+id/iv_product_image"
         android:layout_width="match_parent"
@@ -17,6 +18,7 @@
         android:contentDescription="@string/product_image_desc"
         android:scaleType="centerCrop" />
 
+    <!-- Seller Profile Image -->
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,9 +35,9 @@
             android:scaleType="fitXY"
             android:contentDescription="@string/seller_profile_image_desc"
             android:src="@drawable/gear" />
-
     </androidx.cardview.widget.CardView>
 
+    <!-- Product Name -->
     <TextView
         android:id="@+id/tv_product_name"
         android:layout_width="wrap_content"
@@ -57,16 +59,6 @@
         android:layout_marginTop="4dp"
         android:text="Brand" />
 
-    <!-- Year Model -->
-    <TextView
-        android:id="@+id/tv_product_year_model"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        android:text="Year Model" />
-
     <!-- Product Price -->
     <TextView
         android:id="@+id/tv_product_price"
@@ -76,17 +68,4 @@
         android:textColor="@android:color/holo_red_dark"
         android:layout_marginTop="4dp"
         android:text="₱Price" />
-
-    <TextView
-        android:id="@+id/tv_product_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/darker_gray"
-        android:layout_marginTop="4dp"
-        android:text="Product Description"
-        android:singleLine="true"
-        android:maxLines="2"
-        android:ellipsize="end" />
-
 </LinearLayout>

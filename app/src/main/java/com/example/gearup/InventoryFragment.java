@@ -288,6 +288,8 @@ public class InventoryFragment extends Fragment {
 
             // Show progress bar while uploading the product
             progressBarContainer.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+
 
             // Upload product images and then save product information
             uploadProductImages(userId, name, price, description, quantity, category, brand, String.valueOf(yearModel), selectedImageUris, views, stars, sold, new UploadCallback() {
@@ -307,6 +309,7 @@ public class InventoryFragment extends Fragment {
                 public void onFailure(String errorMessage) {
                     // Hide progress bar and show failure message
                     progressBarContainer.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(), "Failed to add product: " + errorMessage, Toast.LENGTH_SHORT).show();
                 }
             });

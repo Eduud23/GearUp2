@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -38,7 +39,9 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
     private String currentUserId;
     private TextView totalTextView;
     private ImageView deleteImageView;
-    private Button checkoutButton; // Added Checkout Button
+    private Button checkoutButton;
+
+    private boolean isDeleteModeActive = false; // Track the delete mode state
 
     @Nullable
     @Override
@@ -49,7 +52,7 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
 
         totalTextView = view.findViewById(R.id.textView_total);
         deleteImageView = view.findViewById(R.id.cart_delete_icon);
-        checkoutButton = view.findViewById(R.id.button_checkout); // Checkout Button
+        checkoutButton = view.findViewById(R.id.button_checkout);
 
         db = FirebaseFirestore.getInstance();
         cartItems = new ArrayList<>();
@@ -58,13 +61,31 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
         recyclerViewCart.setAdapter(cartAdapter);
 
         deleteImageView.setOnClickListener(v -> showDeleteConfirmationDialog());
-        checkoutButton.setOnClickListener(v -> proceedToCheckout()); // Set checkout action
+        checkoutButton.setOnClickListener(v -> proceedToCheckout());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
             fetchCartItems();
         }
+
+        // Add back press callback to handle delete mode
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (isDeleteModeActive) {
+                    // Disable delete mode when back is pressed
+                    isDeleteModeActive = false;
+                    cartAdapter.setDeleteMode(false);
+                    deleteImageView.setVisibility(View.GONE);
+                } else {
+                    // Disable the callback to prevent infinite loop and handle normal back press
+                    remove();
+                    requireActivity().onBackPressed(); // Perform normal back press
+                }
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), callback);
 
         return view;
     }
@@ -86,24 +107,15 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                             int quantity = doc.getLong("quantity").intValue();
                             String sellerId = doc.getString("sellerId");
 
-                            // Get totalPrice from Firestore
-                            Double totalPriceObj = doc.getDouble("totalPrice"); // Assuming totalPrice exists and represents the price of the product for the given quantity
-
-                            // Ensure totalPrice is not null and assign a default value if it is
+                            Double totalPriceObj = doc.getDouble("totalPrice");
                             double totalPrice = (totalPriceObj != null) ? totalPriceObj : 0.0;
 
-                            // If you want to recalculate totalPrice based on quantity:
-                            totalPrice *= quantity;  // Multiply by quantity to get the final total price for the item
+                            totalPrice *= quantity;
 
                             String imageUrl = doc.getString("imageUrl");
-                            String brand = doc.getString("brand"); // Assuming brand field exists
-                            String yearModel = doc.getString("yearModel"); // Assuming yearModel field exists
+                            String brand = doc.getString("brand");
+                            String yearModel = doc.getString("yearModel");
 
-                            // Create the CartItem with required fields
-                            List<String> imageUrls = new ArrayList<>();
-                            imageUrls.add(imageUrl); // Add the image URL to the list
-
-                            // Ensure Document ID is set
                             CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, doc.getId());
                             cartItems.add(cartItem);
                         }
@@ -113,31 +125,25 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                 });
     }
 
-
-
     private void proceedToCheckout() {
         if (cartItems.isEmpty()) {
             Toast.makeText(getContext(), "Your cart is empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Calculate the total amount
         double totalAmount = 0;
         for (CartItem cartItem : cartItems) {
             totalAmount += cartItem.getTotalPrice();
         }
 
-        // Format the total amount
         String formattedTotalAmount = formatPrice(totalAmount);
 
-        // Pass the cart items and total amount to the PaymentActivity
         Intent intent = new Intent(getActivity(), PaymentActivity.class);
-        intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(cartItems)); // Pass cart items
-        intent.putExtra("totalAmount", formattedTotalAmount); // Pass totalAmount
+        intent.putParcelableArrayListExtra("cartItems", new ArrayList<>(cartItems));
+        intent.putExtra("totalAmount", formattedTotalAmount);
 
         startActivity(intent);
     }
-
 
     private void updateTotal() {
         double total = 0;
@@ -152,6 +158,7 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
         return formatter.format(price);
     }
 
+    // This is where the "Are you sure you want to delete these products?" dialog is displayed
     private void showDeleteConfirmationDialog() {
         List<CartItem> selectedItems = cartAdapter.getSelectedItems();
         if (selectedItems.isEmpty()) {
@@ -159,10 +166,12 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
             return;
         }
 
+        // Show the confirmation dialog
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Selected Items")
-                .setMessage("Are you sure to delete these products?")
+                .setMessage("Are you sure you want to delete these products?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+                    // Delete the selected items from Firestore
                     for (CartItem item : selectedItems) {
                         db.collection("buyers")
                                 .document(currentUserId)
@@ -172,15 +181,27 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                     }
                     Toast.makeText(getContext(), "Items removed from cart", Toast.LENGTH_SHORT).show();
                     updateTotal();
+                    isDeleteModeActive = false;
                     cartAdapter.setDeleteMode(false);
                     deleteImageView.setVisibility(View.GONE);
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
     @Override
     public void onItemLongPress(CartItem cartItem) {
+        isDeleteModeActive = true;
         cartAdapter.setDeleteMode(true);
         deleteImageView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onItemSelectionChanged(List<CartItem> selectedItems) {
+        if (selectedItems.isEmpty()) {
+            deleteImageView.setVisibility(View.GONE);
+        } else {
+            deleteImageView.setVisibility(View.VISIBLE);
+        }
     }
 }

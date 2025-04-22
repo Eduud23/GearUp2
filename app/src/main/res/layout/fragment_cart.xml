@@ -47,7 +47,7 @@
         android:paddingBottom="16dp"
         android:overScrollMode="never"
         android:scrollbars="vertical"
-        android:background="@drawable/add_tocart_border"/>
+    />
 
     <TextView
         android:id="@+id/textView_total"

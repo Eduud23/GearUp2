@@ -65,9 +65,7 @@ public class SeeAllProductAdapter extends RecyclerView.Adapter<SeeAllProductAdap
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName;
         TextView productPrice;
-        TextView productDescription;
         TextView productBrand;  // Brand TextView
-        TextView productYearModel;  // Year Model TextView
         ImageView productImage;
         ImageView sellerProfileImage;
 
@@ -75,21 +73,20 @@ public class SeeAllProductAdapter extends RecyclerView.Adapter<SeeAllProductAdap
             super(itemView);
             productName = itemView.findViewById(R.id.tv_product_name);
             productPrice = itemView.findViewById(R.id.tv_product_price);
-            productDescription = itemView.findViewById(R.id.tv_product_description);
             productBrand = itemView.findViewById(R.id.tv_product_brand);  // Initialize the brand field
-            productYearModel = itemView.findViewById(R.id.tv_product_year_model);  // Initialize the year model field
             productImage = itemView.findViewById(R.id.iv_product_image);
             sellerProfileImage = itemView.findViewById(R.id.civ_seller_profile_image);
         }
 
         public void bind(Product product, int position) {
+            // Bind product name
             productName.setText(product.getName());
-            productPrice.setText(String.format("₱%.2f", product.getPrice()));
-            productDescription.setText(product.getDescription());
 
-            // Set the brand and year model
-            productBrand.setText(product.getBrand());  // Bind brand
-            productYearModel.setText(product.getYearModel());  // Bind year model
+            // Bind product price
+            productPrice.setText("Price: " + String.format("₱%.2f", product.getPrice()));
+
+            // Bind product brand
+            productBrand.setText("Brand: " + product.getBrand());
 
             // Load product image
             List<String> imageUrls = product.getImageUrls();

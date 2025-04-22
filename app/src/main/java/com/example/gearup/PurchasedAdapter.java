@@ -40,7 +40,7 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
         // Set the product name, quantity, and price
         holder.tvProductName.setText(orderItem.getProductName());
         holder.tvProductQuantity.setText("Quantity: " + orderItem.getQuantity());
-        holder.tvProductPrice.setText(String.format("₱%.2f", orderItem.getTotalPrice()));
+        holder.tvProductPrice.setText(String.format("Total Price: ₱%.2f", orderItem.getTotalPrice()));
 
         // Load the product image using Glide
         Glide.with(holder.itemView.getContext())
