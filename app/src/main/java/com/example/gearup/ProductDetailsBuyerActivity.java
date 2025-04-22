@@ -44,6 +44,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
@@ -322,14 +323,18 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
                 existingItem.setQuantity(existingItem.getQuantity() + quantity);
                 updateCartItemInFirestore(product, existingItem.getQuantity());
             } else {
-                // Pass the productId when creating a CartItem
-                Cart.getInstance(this).addToCart(product, quantity, sellerId, product.getId()); // Assuming product.getId() gives productId
+                // Generate documentId using UUID or any other method
+                String documentId = UUID.randomUUID().toString(); // Generate a unique documentId
+
+                // Pass the productId and documentId when creating a CartItem
+                Cart.getInstance(this).addToCart(product, quantity, sellerId, product.getId(), documentId);
                 saveCartItemToFirestore(product, quantity);
             }
 
             Toast.makeText(this, "Added to cart", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
     private void saveCartItemToFirestore(Product product, int quantity) {
@@ -340,9 +345,11 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         String brand = product.getBrand(); // Assuming Product has getBrand()
         String yearModel = product.getYearModel(); // Assuming Product has getYearModel()
 
-        // Create the CartItem
-        CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, product.getId());
+        // Assuming you have a way to generate a document ID, use an empty string for now if not available
+        String documentId = "";  // Set it to an empty string or null if you don't have a specific document ID
 
+        // Create the CartItem with the required constructor (passing documentId)
+        CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, product.getId(), documentId);
 
         // Save the cart item to Firestore
         db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)

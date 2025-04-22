@@ -57,7 +57,8 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
         db = FirebaseFirestore.getInstance();
         cartItems = new ArrayList<>();
 
-        cartAdapter = new CartAdapter(cartItems, cartItem -> updateTotal(), this);
+        cartAdapter = new CartAdapter(getContext(), cartItems, cartItem -> updateTotal(), this);
+
         recyclerViewCart.setAdapter(cartAdapter);
 
         deleteImageView.setOnClickListener(v -> showDeleteConfirmationDialog());
@@ -115,8 +116,10 @@ public class CartFragment extends Fragment implements CartAdapter.RemoveItemList
                             String imageUrl = doc.getString("imageUrl");
                             String brand = doc.getString("brand");
                             String yearModel = doc.getString("yearModel");
+                            String productId = doc.getString("productId");
+                            String documentId = doc.getId();
 
-                            CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, doc.getId());
+                            CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, productId,documentId);
                             cartItems.add(cartItem);
                         }
                         cartAdapter.notifyDataSetChanged();

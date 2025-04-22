@@ -1,0 +1,50 @@
+<!-- res/layout/dialog_edit_quantity.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!-- Product Image -->
+    <ImageView
+        android:id="@+id/iv_dialog_product_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_image_placeholder" />
+
+    <!-- Product Name -->
+    <TextView
+        android:id="@+id/tv_dialog_product_name"
+        android:text="Product Name"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Product Total Price -->
+    <TextView
+        android:id="@+id/tv_dialog_product_price"
+        android:text="Total Price: ₱0.00"
+        android:textSize="16sp"
+        android:textColor="#FF5722"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Available Quantity -->
+    <TextView
+        android:id="@+id/tv_dialog_available_quantity"
+        android:text="Available Quantity: 0"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Quantity Input Field -->
+    <EditText
+        android:id="@+id/et_dialog_quantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Enter Quantity" />
+</LinearLayout>

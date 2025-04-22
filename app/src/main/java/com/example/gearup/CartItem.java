@@ -16,12 +16,13 @@ public class CartItem implements Parcelable {
 
     private String productId;
 
+
     // Default constructor (needed for Firebase)
     public CartItem() {}
 
     // Updated constructor to include brand and yearModel
     public CartItem(String productName, int quantity, String sellerId, double totalPrice,
-                    String userId, String imageUrl, String brand, String yearModel, String productId) {
+                    String userId, String imageUrl, String brand, String yearModel, String productId, String documentId) {
         this.productName = productName;
         this.quantity = quantity;
         this.sellerId = sellerId;
@@ -31,6 +32,7 @@ public class CartItem implements Parcelable {
         this.brand = brand;
         this.yearModel = yearModel;
         this.productId = productId;
+        this.documentId = documentId;
     }
 
     protected CartItem(Parcel in) {
