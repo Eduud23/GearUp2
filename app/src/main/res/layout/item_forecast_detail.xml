@@ -5,8 +5,21 @@
     android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:layout_marginBottom="8dp">
+    android:background="@drawable/card_background"
+    android:layout_marginBottom="16dp"
+    android:clipToPadding="false"
+    android:layout_gravity="center">
+
+    <!-- Image -->
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/add_tocart_border"
+        android:elevation="4dp"/>
 
     <!-- Category -->
     <TextView
@@ -14,8 +27,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Category"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
-        android:textSize="16sp" />
+        android:textSize="18sp"
+        android:layout_marginBottom="4dp"
+        android:layout_gravity="start"/>
 
     <!-- Vehicle Type -->
     <TextView
@@ -23,8 +39,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Vehicle Type"
-        android:textSize="15sp"
-        android:layout_marginTop="2dp" />
+        android:textColor="@color/colorAccent"
+        android:textSize="16sp"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="start"/>
 
     <!-- Component -->
     <TextView
@@ -32,8 +50,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Component"
-        android:textSize="15sp"
-        android:layout_marginTop="4dp" />
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:layout_marginTop="2dp"
+        android:layout_gravity="start"/>
 
     <!-- Description -->
     <TextView
@@ -41,16 +61,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Description"
+        android:textColor="@color/gray"
         android:textSize="15sp"
-        android:layout_marginTop="4dp" />
-
-    <!-- Image -->
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:scaleType="centerCrop"
-        android:layout_marginTop="8dp"
-        android:background="#E0E0E0" />
+        android:layout_marginTop="6dp"
+        android:layout_gravity="start"/>
 
 </LinearLayout>

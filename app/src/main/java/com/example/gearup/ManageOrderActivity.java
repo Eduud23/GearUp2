@@ -94,7 +94,6 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     orderList.clear();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        // Retrieve order details
                         String orderId = document.getId();
                         String productName = document.getString("product.productName");
                         Long quantityObj = document.getLong("product.productQuantity");
@@ -112,18 +111,24 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         String sellerId = document.getString("product.sellerId");
                         String paymentIntentId = document.getString("product.paymentIntentId");
                         String productId = document.getString("product.productId");
+                        String brand = document.getString("product.productBrand");
+                        String productYear = document.getString("product.productYear"); // ✅ new line
 
+                        // Pass productYear to OrderItem constructor
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
-                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId, productId);
+                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl,
+                                sellerId, paymentIntentId, productId, brand, productYear); // ✅ updated constructor
+
                         orderList.add(orderItem);
                     }
-                    // Apply filter by default status
+
                     filterOrdersByStatusAndSearch(selectedStatus, "");
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Failed to load orders", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void filterOrdersByStatusAndSearch(String status, String searchQuery) {
         filteredOrderList.clear();
@@ -179,10 +184,12 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderItem.getImageUrl(),
                     orderItem.getSellerId(),
                     orderItem.getPaymentIntentId(),
-                    orderItem.getProductId()
+                    orderItem.getProductId(),
+                    orderItem.getBrand(),
+                    orderItem.getProductYear() // ✅ new field added here
             );
 
-            orderList.set(position, updatedOrderItem);
+        orderList.set(position, updatedOrderItem);
             adapter.notifyItemChanged(position);
 
             // Update Firestore

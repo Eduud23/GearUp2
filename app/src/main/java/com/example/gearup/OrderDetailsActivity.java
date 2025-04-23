@@ -45,6 +45,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
         String imageUrl = intent.getStringExtra("imageUrl");
         String sellerId = intent.getStringExtra("sellerId");
         String paymentIntentId = intent.getStringExtra("paymentIntentId");
+        String productBrand = intent.getStringExtra("productBrand");
+        String productYear = intent.getStringExtra("productYear");
+
 
         // Get references to the UI elements
         TextView tvProductName = findViewById(R.id.tv_product_name);
@@ -54,9 +57,12 @@ public class OrderDetailsActivity extends AppCompatActivity {
         TextView tvShippingAddress = findViewById(R.id.tv_shipping_address);
         TextView tvDeliveryOption = findViewById(R.id.tv_delivery_option);
         TextView tvOrderStatus = findViewById(R.id.tv_order_status);
-        TextView tvPaymentStatus = findViewById(R.id.tv_payment_status); // New TextView for payment status
+        TextView tvPaymentStatus = findViewById(R.id.payment_status); // New TextView for payment status
         TextView tvPaymentDetails = findViewById(R.id.tv_payment_details); // TextView to show all payment details
         ImageView ivProductImage = findViewById(R.id.iv_product_image);
+        TextView tvProductBrand = findViewById(R.id.tv_product_brand);
+        TextView tvProductYear = findViewById(R.id.tv_product_year);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,6 +75,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
         tvShippingAddress.setText("Shipping Address: " + shippingAddress);
         tvDeliveryOption.setText("Delivery Option: " + deliveryOption);
         tvOrderStatus.setText("Order Status: " + orderStatus);
+        tvProductBrand.setText("Brand: " + productBrand);
+        tvProductYear.setText("Model Year: " + productYear);
+
 
         // Load the product image using Glide
         Glide.with(this).load(imageUrl).into(ivProductImage);

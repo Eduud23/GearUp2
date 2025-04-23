@@ -67,6 +67,8 @@ public class ManageOrderAdapter extends RecyclerView.Adapter<ManageOrderAdapter.
             intent.putExtra("sellerId", order.getSellerId());
             intent.putExtra("paymentIntentId", order.getPaymentIntentId());
             intent.putExtra("productId", order.getProductId());
+            intent.putExtra("productBrand", order.getBrand());
+            intent.putExtra("productYear", order.getProductYear());
 
             // Start the activity
             context.startActivity(intent);

@@ -60,77 +60,82 @@ public class OrderedProductsFragment extends Fragment {
     // Fetch ordered items for the logged-in user
     private void fetchOrderedItems() {
         orderedListenerRegistration = db.collection("orders")
-                .whereEqualTo("product.userId", currentUserId) // Filter orders by current user's ID
+                .whereEqualTo("product.userId", currentUserId)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (error != null) {
-                            return; // Handle the error (you can show a Toast or log it)
+                            return;
                         }
 
-                        // Clear the existing list of orders and update with new ones
                         orderedItems.clear();
                         for (QueryDocumentSnapshot doc : value) {
-                            // Manually retrieve the fields, handling nested fields
                             String orderId = doc.getId();
 
-                            // Retrieve the 'product' map and its fields
                             Map<String, Object> productMap = (Map<String, Object>) doc.get("product");
                             String productName = (String) productMap.get("productName");
                             String productBrand = (String) productMap.get("productBrand");
                             String productYear = (String) productMap.get("productYear");
+                            String productId = (String) productMap.get("productId");
+                            String sellerId = (String) productMap.get("sellerId");
+                            String paymentIntentId = (String) productMap.get("paymentIntentId");
 
-                            // Safely retrieve and cast productQuantity
                             Object productQuantityObj = productMap.get("productQuantity");
-                            Long productQuantity = null;
-
+                            Long productQuantity;
                             if (productQuantityObj instanceof Long) {
                                 productQuantity = (Long) productQuantityObj;
                             } else if (productQuantityObj instanceof String) {
                                 try {
-                                    productQuantity = Long.parseLong((String) productQuantityObj); // Parse the string into a Long
+                                    productQuantity = Long.parseLong((String) productQuantityObj);
                                 } catch (NumberFormatException e) {
-                                    // Handle invalid format here (log or set a default value)
-                                    productQuantity = 0L;  // Default value in case of parsing failure
+                                    productQuantity = 0L;
                                 }
                             } else {
-                                // Handle the case where the quantity is neither a Long nor a String (invalid data)
-                                productQuantity = 0L; // Default value
+                                productQuantity = 0L;
                             }
 
-                            // Safely retrieve and check if productPrice is null
                             Double productPrice = (Double) productMap.get("totalPrice");
                             if (productPrice == null) {
-                                productPrice = 0.0; // Default to 0.0 if productPrice is null
+                                productPrice = 0.0;
                             }
 
                             String imageUrl = (String) productMap.get("imageUrl");
 
-                            // Retrieve the 'customerInfo' map and its fields
                             Map<String, Object> customerInfo = (Map<String, Object>) doc.get("customerInfo");
                             String customerName = (String) customerInfo.get("fullName");
                             String shippingAddress = (String) doc.get("shippingAddress");
 
-                            // Retrieve other fields
                             String deliveryOption = (String) doc.get("deliveryType");
                             String orderStatus = (String) doc.get("status");
-                            String sellerId = (String) doc.get("product.sellerId");
-                            String paymentIntentId = (String) doc.get("product.paymentIntentId");
-                            String productId = (String) doc.get("product.productId");
+                            String paymentMethod = (String) productMap.get("paymentMethod");
 
-                            // Create an OrderItem object and add it to the list
-                            OrderItem orderItem = new OrderItem(orderId, productName, productQuantity, productPrice,
-                                    customerName, shippingAddress, deliveryOption, orderStatus, deliveryOption, imageUrl, sellerId, paymentIntentId, productId);
+                            // ✅ Corrected constructor call with all fields in order
+                            OrderItem orderItem = new OrderItem(
+                                    orderId,
+                                    productName,
+                                    productQuantity,
+                                    productPrice,
+                                    customerName,
+                                    shippingAddress,
+                                    paymentMethod,
+                                    orderStatus,
+                                    deliveryOption,
+                                    imageUrl,
+                                    sellerId,
+                                    paymentIntentId,
+                                    productId,
+                                    productBrand,
+                                    productYear
+                            );
 
-                            // Add the order item to the list
                             orderedItems.add(orderItem);
                         }
 
-                        // Notify the adapter that the data set has changed
                         purchasedAdapter.notifyDataSetChanged();
                     }
                 });
     }
+
 
     @Override
     public void onDestroy() {

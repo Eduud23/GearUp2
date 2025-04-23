@@ -3,39 +3,51 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+   >
 
+    <!-- Back Button -->
     <ImageView
         android:id="@+id/btn_back"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:src="@drawable/ic_back"
         android:contentDescription="Back"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_bg"
         android:elevation="6dp"
-        android:padding="8dp"
-        android:layout_gravity="start"/>
+        android:padding="12dp"
+        android:layout_gravity="start"
+        android:layout_marginBottom="16dp"
+        />
 
-
-    <!-- Inner LinearLayout for product title -->
+    <!-- Inner LinearLayout for Product Title -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="@drawable/card_background"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="center_horizontal"
+        android:elevation="4dp"
+        android:clipToPadding="false">
 
         <!-- Product Title TextView -->
         <TextView
             android:id="@+id/productTitleText"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Product Title"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"
-            android:textColor="@android:color/black"/>
+            android:textColor="@color/colorPrimary"
+            android:layout_marginBottom="8dp"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="2"/>
     </LinearLayout>
 
     <!-- RecyclerView for Forecast Product Items -->
@@ -44,5 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:scrollbars="vertical"/>
+
 </LinearLayout>

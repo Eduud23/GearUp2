@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Selector to handle the button states -->
+    <selector xmlns:android="http://schemas.android.com/apk/res/android">
+        <!-- State when the button is pressed -->
+        <item android:state_pressed="true">
+            <objectAnimator
+                android:propertyName="elevation"
+                android:valueType="floatType"
+                android:valueFrom="8dp"
+                android:valueTo="12dp"
+                android:duration="100"/>
+        </item>
+
+        <!-- Default state (when not pressed) -->
+        <item>
+            <objectAnimator
+                android:propertyName="elevation"
+                android:valueType="floatType"
+                android:valueFrom="12dp"
+                android:valueTo="8dp"
+                android:duration="100"/>
+        </item>
+    </selector>
+
+</set>

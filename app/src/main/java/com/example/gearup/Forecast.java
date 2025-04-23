@@ -103,11 +103,18 @@ public class Forecast extends AppCompatActivity {
                                     quantity.add(forecastQuantity);
                                     labels.add("Forecast");
 
-                                    // Forecast date = today + 30 days
+                                    // Calculate next month's first and last day
                                     Calendar cal = Calendar.getInstance();
                                     cal.setTime(currentDate);
-                                    cal.add(Calendar.DAY_OF_YEAR, 30);
-                                    String forecastDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+                                    cal.add(Calendar.MONTH, 1); // Move to next month
+                                    cal.set(Calendar.DAY_OF_MONTH, 1); // Set to first day of next month
+                                    String forecastStartDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+                                    cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH)); // Set to last day of next month
+                                    String forecastEndDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+                                    // Set forecast as the range from first to last day of next month
+                                    String forecastDate = forecastStartDate + " to " + forecastEndDate;
 
                                     // Determine trend direction
                                     float lastActualSales = y.get(y.size() - 2); // Last actual value (sales)

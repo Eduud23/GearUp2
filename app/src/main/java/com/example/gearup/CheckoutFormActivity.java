@@ -2,6 +2,8 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -108,6 +110,39 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
 // Trigger once to ensure correct visibility on startup
         deliveryOptionChangeListener.onClick(radioDelivery);
+
+        TextWatcher formWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkFormCompletion(); // Validate fields on change
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        };
+
+// Attach to the text fields
+        ((EditText) findViewById(R.id.email)).addTextChangedListener(formWatcher);
+        ((EditText) findViewById(R.id.fullName)).addTextChangedListener(formWatcher);
+        ((EditText) findViewById(R.id.phone_number)).addTextChangedListener(formWatcher);
+        shippingAddressEditText.addTextChangedListener(formWatcher);
+        zipCodeEditText.addTextChangedListener(formWatcher);
+
+// Also check when toggling between Delivery and Pickup
+        radioDelivery.setOnClickListener(v -> {
+            updateDeliveryFieldsVisibility(true);
+            checkFormCompletion();
+        });
+        radioPickup.setOnClickListener(v -> {
+            updateDeliveryFieldsVisibility(false);
+            checkFormCompletion();
+        });
+
+// Call it once on startup in case fields are already filled
+        checkFormCompletion();
 
 
         // Retrieve the product details from the intent
@@ -289,6 +324,36 @@ public class CheckoutFormActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void checkFormCompletion() {
+        String email = ((EditText) findViewById(R.id.email)).getText().toString().trim();
+        String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString().trim();
+        String phone = ((EditText) findViewById(R.id.phone_number)).getText().toString().trim();
+        boolean isDelivery = radioDelivery.isChecked();
+
+        // Required fields for both Delivery and Pickup
+        boolean allFilled = !email.isEmpty() && !fullName.isEmpty() && !phone.isEmpty();
+
+        // If delivery is selected, also require address fields
+        if (isDelivery) {
+            String address = shippingAddressEditText.getText().toString().trim();
+            String zip = zipCodeEditText.getText().toString().trim();
+
+            allFilled = allFilled && !address.isEmpty() && !zip.isEmpty();
+        }
+
+        // Show or hide the Stripe button
+        btnStripePayment.setVisibility(allFilled ? View.VISIBLE : View.GONE);
+    }
+    private void updateDeliveryFieldsVisibility(boolean isVisible) {
+        shippingAddressEditText.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        zipCodeEditText.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        riderMessageEditText.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+    }
+
+
+
+
     // Inside the validateVoucher method
     private void validateVoucher(String voucherCode) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

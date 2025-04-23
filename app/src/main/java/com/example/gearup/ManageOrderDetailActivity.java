@@ -23,7 +23,7 @@ import java.net.URL;
 
 public class ManageOrderDetailActivity extends AppCompatActivity {
 
-    private TextView productName, quantity, totalPrice, orderStatus, deliveryOption, tvPaymentStatus, tvPaymentDetails;
+    private TextView productName, quantity, totalPrice, orderStatus, deliveryOption, tvPaymentStatus, tvPaymentDetails, productBrandView, productYearView;
     private ImageView productImageView;
     private TextView customerEmail, customerFullName, customerPhoneNumber, customerRiderMessage, customerZipCode;
     private FirebaseFirestore db;
@@ -45,6 +45,9 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
         productImageView = findViewById(R.id.product_image);
         tvPaymentStatus = findViewById(R.id.payment_status);
         tvPaymentDetails = findViewById(R.id.payment_details);
+        productBrandView = findViewById(R.id.product_brand);
+        productYearView = findViewById(R.id.product_year);
+
 
         // Customer info views
         customerEmail = findViewById(R.id.customer_email);
@@ -67,6 +70,8 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String orderId = intent.getStringExtra("orderId");
         String productNameValue = intent.getStringExtra("productName");
+        String productBrand = intent.getStringExtra("productBrand");
+        String productYear = intent.getStringExtra("productYear");
         long productQuantity = intent.getLongExtra("productQuantity", 0);
         double productTotalPrice = intent.getDoubleExtra("totalPrice", 0.0);
         String orderStatusValue = intent.getStringExtra("orderStatus");
@@ -77,6 +82,8 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
         // Set the data to the views
         productName.setText("Product Name: " + productNameValue);
         quantity.setText("Quantity: " + productQuantity);
+        productBrandView.setText("Brand: " + productBrand);
+        productYearView.setText("Year Model: " + productYear);
         totalPrice.setText("Total Price: ₱" + productTotalPrice);
         orderStatus.setText("Status: " + orderStatusValue);
         deliveryOption.setText("Delivery Method: " + deliveryOptionValue);

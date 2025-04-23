@@ -64,6 +64,9 @@ public class PurchasedAdapter extends RecyclerView.Adapter<PurchasedAdapter.View
             intent.putExtra("imageUrl", orderItem.getImageUrl());
             intent.putExtra("sellerId", orderItem.getSellerId());
             intent.putExtra("paymentIntentId", orderItem.getPaymentIntentId());
+            intent.putExtra("productId", orderItem.getProductId());
+            intent.putExtra("productBrand", orderItem.getBrand());
+            intent.putExtra("productYear", orderItem.getProductYear());
             context.startActivity(intent);  // Start OrderDetailsActivity with the passed data
         });
     }
