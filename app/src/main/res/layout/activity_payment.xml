@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-   >
+    android:orientation="vertical">
 
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:padding="16dp"
             android:orientation="vertical">
 
-            <!-- Horizontal RecyclerView for selected products -->
+            <!-- Product List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView_checkout"
                 android:layout_width="match_parent"
@@ -36,7 +36,7 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:orientation="horizontal" />
 
-            <!-- Total amount display -->
+            <!-- Total Display -->
             <TextView
                 android:id="@+id/textView_total_payment"
                 android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 android:textColor="@color/black"
                 android:layout_marginBottom="10dp" />
 
-            <!-- Radio buttons for delivery options -->
+            <!-- Delivery Option -->
             <RadioGroup
                 android:id="@+id/delivery_option"
                 android:layout_width="wrap_content"
@@ -58,7 +58,8 @@
                     android:id="@+id/radio_delivery"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Delivery" />
+                    android:text="Delivery"
+                    android:checked="true" />
 
                 <RadioButton
                     android:id="@+id/radio_pickup"
@@ -68,56 +69,123 @@
                     android:layout_marginStart="20dp" />
             </RadioGroup>
 
-            <!-- EditText fields for user's information -->
-            <EditText
-                android:id="@+id/email"
+            <!-- Material Input Fields -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:imeOptions="actionNext"
-                android:inputType="textEmailAddress" />
+                android:hint="Email">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/fullName"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Full Name"
-                android:imeOptions="actionNext"
-                android:inputType="textPersonName" />
+                android:hint="Full Name">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/phone_number"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Phone Number"
-                android:imeOptions="actionNext"
-                android:inputType="phone" />
+                android:hint="Phone Number">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/phone_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/shipping_address"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/shipping_address_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Shipping Address"
-                android:imeOptions="actionNext"
-                android:inputType="textPostalAddress" />
+                android:hint="Shipping Address">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/shipping_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPostalAddress"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/zip_code"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/zip_code_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Zip Code"
-                android:imeOptions="actionNext"
-                android:inputType="number" />
+                android:hint="Zip Code">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/zip_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:imeOptions="actionNext" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/rider_message"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/rider_message_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Message to Rider (Optional)"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
+                android:hint="Message to Rider (Optional)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rider_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:imeOptions="actionDone" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Confirm Payment Button -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voucher Code"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+
+                <!-- The EditText inside TextInputLayout will take most of the space -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Voucher Code">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/voucher"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Button to validate the voucher code placed at the right end -->
+                <Button
+                    android:id="@+id/btn_validate_voucher"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Validate"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginStart="10dp" /> <!-- Adds a small margin to the left -->
+            </LinearLayout>
+
+            <!-- Confirm Button -->
             <Button
                 android:id="@+id/btn_stripe_payment"
                 android:layout_width="match_parent"

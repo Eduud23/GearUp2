@@ -39,34 +39,30 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Product product = products.get(position);
 
         holder.productName.setText(product.getName());
-        holder.productPrice.setText("Price: " + String.format("₱%.2f", product.getPrice()));
-        holder.productDescription.setText("Description: " + product.getDescription());
-
-        // Bind brand and year model
+        holder.productPrice.setText(String.format("Price: ₱%.2f", product.getPrice()));
         holder.productBrand.setText("Brand: " + product.getBrand());
-        holder.productYearModel.setText("Year Model: " + product.getYearModel());
 
-        // Load the first product image from the list of URLs
+        // Load product image
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(imageUrls.get(0))
                     .into(holder.productImage);
         } else {
-            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground); // Placeholder image
+            holder.productImage.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // Load seller profile image using the seller's profile image URL
+        // Load seller profile image
         String profileImageUrl = product.getSellerProfileImageUrl();
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(profileImageUrl)
                     .into(holder.sellerProfileImage);
         } else {
-            holder.sellerProfileImage.setImageResource(R.drawable.ic_launcher_foreground); // Default image
+            holder.sellerProfileImage.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // Set click listener for each item
+        // Set item click
         holder.itemView.setOnClickListener(v -> onProductClickListener.onProductClick(position));
     }
 
@@ -76,16 +72,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productPrice, productDescription, productBrand, productYearModel;
+        TextView productName, productPrice, productBrand;
         ImageView productImage, sellerProfileImage;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.tv_product_name);
             productPrice = itemView.findViewById(R.id.tv_product_price);
-            productDescription = itemView.findViewById(R.id.tv_product_description);
-            productBrand = itemView.findViewById(R.id.tv_product_brand); // New TextView for brand
-            productYearModel = itemView.findViewById(R.id.tv_product_year_model); // New TextView for year model
+            productBrand = itemView.findViewById(R.id.tv_product_brand);
             productImage = itemView.findViewById(R.id.iv_product_image);
             sellerProfileImage = itemView.findViewById(R.id.civ_seller_profile_image);
         }
@@ -95,7 +89,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         void onProductClick(int position);
     }
 
-    // New method to update the product list
     public void updateProducts(List<Product> newProducts) {
         products.clear();
         products.addAll(newProducts);

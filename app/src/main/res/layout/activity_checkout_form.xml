@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="@color/light_gray">
 
-    <!-- Fixed Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -22,7 +21,6 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-        <!-- Main content section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,27 +73,31 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Brand and Year Model -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp">
 
+                <!-- Brand label -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Brand: "
                     android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp" /> <!-- Adds space between label and value -->
 
+                <!-- Brand value -->
                 <TextView
                     android:id="@+id/product_brand"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
             </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -103,22 +105,25 @@
                 android:orientation="horizontal"
                 android:layout_marginTop="4dp">
 
+                <!-- Year Model label -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Year Model: "
                     android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:layout_marginEnd="8dp" /> <!-- Adds space between label and value -->
 
+                <!-- Year Model value -->
                 <TextView
                     android:id="@+id/product_year"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textColor="@color/black" />
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
             </LinearLayout>
 
-            <!-- Divider line -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -126,107 +131,158 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp" />
 
-            <!-- Delivery Options -->
+            <!-- Delivery Option -->
+            <RadioGroup
+                android:id="@+id/delivery_option"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="20dp">
+
+                <RadioButton
+                    android:id="@+id/radio_delivery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Delivery"
+                    android:checked="true"
+                    android:textColor="@color/black" />
+
+                <RadioButton
+                    android:id="@+id/radio_pickup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pickup"
+                    android:textColor="@color/black"
+                    android:layout_marginStart="20dp" />
+            </RadioGroup>
+
+            <!-- Customer Info Title -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Customer Information"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="10dp" />
+
+            <!-- Customer Info Fields -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Name"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/phone_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Phone Number"
+                    android:inputType="phone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/shipping_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Shipping Address"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/zip_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Zip Code"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/rider_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Message to Rider (Optional)"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Voucher -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Voucher Code"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="15dp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:background="@drawable/rounded_bg">
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
 
-                <RadioGroup
-                    android:id="@+id/delivery_option"
+                <!-- The EditText inside TextInputLayout will take most of the space -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter Voucher Code">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/voucher"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Button to validate the voucher code placed at the right end -->
+                <Button
+                    android:id="@+id/btn_validate_voucher"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="20dp">
-
-                    <RadioButton
-                        android:id="@+id/radio_delivery"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Delivery"
-                        android:textColor="@color/black" />
-
-                    <RadioButton
-                        android:id="@+id/radio_pickup"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Pickup"
-                        android:textColor="@color/black"
-                        android:layout_marginStart="20dp" />
-                </RadioGroup>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Shipping Information"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginTop="10dp" />
-
-                <EditText
-                    android:id="@+id/email"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="textEmailAddress"
-                    android:hint="Email" />
-
-                <EditText
-                    android:id="@+id/fullName"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:hint="Full Name" />
-
-                <EditText
-                    android:id="@+id/phone_number"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="phone"
-                    android:hint="Phone Number" />
-
-                <EditText
-                    android:id="@+id/shipping_address"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:hint="Shipping Address" />
-
-                <EditText
-                    android:id="@+id/zip_code"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:hint="Zip Code" />
-
-                <EditText
-                    android:id="@+id/rider_message"
-                    style="@style/CustomInputField"
-                    android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:hint="Message to Rider (Optional)" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Payment Details"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginTop="15dp" />
-
-                <!-- Payment Form -->
-
-                <Button
-                    android:id="@+id/btn_stripe_payment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Pay with Stripe" />
-
+                    android:text="Validate"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginStart="10dp" /> <!-- Adds a small margin to the left -->
             </LinearLayout>
+
+            <!-- Stripe Button -->
+            <Button
+                android:id="@+id/btn_stripe_payment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pay with Stripe"
+                android:layout_marginTop="20dp" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

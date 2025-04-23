@@ -19,6 +19,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.stripe.android.PaymentConfiguration;
 import com.stripe.android.paymentsheet.PaymentSheet;
@@ -40,7 +41,13 @@ public class PaymentActivity extends AppCompatActivity {
     private RadioGroup deliveryOption;
     private Button btnStripePayment;
     private double finalPrice;
+
+    private EditText shippingAddressEditText, zipCodeEditText, riderMessageEditText;
+    private RadioButton radioDelivery, radioPickup;
     private List<CartItem> cartItems;
+
+    private EditText voucherEditText;
+    private Button validateVoucherButton;
 
     private PaymentSheet paymentSheet;
     private String clientSecret;
@@ -63,9 +70,41 @@ public class PaymentActivity extends AppCompatActivity {
         deliveryOption = findViewById(R.id.delivery_option);
         btnStripePayment = findViewById(R.id.btn_stripe_payment);
 
+        shippingAddressEditText = findViewById(R.id.shipping_address);
+        zipCodeEditText = findViewById(R.id.zip_code);
+        riderMessageEditText = findViewById(R.id.rider_message);
+        radioDelivery = findViewById(R.id.radio_delivery);
+        radioPickup = findViewById(R.id.radio_pickup);
+
+        voucherEditText = findViewById(R.id.voucher); // Assuming you have a voucher input field
+        validateVoucherButton = findViewById(R.id.btn_validate_voucher);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        validateVoucherButton.setOnClickListener(v -> {
+            String voucherCode = voucherEditText.getText().toString().trim();
+            if (!voucherCode.isEmpty()) {
+                validateVoucher(voucherCode); // Call the validation method
+            } else {
+                Toast.makeText(this, "Please enter a voucher code", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        View.OnClickListener deliveryOptionChangeListener = v -> {
+            boolean isDelivery = radioDelivery.isChecked();
+
+            shippingAddressEditText.setVisibility(isDelivery ? View.VISIBLE : View.GONE);
+            zipCodeEditText.setVisibility(isDelivery ? View.VISIBLE : View.GONE);
+            riderMessageEditText.setVisibility(isDelivery ? View.VISIBLE : View.GONE);
+        };
+
+        radioDelivery.setOnClickListener(deliveryOptionChangeListener);
+        radioPickup.setOnClickListener(deliveryOptionChangeListener);
+
+// Trigger once to ensure correct visibility on startup
+        deliveryOptionChangeListener.onClick(radioDelivery);
 
         RecyclerView recyclerViewCheckout = findViewById(R.id.recyclerView_checkout);
         recyclerViewCheckout.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -251,5 +290,101 @@ public class PaymentActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void validateVoucher(String voucherCode) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("voucher")
+                .whereEqualTo("code", voucherCode) // Query for the voucher code
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            // Voucher exists, apply discount
+                            for (DocumentSnapshot document : task.getResult()) {
+                                String discountStr = document.getString("discount"); // Retrieve the discount value as a string
+                                Log.d("VoucherValidation", "Voucher code: " + voucherCode + " found with discount: " + discountStr);
+
+                                if (discountStr != null && !discountStr.isEmpty()) {
+                                    // Check if the discount is a percentage or flat amount
+                                    if (discountStr.contains("%")) {
+                                        // If it's a percentage discount
+                                        double discount = parsePercentageDiscount(discountStr);
+                                        if (discount >= 0) {
+                                            applyPercentageDiscount(discount); // Apply the percentage discount
+                                            Toast.makeText(this, "Voucher applied! Discount: " + discountStr, Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(this, "Invalid percentage value in voucher", Toast.LENGTH_SHORT).show();
+                                        }
+                                    } else {
+                                        // If it's a flat discount (numeric value)
+                                        double discount = parseFlatDiscount(discountStr);
+                                        if (discount >= 0) {
+                                            applyFlatDiscount(discount); // Apply the flat discount
+                                            Toast.makeText(this, "Voucher applied! Discount: ₱" + discount, Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(this, "Invalid discount value in voucher", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            Log.d("VoucherValidation", "Voucher code: " + voucherCode + " not found.");
+                            Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.e("VoucherValidation", "Error validating voucher: " + task.getException().getMessage());
+                        Toast.makeText(this, "Error validating voucher", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    // Helper method to parse a percentage discount (e.g., "20%")
+    private double parsePercentageDiscount(String discountStr) {
+        try {
+            // Remove the '%' character and parse the percentage as a double
+            discountStr = discountStr.replace("%", "").trim();
+            return Double.parseDouble(discountStr);
+        } catch (NumberFormatException e) {
+            Log.e("VoucherValidation", "Error parsing percentage discount: " + e.getMessage());
+            return -1; // Return -1 if there's an error in parsing
+        }
+    }
+
+    // Helper method to parse a flat discount (e.g., "20")
+    private double parseFlatDiscount(String discountStr) {
+        try {
+            // Simply parse the discount as a flat numeric value
+            return Double.parseDouble(discountStr);
+        } catch (NumberFormatException e) {
+            Log.e("VoucherValidation", "Error parsing flat discount: " + e.getMessage());
+            return -1; // Return -1 if there's an error in parsing
+        }
+    }
+
+    // Function to apply a percentage discount to the final price
+    private void applyPercentageDiscount(double percentage) {
+        // Calculate the discount amount based on the total price
+        double discountAmount = finalPrice * (percentage / 100);
+
+        // Reduce the final price by the calculated discount amount
+        finalPrice -= discountAmount;
+
+        // Update the button text with the new price after discount
+        btnStripePayment.setText("Pay with Stripe (₱" + finalPrice + ")");
+        Log.d("DiscountApplied", "Final price after " + percentage + "% discount: ₱" + finalPrice);
+    }
+
+    // Function to apply a flat discount to the final price
+    private void applyFlatDiscount(double discount) {
+        // Reduce the final price by the flat discount
+        finalPrice -= discount;
+
+        // Update the button text with the new price after discount
+        btnStripePayment.setText("Pay with Stripe (₱" + finalPrice + ")");
+        Log.d("DiscountApplied", "Final price after ₱" + discount + " discount: ₱" + finalPrice);
+    }
+
 
 }
