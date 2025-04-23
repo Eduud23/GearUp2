@@ -1,6 +1,7 @@
 package com.example.gearup;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -91,6 +92,20 @@ public class SellerDetailsActivity extends AppCompatActivity implements OnMapRea
         }
 
         findViewById(R.id.tv_add_review).setOnClickListener(v -> showReviewDialog());
+
+        // Set OnClickListener for the goNow button
+        goNowButton.setOnClickListener(v -> {
+            // Check if seller location is available
+            if (sellerLatitude != 0.0 && sellerLongitude != 0.0) {
+                // Create an Intent to navigate to ShopPinLocation
+                Intent intent = new Intent(SellerDetailsActivity.this, ShopPinLocation.class);
+                intent.putExtra("latitude", sellerLatitude);
+                intent.putExtra("longitude", sellerLongitude);
+                startActivity(intent);
+            } else {
+                Toast.makeText(SellerDetailsActivity.this, "Seller location is unavailable", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadSellerDetails(String sellerId) {

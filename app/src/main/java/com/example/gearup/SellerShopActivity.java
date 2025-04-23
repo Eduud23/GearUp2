@@ -35,6 +35,8 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
     private List<Product> productList = new ArrayList<>();
     private List<Product> fullProductList = new ArrayList<>(); // For filtering purposes
     private FirebaseFirestore db;
+    private String selectedCategory = "All";
+
     private String sellerId;
     private ImageView categorySpinner;
     private ImageView messageIcon, profileImageView;
@@ -93,8 +95,9 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             startActivity(intent);
         });
 
-        // Set up the category Spinner
         setupCategorySpinner();
+        selectedCategory = selectedCategory; // Save it when user picks one
+
 
         // Set up the search functionality
         setupSearchEditText();
@@ -113,16 +116,24 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Select Category");
             builder.setItems(categories, (dialog, which) -> {
-                String selectedCategory = categories[which];
-                loadSellerProducts(sellerId, selectedCategory);
+                selectedCategory = categories[which]; // <- Update the selected category
 
-                // Show profile & message container again
-                profileAndMessageContainer.setVisibility(View.VISIBLE);
+                // Filter the current product list using the updated category AND current search query
+                filterProducts(searchEditText.getText().toString());
+
+                // Hide profile container if necessary
+                if (!selectedCategory.equals("All") || searchEditText.getText().toString().trim().length() > 0) {
+                    profileAndMessageContainer.setVisibility(View.GONE);
+                } else {
+                    profileAndMessageContainer.setVisibility(View.VISIBLE);
+                }
             });
 
             builder.show();
         });
     }
+
+
 
 
     private void setupSearchEditText() {
@@ -134,14 +145,17 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Filter products as user types
                 filterProducts(s.toString());
 
-                // Hide the profile and message container when the search is in progress
+                // Hide container if typing
                 if (s.length() > 0) {
-                    profileAndMessageContainer.setVisibility(View.GONE); // Hide the profile and message container
+                    profileAndMessageContainer.setVisibility(View.GONE);
                 } else {
-                    profileAndMessageContainer.setVisibility(View.VISIBLE); // Show it back when search is cleared
+                    // Only show it if category is "All"
+                    String currentCategory = getCurrentCategory(); // Helper method below
+                    if (currentCategory.equals("All")) {
+                        profileAndMessageContainer.setVisibility(View.VISIBLE);
+                    }
                 }
             }
 
@@ -151,25 +165,30 @@ public class SellerShopActivity extends AppCompatActivity implements SellerShopA
             }
         });
     }
+    private String getCurrentCategory() {
+        return selectedCategory != null ? selectedCategory : "All";
+    }
+
 
     private void filterProducts(String query) {
         List<Product> filteredList = new ArrayList<>();
-        if (query == null || query.trim().isEmpty()) {
-            productAdapter.updateList(fullProductList); // Show all products if query is empty
-            return;
-        }
-
-        query = query.toLowerCase(); // Convert query to lowercase for case-insensitive matching
+        query = query != null ? query.toLowerCase().trim() : "";
 
         for (Product product : fullProductList) {
             String name = product.getName() != null ? product.getName().toLowerCase() : "";
             String brand = product.getBrand() != null ? product.getBrand().toLowerCase() : "";
+            String category = product.getCategory() != null ? product.getCategory().toLowerCase() : "";
 
-            if (name.contains(query) || brand.contains(query)) {
+            boolean matchesQuery = name.contains(query) || brand.contains(query);
+            boolean matchesCategory = selectedCategory.equals("All") ||
+                    selectedCategory.equalsIgnoreCase(category);
+
+            if (matchesQuery && matchesCategory) {
                 filteredList.add(product);
             }
         }
-        productAdapter.updateList(filteredList); // Update the adapter with the filtered list
+
+        productAdapter.updateList(filteredList);
     }
 
     private void loadSellerInfo(String sellerId) {

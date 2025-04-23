@@ -363,27 +363,31 @@ public class CheckoutFormActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
-                            // Voucher exists, apply discount
                             for (DocumentSnapshot document : task.getResult()) {
-                                String discountStr = document.getString("discount"); // Retrieve the discount value as a string
+                                String discountStr = document.getString("discount");
+                                String status = document.getString("status"); // Get the status field
+
+                                // Check if the voucher status is valid
+                                if (status == null || !status.equalsIgnoreCase("valid")) {
+                                    Toast.makeText(this, "This voucher is expired or expire", Toast.LENGTH_SHORT).show();
+                                    return; // Stop further processing
+                                }
+
                                 Log.d("VoucherValidation", "Voucher code: " + voucherCode + " found with discount: " + discountStr);
 
                                 if (discountStr != null && !discountStr.isEmpty()) {
-                                    // Check if the discount is a percentage or flat amount
                                     if (discountStr.contains("%")) {
-                                        // If it's a percentage discount
                                         double discount = parsePercentageDiscount(discountStr);
                                         if (discount >= 0) {
-                                            applyPercentageDiscount(discount); // Apply the percentage discount
+                                            applyPercentageDiscount(discount);
                                             Toast.makeText(this, "Voucher applied! Discount: " + discountStr, Toast.LENGTH_SHORT).show();
                                         } else {
                                             Toast.makeText(this, "Invalid percentage value in voucher", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
-                                        // If it's a flat discount (numeric value)
                                         double discount = parseFlatDiscount(discountStr);
                                         if (discount >= 0) {
-                                            applyFlatDiscount(discount); // Apply the flat discount
+                                            applyFlatDiscount(discount);
                                             Toast.makeText(this, "Voucher applied! Discount: ₱" + discount, Toast.LENGTH_SHORT).show();
                                         } else {
                                             Toast.makeText(this, "Invalid discount value in voucher", Toast.LENGTH_SHORT).show();
@@ -403,6 +407,7 @@ public class CheckoutFormActivity extends AppCompatActivity {
                     }
                 });
     }
+
 
     // Helper method to parse a percentage discount (e.g., "20%")
     private double parsePercentageDiscount(String discountStr) {

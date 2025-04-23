@@ -54,6 +54,7 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+
                     <!-- Product Name -->
                     <TextView
                         android:id="@+id/tv_product_name"
@@ -218,6 +219,16 @@
 
 
             </androidx.cardview.widget.CardView>
+
+            <!-- Button to go to seller shop -->
+            <Button
+                android:id="@+id/btn_go_to_shop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Go to Seller Shop Now"
+                android:visibility="gone"
+                android:onClick="onGoToShopClick" />
+
 
         </LinearLayout>
 

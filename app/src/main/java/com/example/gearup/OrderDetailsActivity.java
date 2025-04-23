@@ -2,6 +2,8 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import java.net.URL;
 public class OrderDetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
+    private Button btnGoToShop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         ImageView ivProductImage = findViewById(R.id.iv_product_image);
         TextView tvProductBrand = findViewById(R.id.tv_product_brand);
         TextView tvProductYear = findViewById(R.id.tv_product_year);
+        btnGoToShop = findViewById(R.id.btn_go_to_shop);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -82,6 +86,15 @@ public class OrderDetailsActivity extends AppCompatActivity {
         // Load the product image using Glide
         Glide.with(this).load(imageUrl).into(ivProductImage);
 
+        if (sellerId != null && !sellerId.isEmpty()) {
+            btnGoToShop.setVisibility(View.VISIBLE);  // Make the button visible
+        } else {
+            btnGoToShop.setVisibility(View.GONE);  // Hide the button if sellerId is not available
+        }
+
+        // Set up the button click listener to go to ShopPinLocation
+        btnGoToShop.setOnClickListener(v -> onGoToShopClick(sellerId));
+
         // Fetch the payment summary if paymentIntentId is available
         if (paymentIntentId != null && !paymentIntentId.isEmpty()) {
             fetchPaymentSummary(paymentIntentId, tvPaymentStatus, tvPaymentDetails);
@@ -92,6 +105,30 @@ public class OrderDetailsActivity extends AppCompatActivity {
             fetchShopName(sellerId, tvShopName);
         } else {
             tvShopName.setText("Shop: Not Available");
+        }
+    }
+
+    private void onGoToShopClick(String sellerId) {
+        if (sellerId != null && !sellerId.isEmpty()) {
+            // Fetch seller's location (latitude and longitude) and pass it to ShopPinLocation
+            db.collection("sellers")
+                    .document(sellerId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                double latitude = document.getDouble("latitude");
+                                double longitude = document.getDouble("longitude");
+
+                                // Pass seller's location to ShopPinLocation activity
+                                Intent intent = new Intent(OrderDetailsActivity.this, ShopPinLocation.class);
+                                intent.putExtra("latitude", latitude);
+                                intent.putExtra("longitude", longitude);
+                                startActivity(intent);
+                            }
+                        }
+                    });
         }
     }
 

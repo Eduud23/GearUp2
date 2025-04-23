@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -36,7 +38,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShopPinLocation extends FragmentActivity implements OnMapReadyCallback {
+public class ShopPinLocation extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private double shopLat, shopLon;
@@ -51,6 +53,12 @@ public class ShopPinLocation extends FragmentActivity implements OnMapReadyCallb
 
         distanceText = findViewById(R.id.distance_text);
         Button goNowButton = findViewById(R.id.go_now_button);
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
 
         Intent intent = getIntent();
         if (intent != null) {
