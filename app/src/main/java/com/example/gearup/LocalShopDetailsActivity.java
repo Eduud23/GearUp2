@@ -67,6 +67,9 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
         callButton = findViewById(R.id.callButton);
         websiteButton = findViewById(R.id.websiteButton);
         navigateButton = findViewById(R.id.navigateButton);
+        TextView labelCall = findViewById(R.id.labelCall);
+        TextView labelWebsite = findViewById(R.id.labelWebsite);
+        TextView labelNavigate = findViewById(R.id.labelNavigate);
 
         similarShopsRecyclerView = findViewById(R.id.similarShopsRecyclerView);
         similarShopsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -141,8 +144,10 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
             // Set visibility of call button based on the contact number
             if (contactNumber == null || contactNumber.isEmpty()) {
                 callButton.setVisibility(View.GONE);
+                labelCall.setVisibility(View.GONE);
             } else {
                 callButton.setVisibility(View.VISIBLE);
+                labelCall.setVisibility(View.VISIBLE);
                 callButton.setOnClickListener(v -> {
                     Intent callIntent = new Intent(Intent.ACTION_DIAL);
                     callIntent.setData(Uri.parse("tel:" + contactNumber));
@@ -153,8 +158,10 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
             // Set visibility of website button based on the website URL
             if (website == null || website.isEmpty() || website.equalsIgnoreCase("none")) {
                 websiteButton.setVisibility(View.GONE);
+                labelWebsite.setVisibility(View.GONE);
             } else {
                 websiteButton.setVisibility(View.VISIBLE);
+                labelWebsite.setVisibility(View.VISIBLE);
                 websiteButton.setOnClickListener(v -> {
                     if (website != null && !website.isEmpty()) {
                         Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
@@ -163,12 +170,18 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                 });
             }
 
-            // Navigation button action
-            navigateButton.setOnClickListener(v -> {
-                String uri = "geo:" + latitude + "," + longitude + "?q=" + Uri.encode(name);
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-                startActivity(mapIntent);
-            });
+            if (latitude == 0.0 || longitude == 0.0) {
+                navigateButton.setVisibility(View.GONE);
+                labelNavigate.setVisibility(View.GONE);
+            } else {
+                navigateButton.setVisibility(View.VISIBLE);
+                labelNavigate.setVisibility(View.VISIBLE);
+                navigateButton.setOnClickListener(v -> {
+                    String uri = "geo:" + latitude + "," + longitude + "?q=" + Uri.encode(name);
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+                    startActivity(mapIntent);
+                });
+            }
 
             // Fetch similar shops based on the kind of repair or place
             loadSimilarShops(kind);
@@ -283,6 +296,20 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                                 similarShopsList.add(new LocalShop(shopName, image, kind, time, place, contactNumber, ratings, website, latitude, longitude, distance));
                             }
 
+                            // Show "See All" TextView if there are more than 4 similar shops
+                            if (similarShopsList.size() > 4) {
+                                TextView seeAllTextView = findViewById(R.id.seeAllTextView);
+                                seeAllTextView.setVisibility(View.VISIBLE);
+
+                                // Handle "See All" click
+                                seeAllTextView.setOnClickListener(v -> {
+                                    // Pass the similar shops to another activity or fragment
+                                    Intent intent = new Intent(LocalShopDetailsActivity.this, AllSimilarShopsActivity.class);
+                                    intent.putParcelableArrayListExtra("similarShops", new ArrayList<>(similarShopsList)); // Pass the list
+                                    startActivity(intent);
+                                });
+                            }
+
                             // Notify the adapter of the data change
                             similarShopsAdapter.notifyDataSetChanged();
                         } else {
@@ -294,6 +321,7 @@ public class LocalShopDetailsActivity extends AppCompatActivity {
                     });
         }
     }
+
 
 
 }

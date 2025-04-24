@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
@@ -42,6 +43,8 @@ public class ServiceDetailActivity extends AppCompatActivity {
         TextView serviceName = findViewById(R.id.serviceName);
         TextView serviceKind = findViewById(R.id.serviceKind);
         TextView timeScheduleText = findViewById(R.id.timeSchedule);
+        TextView placeText = findViewById(R.id.place);
+
         TextView contactNumberText = findViewById(R.id.contactNumber);
         TextView ratingsText = findViewById(R.id.ratings);
         TextView websiteText = findViewById(R.id.website);
@@ -51,6 +54,14 @@ public class ServiceDetailActivity extends AppCompatActivity {
         Button visitWebsiteButton = findViewById(R.id.visitWebsiteButton);
         RecyclerView similarServicesRecycler = findViewById(R.id.similarServicesRecycler);
         TextView seeAllTextView = findViewById(R.id.seeAllTextView);
+        TextView labelCall = findViewById(R.id.labelCall);
+        TextView labelNavigate = findViewById(R.id.labelNavigate);
+        TextView labelWebsite = findViewById(R.id.labelWebsite);
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
 
         // Get selected service and all services
@@ -111,41 +122,53 @@ public class ServiceDetailActivity extends AppCompatActivity {
             serviceImage.setImageResource(R.drawable.gear);
         }
 
-        // Handle gas station-specific details
-        if (isGasStation) {
-            if (place != null && !place.isEmpty()) {
-                timeScheduleText.setText("Place: " + place);
-            } else {
-                timeScheduleText.setVisibility(TextView.GONE);
-            }
-            contactNumberText.setVisibility(TextView.GONE);
-            ratingsText.setVisibility(TextView.GONE);
-            websiteText.setVisibility(TextView.GONE);
-            callButton.setVisibility(Button.GONE);
-            visitWebsiteButton.setVisibility(Button.GONE);
+        if (place != null && !place.isEmpty()) {
+            placeText.setText("Place: " + place);
         } else {
-            String contactNumber = getIntent().getStringExtra("contactNumber");
-            if (contactNumber != null && !contactNumber.isEmpty()) {
-                contactNumberText.setText("Contact: " + contactNumber);
-            } else {
-                contactNumberText.setVisibility(TextView.GONE);
-            }
+            placeText.setVisibility(View.GONE);
+        }
 
-            double ratings = getIntent().getDoubleExtra("ratings", -1);
-            if (ratings >= 0) {
-                ratingsText.setText("Ratings: " + ratings);
+        String timeSchedule = getIntent().getStringExtra("timeSchedule");
+        if (timeSchedule != null && !timeSchedule.isEmpty()) {
+            timeScheduleText.setText("Time: " + timeSchedule);
+        } else {
+            timeScheduleText.setVisibility(View.GONE);
+        }
+
+        if (isGasStation) {
+            contactNumberText.setVisibility(View.GONE);
+            ratingsText.setVisibility(View.GONE);
+            websiteText.setVisibility(View.GONE);
+            callButton.setVisibility(View.GONE);
+            visitWebsiteButton.setVisibility(View.GONE);
+
+            String contactNumber = getIntent().getStringExtra("contactNumber");
+            if (contactNumber != null && !contactNumber.isEmpty() && !contactNumber.equalsIgnoreCase("none")) {
+                contactNumberText.setText("Contact: " + contactNumber);
+                contactNumberText.setVisibility(View.VISIBLE);
+                labelCall.setVisibility(View.VISIBLE);
             } else {
-                ratingsText.setVisibility(TextView.GONE);
+                labelCall.setVisibility(View.GONE);
             }
 
             String website = getIntent().getStringExtra("website");
-            if (website != null && !website.isEmpty()) {
+            if (website != null && !website.isEmpty() && !website.equalsIgnoreCase("none")) {
                 websiteText.setText("Website: " + website);
+                websiteText.setVisibility(View.VISIBLE);
+                labelWebsite.setVisibility(View.VISIBLE);
             } else {
-                websiteText.setVisibility(TextView.GONE);
+                labelWebsite.setVisibility(View.GONE);
             }
+            if (latitude != 0.0 && longitude != 0.0) {
+                labelNavigate.setVisibility(View.VISIBLE);
+            } else {
+                labelNavigate.setVisibility(View.GONE);  // Hide the 'Navigate' label if no coordinates
+            }
+        } else {
 
         }
+
+
         visitWebsiteButton.setOnClickListener(v -> {
             String website = getIntent().getStringExtra("website");
             if (website != null && !website.isEmpty()) {

@@ -134,14 +134,34 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                         String timeSchedule = document.getString("time_schedule");
                         String place = document.getString("place");
                         String contactNumber = document.getString("contact_number");
-                        double ratings = document.getDouble("ratings") != null ? document.getDouble("ratings") : 0.0;
+
+                        // Retrieve ratings field safely, accounting for non-numeric values
+                        Object ratingsField = document.get("ratings");
+                        double ratings = 0.0; // Default rating value if not found or invalid
+
+                        if (ratingsField != null) {
+                            if (ratingsField instanceof Number) {
+                                ratings = ((Number) ratingsField).doubleValue(); // Safely cast to double
+                            } else if (ratingsField instanceof String) {
+                                String ratingsString = (String) ratingsField;
+                                if (!ratingsString.equalsIgnoreCase("none")) {
+                                    try {
+                                        ratings = Double.parseDouble(ratingsString); // Try to parse the string as a number
+                                    } catch (NumberFormatException e) {
+                                        Log.e(TAG, "Invalid rating value: " + ratingsString, e);
+                                        ratings = 0.0; // Default to 0.0 if parsing fails
+                                    }
+                                }
+                            }
+                        }
+
                         String website = document.getString("website");
                         double latitude = document.getDouble("latitude") != null ? document.getDouble("latitude") : 0.0;
                         double longitude = document.getDouble("longitude") != null ? document.getDouble("longitude") : 0.0;
                         double distance = calculateDistance(userLatitude, userLongitude, latitude, longitude);
 
-                        // Filter by search query
-                        if (shopName != null && shopName.toLowerCase().contains(searchQuery.toLowerCase())) {
+                        // Filter by search query (check all fields except lat and long)
+                        if (isSearchMatch(shopName, kindOfRepair, timeSchedule, place, contactNumber, website)) {
                             shopList.add(new LocalShop(shopName, image, kindOfRepair, timeSchedule, place, contactNumber, ratings, website, latitude, longitude, distance));
                         }
                     } catch (Exception e) {
@@ -187,6 +207,15 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                 Log.e(TAG, "Location is null, unable to reload shops.");
             }
         }).addOnFailureListener(e -> Log.e(TAG, "Error getting last location", e));
+    }
+
+    private boolean isSearchMatch(String shopName, String kindOfRepair, String timeSchedule, String place, String contactNumber, String website) {
+        return (shopName != null && shopName.toLowerCase().contains(searchQuery)) ||
+                (kindOfRepair != null && kindOfRepair.toLowerCase().contains(searchQuery)) ||
+                (timeSchedule != null && timeSchedule.toLowerCase().contains(searchQuery)) ||
+                (place != null && place.toLowerCase().contains(searchQuery)) ||
+                (contactNumber != null && contactNumber.toLowerCase().contains(searchQuery)) ||
+                (website != null && website.toLowerCase().contains(searchQuery));
     }
 
     @SuppressLint("MissingPermission")

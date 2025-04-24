@@ -192,6 +192,7 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("kindOfService", station.getKindOfService());
         intent.putExtra("place", station.getPlace());
         intent.putExtra("distance", station.getDistance());
+        intent.putExtra("timeSchedule", station.getTimeSchedule());
         intent.putExtra("image", station.getImageUrl());
         context.startActivity(intent);
     }
@@ -207,6 +208,7 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("kindOfService", towing.getKindOfService());
         intent.putExtra("place", towing.getPlace());
         intent.putExtra("contactNumber", towing.getContactNumber());
+        intent.putExtra("timeSchedule", towing.getTimeSchedule());
         intent.putExtra("ratings", towing.getRatings());
         intent.putExtra("distance", towing.getDistance());
         intent.putExtra("image", towing.getImage());
@@ -223,6 +225,7 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("kindOfService", parking.getKindOfService());
         intent.putExtra("place", parking.getPlace());
         intent.putExtra("ratings", parking.getRatings());
+        intent.putExtra("timeSchedule", parking.getTimeSchedule());
         intent.putExtra("distance", parking.getDistance());
         intent.putExtra("image", parking.getImage());
         context.startActivity(intent);
@@ -239,6 +242,7 @@ public class RecommendCombinedAdapter extends RecyclerView.Adapter<RecommendComb
         intent.putExtra("kindOfService", smoke.getServices());
         intent.putExtra("place", smoke.getLocation());
         intent.putExtra("ratings", smoke.getRatings());
+        intent.putExtra("timeSchedule", smoke.getTimeSchedule());
         intent.putExtra("distance", smoke.getDistance());
         intent.putExtra("image", smoke.getImage());
         context.startActivity(intent);

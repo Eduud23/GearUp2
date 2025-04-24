@@ -1,118 +1,210 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:fitsSystemWindows="true">
 
-    <ImageView
-        android:id="@+id/serviceImage"
+    <!-- Toolbar Section -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Service Image"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/holo_blue_light"
+        app:title="Service Details"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_white"
+        android:elevation="4dp" />
 
-    <TextView
-        android:id="@+id/serviceName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:paddingTop="8dp"/>
-
-    <TextView
-        android:id="@+id/serviceKind"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"/>
-
-    <TextView
-        android:id="@+id/timeSchedule"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/contactNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/ratings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <TextView
-        android:id="@+id/website"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_blue_dark"
-        android:clickable="true"
-        android:focusable="true"/>
-
-    <TextView
-        android:id="@+id/distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-
-    <LinearLayout
+    <!-- ScrollView to make the content scrollable -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:paddingTop="16dp">
+        android:layout_marginTop="16dp"
+        android:fillViewport="true">
 
-        <Button
-            android:id="@+id/callButton"
-            android:layout_width="0dp"
+        <!-- Inner LinearLayout inside ScrollView -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Call"/>
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/navigateButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Navigate"/>
+            <!-- Service Image -->
+            <ImageView
+                android:id="@+id/serviceImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="Service Image" />
 
-        <Button
-            android:id="@+id/visitWebsiteButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Visit Website"/>
-    </LinearLayout>
+            <!-- Service Name -->
+            <TextView
+                android:id="@+id/serviceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:paddingTop="8dp" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp">
+            <!-- Service Type -->
+            <TextView
+                android:id="@+id/serviceKind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/similarServicesLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Similar Services"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
+            <!-- Time Schedule -->
+            <TextView
+                android:id="@+id/timeSchedule"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/seeAllTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="See All"
-            android:textColor="@android:color/holo_blue_dark"
-            android:visibility="gone"
-            />
-    </LinearLayout>
+            <!-- Place -->
+            <TextView
+                android:id="@+id/place"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/similarServicesRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="vertical"/>
+            <!-- Contact Number -->
+            <TextView
+                android:id="@+id/contactNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
+            <!-- Ratings -->
+            <TextView
+                android:id="@+id/ratings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <!-- Website Text -->
+            <TextView
+                android:id="@+id/website"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/holo_blue_dark"
+                android:clickable="true"
+                android:visibility="gone"
+                android:focusable="true" />
+
+            <!-- Distance -->
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/wallet_holo_blue_light" />
+
+            <!-- Call, Navigate, Website Buttons with Labels -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingTop="16dp"
+                android:layout_marginTop="8dp">
+
+                <!-- Call Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="32dp">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/callButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/call" />
+
+                    <TextView
+                        android:id="@+id/labelCall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Call Now"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Navigate Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="32dp">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/navigateButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/navigation" />
+
+                    <TextView
+                        android:id="@+id/labelNavigate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Go Now"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+
+                <!-- Website Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/visitWebsiteButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/web" />
+
+                    <TextView
+                        android:id="@+id/labelWebsite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Visit Site"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 'Similar Services' Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:id="@+id/similarServicesLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Similar Services"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/seeAllTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See All"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+            <!-- Include RecyclerView for Similar Services inside ScrollView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/similarServicesRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

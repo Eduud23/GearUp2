@@ -3,6 +3,7 @@ package com.example.gearup;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
@@ -16,6 +17,10 @@ public class SeeAllServicesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_see_all_services);
         Log.d(TAG, "onCreate: SeeAllServicesActivity started");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         // Get the selected service from intent
         Object selectedService = getIntent().getSerializableExtra("selectedService");

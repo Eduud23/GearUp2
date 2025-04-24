@@ -354,59 +354,85 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
 
 
-    // Inside the validateVoucher method
     private void validateVoucher(String voucherCode) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("voucher")
-                .whereEqualTo("code", voucherCode) // Query for the voucher code
+
+        // First, check if this user has already used this voucher
+        db.collection("voucher_usages")
+                .document(voucherCode + "_" + userId)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        if (task.getResult() != null && !task.getResult().isEmpty()) {
-                            for (DocumentSnapshot document : task.getResult()) {
-                                String discountStr = document.getString("discount");
-                                String status = document.getString("status"); // Get the status field
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Toast.makeText(this, "You have already used this voucher", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Voucher not used yet, proceed to validate and apply
+                        db.collection("voucher")
+                                .whereEqualTo("code", voucherCode)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                                        for (DocumentSnapshot document : task.getResult()) {
+                                            String discountStr = document.getString("discount");
+                                            String status = document.getString("status");
 
-                                // Check if the voucher status is valid
-                                if (status == null || !status.equalsIgnoreCase("valid")) {
-                                    Toast.makeText(this, "This voucher is expired or expire", Toast.LENGTH_SHORT).show();
-                                    return; // Stop further processing
-                                }
+                                            if (status == null || !status.equalsIgnoreCase("valid")) {
+                                                Toast.makeText(this, "This voucher is expired or invalid", Toast.LENGTH_SHORT).show();
+                                                return;
+                                            }
 
-                                Log.d("VoucherValidation", "Voucher code: " + voucherCode + " found with discount: " + discountStr);
+                                            if (discountStr != null && !discountStr.isEmpty()) {
+                                                if (discountStr.contains("%")) {
+                                                    double discount = parsePercentageDiscount(discountStr);
+                                                    if (discount >= 0) {
+                                                        applyPercentageDiscount(discount);
+                                                    } else {
+                                                        Toast.makeText(this, "Invalid percentage value", Toast.LENGTH_SHORT).show();
+                                                        return;
+                                                    }
+                                                } else {
+                                                    double discount = parseFlatDiscount(discountStr);
+                                                    if (discount >= 0) {
+                                                        applyFlatDiscount(discount);
+                                                    } else {
+                                                        Toast.makeText(this, "Invalid discount value", Toast.LENGTH_SHORT).show();
+                                                        return;
+                                                    }
+                                                }
 
-                                if (discountStr != null && !discountStr.isEmpty()) {
-                                    if (discountStr.contains("%")) {
-                                        double discount = parsePercentageDiscount(discountStr);
-                                        if (discount >= 0) {
-                                            applyPercentageDiscount(discount);
-                                            Toast.makeText(this, "Voucher applied! Discount: " + discountStr, Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(this, "Invalid percentage value in voucher", Toast.LENGTH_SHORT).show();
+                                                // Record the usage
+                                                Map<String, Object> usage = new HashMap<>();
+                                                usage.put("userId", userId);
+                                                usage.put("voucherCode", voucherCode);
+                                                usage.put("usedAt", System.currentTimeMillis());
+
+                                                db.collection("voucher_usages")
+                                                        .document(voucherCode + "_" + userId)
+                                                        .set(usage);
+
+                                                Toast.makeText(this, "Voucher applied! Discount: " + discountStr, Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
+                                            }
                                         }
                                     } else {
-                                        double discount = parseFlatDiscount(discountStr);
-                                        if (discount >= 0) {
-                                            applyFlatDiscount(discount);
-                                            Toast.makeText(this, "Voucher applied! Discount: ₱" + discount, Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(this, "Invalid discount value in voucher", Toast.LENGTH_SHORT).show();
-                                        }
+                                        Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
                                     }
-                                } else {
-                                    Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        } else {
-                            Log.d("VoucherValidation", "Voucher code: " + voucherCode + " not found.");
-                            Toast.makeText(this, "Invalid voucher code", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Log.e("VoucherValidation", "Error validating voucher: " + task.getException().getMessage());
-                        Toast.makeText(this, "Error validating voucher", Toast.LENGTH_SHORT).show();
+                                });
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error checking voucher usage", Toast.LENGTH_SHORT).show();
+                    Log.e("VoucherValidation", "Error checking voucher usage: " + e.getMessage());
                 });
     }
+
 
 
     // Helper method to parse a percentage discount (e.g., "20%")
@@ -434,24 +460,20 @@ public class CheckoutFormActivity extends AppCompatActivity {
 
     // Function to apply a percentage discount to the final price
     private void applyPercentageDiscount(double percentage) {
-        // Calculate the discount amount based on the total price
         double discountAmount = finalPrice * (percentage / 100);
-
-        // Reduce the final price by the calculated discount amount
         finalPrice -= discountAmount;
+        finalPrice = Math.round(finalPrice * 100.0) / 100.0; // Round to 2 decimal places
 
-        // Update the button text with the new price after discount
-        btnStripePayment.setText("Pay with Stripe (₱" + finalPrice + ")");
+        btnStripePayment.setText("Pay with Stripe (₱" + String.format("%.2f", finalPrice) + ")");
         Log.d("DiscountApplied", "Final price after " + percentage + "% discount: ₱" + finalPrice);
     }
 
     // Function to apply a flat discount to the final price
     private void applyFlatDiscount(double discount) {
-        // Reduce the final price by the flat discount
         finalPrice -= discount;
+        finalPrice = Math.round(finalPrice * 100.0) / 100.0; // Round to 2 decimal places
 
-        // Update the button text with the new price after discount
-        btnStripePayment.setText("Pay with Stripe (₱" + finalPrice + ")");
+        btnStripePayment.setText("Pay with Stripe (₱" + String.format("%.2f", finalPrice) + ")");
         Log.d("DiscountApplied", "Final price after ₱" + discount + " discount: ₱" + finalPrice);
     }
 

@@ -133,36 +133,105 @@
                 android:gravity="center"
                 android:layout_marginTop="8dp">
 
-                <ImageButton
-                    android:id="@+id/callButton"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:background="@drawable/call"
-                    android:layout_marginEnd="50dp" />
+                <!-- Call Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="50dp">
 
-                <ImageButton
-                    android:id="@+id/websiteButton"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:background="@drawable/web"
-                    android:layout_marginEnd="50dp" />
+                    <ImageButton
+                        android:id="@+id/callButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/call" />
 
-                <ImageButton
-                    android:id="@+id/navigateButton"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:background="@drawable/navigation" />
+                    <TextView
+                        android:id="@+id/labelCall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Call Now"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Website Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_marginEnd="50dp">
+
+                    <ImageButton
+                        android:id="@+id/websiteButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/web" />
+
+                    <TextView
+                        android:id="@+id/labelWebsite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Visit Website"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
+                <!-- Navigate Button + Label -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <ImageButton
+                        android:id="@+id/navigateButton"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/navigation" />
+
+                    <TextView
+                        android:id="@+id/labelNavigate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Navigate"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/similarProductsTitle"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Similar Shops"
-                android:textSize="18sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp" />
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:weightSum="1">
+
+                <!-- Similar Shops Title -->
+                <TextView
+                    android:id="@+id/similarProductsTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Similar Shops"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:layout_weight="1" /> <!-- This takes up the remaining space -->
+
+                <!-- See All TextView -->
+                <TextView
+                    android:id="@+id/seeAllTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See All"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:visibility="gone"
+                    android:layout_gravity="end" /> <!-- Align to the end of the parent -->
+            </LinearLayout>
 
             <!-- Horizontal RecyclerView for similar shops -->
             <androidx.recyclerview.widget.RecyclerView
