@@ -221,10 +221,11 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Button to go to seller shop -->
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btn_go_to_shop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/textview_border"
                 android:text="Go to Seller Shop Now"
                 android:visibility="gone"
                 android:onClick="onGoToShopClick" />

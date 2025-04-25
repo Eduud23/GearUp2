@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,20 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SellerRegister extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-
     private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText;
     private TextView tvLatitude, tvLongitude;
-    private Button registerButton;
-    private ImageButton locationButton;
+    private Button registerButton, locationButton;
     private double selectedLatitude = 0.0;
     private double selectedLongitude = 0.0;
 
@@ -35,9 +29,8 @@ public class SellerRegister extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seller_register);
 
-        // Initialize Firebase Auth and Firestore
+        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
 
         // Bind UI components
         emailEditText = findViewById(R.id.email);
@@ -54,12 +47,15 @@ public class SellerRegister extends AppCompatActivity {
         registerButton = findViewById(R.id.btnregister);
         locationButton = findViewById(R.id.imgAddress);
 
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> onBackPressed());
+
         locationButton.setOnClickListener(v -> {
             Intent intent = new Intent(SellerRegister.this, MapsActivity.class);
             startActivityForResult(intent, 100);
         });
 
-        registerButton.setOnClickListener(v -> registerUser());
+        registerButton.setOnClickListener(v -> proceedToAuthentication());
     }
 
     @Override
@@ -74,7 +70,7 @@ public class SellerRegister extends AppCompatActivity {
         }
     }
 
-    private void registerUser() {
+    private void proceedToAuthentication() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
         String confirmPassword = confirmPasswordEditText.getText().toString().trim();
@@ -114,45 +110,23 @@ public class SellerRegister extends AppCompatActivity {
         // Disable the button to prevent multiple clicks
         registerButton.setEnabled(false);
 
-        // Register user in Firebase Authentication
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    registerButton.setEnabled(true);
-                    if (task.isSuccessful()) {
-                        // Store additional user info in Firestore
-                        String userId = mAuth.getCurrentUser().getUid();
-                        Map<String, Object> user = new HashMap<>();
-                        user.put("firstName", firstName);
-                        user.put("lastName", lastName);
-                        user.put("phone", phone);
-                        user.put("email", email);
-                        user.put("shopName", shopName);
-                        user.put("address", address);
-                        user.put("services", services);
-                        user.put("latitude", selectedLatitude);
-                        user.put("longitude", selectedLongitude);
-                        user.put("role", "seller");
-                        user.put("sold", 0);
-                        user.put("review", 0.0);
-
-                        db.collection("sellers").document(userId).set(user)
-                                .addOnCompleteListener(task1 -> {
-                                    if (task1.isSuccessful()) {
-                                        Toast.makeText(SellerRegister.this, "Registration Successful", Toast.LENGTH_SHORT).show();
-                                        navigateToLogin();
-                                    } else {
-                                        Toast.makeText(SellerRegister.this, "Failed to store user data: " + task1.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                });
-                    } else {
-                        Toast.makeText(SellerRegister.this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private void navigateToLogin() {
-        Intent intent = new Intent(SellerRegister.this, Login.class);
+        // Save data in intent for later use
+        Intent intent = new Intent(SellerRegister.this, ProceedToAuthenticationActivity.class);
+        intent.putExtra("email", email);
+        intent.putExtra("password", password);
+        intent.putExtra("firstName", firstName);
+        intent.putExtra("lastName", lastName);
+        intent.putExtra("phone", phone);
+        intent.putExtra("shopName", shopName);
+        intent.putExtra("address", address);
+        intent.putExtra("services", services);
+        intent.putExtra("latitude", selectedLatitude);
+        intent.putExtra("longitude", selectedLongitude);
         startActivity(intent);
-        finish();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerButton.setEnabled(true); // Re-enable the button when returning
     }
 }

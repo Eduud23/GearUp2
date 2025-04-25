@@ -77,8 +77,15 @@ public class Login extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
                         if (document != null && document.exists()) {
-                            // User found in 'sellers' collection
-                            navigateToHomePage("seller");
+                            // User found in 'sellers' collection, now check the 'status' field
+                            String status = document.getString("status");
+                            if ("active".equals(status)) {
+                                // Seller is active, proceed to seller home page
+                                navigateToHomePage("seller");
+                            } else {
+                                // Seller is not active
+                                Toast.makeText(Login.this, "Your account is not active. Please contact support.", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             // User not found in 'sellers', check 'buyers' collection
                             db.collection("buyers").document(uid).get()

@@ -1,0 +1,86 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FAFAFA">
+
+    <!-- Top AppBar or Back Button Area -->
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        android:layout_margin="16dp"
+        android:background="@drawable/rounded_bg"
+        android:elevation="6dp"
+        android:padding="12dp"
+        android:layout_gravity="start" />
+
+    <!-- Scrollable Form Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="16dp">
+
+            <!-- Seller Photo -->
+            <ImageView
+                android:id="@+id/ivSellerPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="8dp"
+                android:padding="10dp"
+                android:background="@drawable/add_tocart_border"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnUploadPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload Seller Photo"
+                android:background="@drawable/textview_border"
+                android:layout_marginBottom="24dp" />
+
+            <!-- Seller ID -->
+            <ImageView
+                android:id="@+id/ivSellerID"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="8dp"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/add_tocart_border"
+                android:src="@drawable/id" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnUploadID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Upload ID Document"
+                android:background="@drawable/textview_border"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Submit Button -->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Submit Registration"
+                android:textAllCaps="false"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#03DAC5"
+                android:elevation="4dp"
+                android:layout_marginTop="16dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

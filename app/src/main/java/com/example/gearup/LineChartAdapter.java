@@ -65,10 +65,10 @@ public class LineChartAdapter extends RecyclerView.Adapter<LineChartAdapter.Char
         int roundedForecastQuantity = Math.round(data.getForecastQuantity());
 
         // Show forecast information (both sales and quantity)
-        String forecastText = "Forecast Date: " + data.getForecastDate() +
+        String forecastText = "\uD83D\uDCC5 Forecast Date: " + data.getForecastDate() +
                 "\nPredicted Sales: ₱" + String.format("%.2f", data.getForecastSales()) +
                 "\nPredicted Quantity: " + roundedForecastQuantity + " units" +
-                "\nTrend: " + data.getTrendDirection();
+                "\n\uD83D\uDCC8 Trend: " + data.getTrendDirection();
 
         holder.forecastInfo.setText(forecastText);
 
