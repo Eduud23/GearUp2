@@ -34,7 +34,7 @@ public class ForecastDetail extends AppCompatActivity {
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> onBackPressed());
 
-        String productTitle = getIntent().getStringExtra("productTitle");
+        String productTitle = getIntent().getStringExtra("categoryTitle");
 
         if (productTitle != null) {
             productTitle = normalizeProductTitle(productTitle);

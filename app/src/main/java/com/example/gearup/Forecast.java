@@ -47,103 +47,133 @@ public class Forecast extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
-                        Map<String, List<DocumentSnapshot>> grouped = groupDataByProductLine(documents);
                         List<ForecastModel> chartDataList = new ArrayList<>();
 
-                        for (Map.Entry<String, List<DocumentSnapshot>> entry : grouped.entrySet()) {
-                            String productLine = entry.getKey();
-                            List<DocumentSnapshot> data = entry.getValue();
+                        // Separate seasonal data
+                        List<DocumentSnapshot> drySeasonDocs = new ArrayList<>();
+                        List<DocumentSnapshot> rainySeasonDocs = new ArrayList<>();
 
-                            List<Float> x = new ArrayList<>();
-                            List<Float> y = new ArrayList<>();
-                            List<Float> quantity = new ArrayList<>();
-                            List<String> labels = new ArrayList<>();
-
-                            Date firstDate = null;
-
-                            try {
-                                for (DocumentSnapshot doc : data) {
-                                    String dateString = doc.getString("date");
-                                    Double total = doc.getDouble("total_php");
-                                    Double qty = doc.getDouble("quantity");
-
-                                    if (dateString != null && total != null && qty != null) {
-                                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                                        Date date = sdf.parse(dateString);
-
-                                        if (firstDate == null) firstDate = date;
-                                        long days = (date.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
-
-                                        x.add((float) days);
-                                        y.add(total.floatValue());
-                                        quantity.add(qty.floatValue());
-                                        labels.add(dateString);
-                                    }
-                                }
-
-                                if (x.size() > 1) {
-                                    // Perform regression for sales (total_php)
-                                    double[] regressionSales = performLinearRegression(x, y);
-                                    // Perform regression for quantity (units sold)
-                                    double[] regressionQuantity = performLinearRegression(x, quantity);
-
-                                    // Forecast from current date
-                                    Date currentDate = new Date();
-                                    long daysFromFirstToNow = (currentDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
-                                    float todayX = (float) daysFromFirstToNow;
-
-                                    float forecastX = todayX + 30;
-
-                                    // Calculate forecasted sales and quantity
-                                    float forecastSales = (float) (regressionSales[0] * forecastX + regressionSales[1]);
-                                    float forecastQuantity = (float) (regressionQuantity[0] * forecastX + regressionQuantity[1]);
-
-                                    x.add(forecastX);
-                                    y.add(forecastSales);
-                                    quantity.add(forecastQuantity);
-                                    labels.add("Forecast");
-
-                                    // Calculate next month's first and last day
+                        // Group documents into dry or rainy season based on the date
+                        for (DocumentSnapshot doc : documents) {
+                            String dateString = doc.getString("date");
+                            if (dateString != null) {
+                                try {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                                    Date date = sdf.parse(dateString);
                                     Calendar cal = Calendar.getInstance();
-                                    cal.setTime(currentDate);
-                                    cal.add(Calendar.MONTH, 1); // Move to next month
-                                    cal.set(Calendar.DAY_OF_MONTH, 1); // Set to first day of next month
-                                    String forecastStartDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+                                    cal.setTime(date);
+                                    int month = cal.get(Calendar.MONTH) + 1; // Months are 0-based
 
-                                    cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH)); // Set to last day of next month
-                                    String forecastEndDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+                                    // Log the date and the month for debugging
+                                    Log.d(TAG, "Document Date: " + dateString + " Month: " + month);
 
-                                    // Set forecast as the range from first to last day of next month
-                                    String forecastDate = forecastStartDate + " to " + forecastEndDate;
-
-                                    // Determine trend direction
-                                    float lastActualSales = y.get(y.size() - 2); // Last actual value (sales)
-                                    float lastActualQuantity = quantity.get(quantity.size() - 2); // Last actual value (quantity)
-                                    String trendDirection;
-
-                                    if (forecastSales > lastActualSales) {
-                                        trendDirection = "Increasing";
-                                    } else if (forecastSales < lastActualSales) {
-                                        trendDirection = "Decreasing";
+                                    if (month >= 12 || month <= 5) {
+                                        drySeasonDocs.add(doc);
+                                        Log.d(TAG, "Added to Dry Season: " + dateString);
                                     } else {
-                                        trendDirection = "Flat";
+                                        rainySeasonDocs.add(doc);
+                                        Log.d(TAG, "Added to Rainy Season: " + dateString);
                                     }
-
-                                    chartDataList.add(new ForecastModel(
-                                            productLine,
-                                            x, y, labels,
-                                            forecastDate,
-                                            forecastSales,
-                                            forecastQuantity,
-                                            trendDirection
-                                    ));
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Season filtering error", e);
                                 }
-
-                            } catch (Exception e) {
-                                Log.e(TAG, "Data parsing error", e);
                             }
                         }
 
+                        // Log the number of documents in both seasons
+                        Log.d(TAG, "Dry Season Documents: " + drySeasonDocs.size());
+                        Log.d(TAG, "Rainy Season Documents: " + rainySeasonDocs.size());
+
+                        // Add seasonal forecasts first (dry and rainy seasons)
+                        ForecastModel rainyForecast = generateSeasonalForecast("Rainy Season", rainySeasonDocs);
+                        if (rainyForecast != null) chartDataList.add(rainyForecast);
+
+                        ForecastModel dryForecast = generateSeasonalForecast("Dry Season", drySeasonDocs);
+                        if (dryForecast != null) chartDataList.add(dryForecast);
+
+                        // Generate forecast for the entire dataset (not specific product lines)
+                        List<Float> x = new ArrayList<>();
+                        List<Float> y = new ArrayList<>();
+                        List<Float> quantity = new ArrayList<>();
+                        List<String> labels = new ArrayList<>();
+
+                        Date firstDate = null;
+
+                        // Using entire dataset (not grouped by category)
+                        for (DocumentSnapshot doc : documents) {
+                            String dateString = doc.getString("date");
+                            Double total = doc.getDouble("total_php");
+                            Double qty = doc.getDouble("quantity");
+
+                            if (dateString != null && total != null && qty != null) {
+                                try {
+                                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                                    Date date = sdf.parse(dateString);
+
+                                    if (firstDate == null) firstDate = date;
+                                    long days = (date.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+
+                                    x.add((float) days);
+                                    y.add(total.floatValue());
+                                    quantity.add(qty.floatValue());
+                                    labels.add(dateString);
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Data parsing error", e);
+                                }
+                            }
+                        }
+
+                        // Proceed with forecasting for the entire dataset
+                        if (x.size() > 1) {
+                            double[] regressionSales = performLinearRegression(x, y);
+                            double[] regressionQuantity = performLinearRegression(x, quantity);
+
+                            Date currentDate = new Date();
+                            long daysFromFirstToNow = (currentDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+                            float todayX = (float) daysFromFirstToNow;
+
+                            float forecastX = todayX + 30; // Predict 30 days ahead
+
+                            float forecastSales = (float) (regressionSales[0] * forecastX + regressionSales[1]);
+                            float forecastQuantity = (float) (regressionQuantity[0] * forecastX + regressionQuantity[1]);
+
+                            x.add(forecastX);
+                            y.add(forecastSales);
+                            quantity.add(forecastQuantity);
+                            labels.add("Forecast");
+
+                            Calendar cal = Calendar.getInstance();
+                            cal.setTime(currentDate);
+                            cal.add(Calendar.MONTH, 1);
+                            cal.set(Calendar.DAY_OF_MONTH, 1);
+                            String forecastStartDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+                            cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+                            String forecastEndDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+                            String forecastDate = forecastStartDate + " to " + forecastEndDate;
+
+                            float lastActualSales = y.get(y.size() - 2);
+                            String trendDirection;
+                            if (forecastSales > lastActualSales) {
+                                trendDirection = "Increasing";
+                            } else if (forecastSales < lastActualSales) {
+                                trendDirection = "Decreasing";
+                            } else {
+                                trendDirection = "Flat";
+                            }
+
+                            // Add the general forecast (for the whole dataset)
+                            chartDataList.add(new ForecastModel(
+                                    "Next Month",
+                                    x, y, labels,
+                                    forecastDate,
+                                    forecastSales,
+                                    forecastQuantity,
+                                    trendDirection
+                            ));
+                        }
+
+                        // Set the adapter with the final chart data
                         chartAdapter = new LineChartAdapter(chartDataList);
                         recyclerView.setAdapter(chartAdapter);
                     }
@@ -151,16 +181,82 @@ public class Forecast extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e(TAG, "Firestore fetch failed", e));
     }
 
+    private ForecastModel generateSeasonalForecast(String seasonName, List<DocumentSnapshot> docs) {
+        if (docs.isEmpty()) return null;
 
-    private Map<String, List<DocumentSnapshot>> groupDataByProductLine(List<DocumentSnapshot> documents) {
-        Map<String, List<DocumentSnapshot>> map = new HashMap<>();
-        for (DocumentSnapshot doc : documents) {
-            String productLine = doc.getString("category");
-            if (productLine != null) {
-                map.computeIfAbsent(productLine, k -> new ArrayList<>()).add(doc);
+        List<Float> x = new ArrayList<>();
+        List<Float> y = new ArrayList<>();
+        List<Float> quantity = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        Date firstDate = null;
+
+        try {
+            for (DocumentSnapshot doc : docs) {
+                String dateString = doc.getString("date");
+                Double total = doc.getDouble("total_php");
+                Double qty = doc.getDouble("quantity");
+
+                if (dateString != null && total != null && qty != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    Date date = sdf.parse(dateString);
+
+                    if (firstDate == null) firstDate = date;
+                    long days = (date.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+
+                    x.add((float) days);
+                    y.add(total.floatValue());
+                    quantity.add(qty.floatValue());
+                    labels.add(dateString);
+                }
             }
+
+            if (x.size() > 1) {
+                double[] regressionSales = performLinearRegression(x, y);
+                double[] regressionQuantity = performLinearRegression(x, quantity);
+
+                // Predict the forecast for the season
+                float forecastX = x.get(x.size() - 1) + 30; // Predict 30 days ahead for the season
+
+                // Base prediction (for 30 days ahead)
+                float forecastSales = (float) (regressionSales[0] * forecastX + regressionSales[1]);
+                float forecastQuantity = (float) (regressionQuantity[0] * forecastX + regressionQuantity[1]);
+
+                // Scale the forecast to account for 6 months (rainy or dry season)
+                // We will multiply the forecast by a factor, e.g., scaling factor of 6 months
+                if (seasonName.equalsIgnoreCase("Dry Season") || seasonName.equalsIgnoreCase("Rainy Season")) {
+                    forecastSales *= 1.5; // Adjust this factor as per your data; 1.5 means 50% higher forecast for 6 months
+                    forecastQuantity *= 1.5;
+                }
+
+                x.add(forecastX);
+                y.add(forecastSales);
+                quantity.add(forecastQuantity);
+                labels.add("Forecast");
+
+                // Set the forecasted date range (6 months span for Dry and Rainy Season)
+                String forecastDate = seasonName.equalsIgnoreCase("Dry Season") ?
+                        "December to May" : "June to November";
+
+                // Determine trend (Increasing, Decreasing, Flat)
+                float lastActualSales = y.get(y.size() - 2);
+                String trend;
+                if (forecastSales > lastActualSales) {
+                    trend = "Increasing";
+                } else if (forecastSales < lastActualSales) {
+                    trend = "Decreasing";
+                } else {
+                    trend = "Flat";
+                }
+
+                // Return the forecast model with adjusted sales prediction
+                return new ForecastModel(seasonName, x, y, labels, forecastDate, forecastSales, forecastQuantity, trend);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Seasonal forecast error", e);
         }
-        return map;
+
+        return null;
     }
 
     private double[] performLinearRegression(List<Float> x, List<Float> y) {
@@ -177,6 +273,6 @@ public class Forecast extends AppCompatActivity {
         double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
         double b = (sumY - m * sumX) / n;
 
-        return new double[]{m, b}; // m = slope, b = intercept
+        return new double[]{m, b};
     }
 }

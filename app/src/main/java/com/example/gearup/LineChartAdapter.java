@@ -61,25 +61,36 @@ public class LineChartAdapter extends RecyclerView.Adapter<LineChartAdapter.Char
         holder.chart.getDescription().setEnabled(false);  // Disable chart description
         holder.chart.invalidate();  // Refresh chart
 
-        // Round forecasted quantity to nearest whole number
-        int roundedForecastQuantity = Math.round(data.getForecastQuantity());
-
         // Show forecast information (both sales and quantity)
         String forecastText = "\uD83D\uDCC5 Forecast Date: " + data.getForecastDate() +
                 "\nPredicted Sales: ₱" + String.format("%.2f", data.getForecastSales()) +
-                "\nPredicted Quantity: " + roundedForecastQuantity + " units" +
                 "\n\uD83D\uDCC8 Trend: " + data.getTrendDirection();
+
 
         holder.forecastInfo.setText(forecastText);
 
-        // Handle click to go to DetailActivity
+        // Handle click to go to ForecastCategory activity
         holder.itemView.setOnClickListener(view -> {
             Context context = view.getContext();
-            Intent intent = new Intent(context, ForecastDetail.class);
-            intent.putExtra("productTitle", data.getProductLine());
+
+            // Initialize aggregated quantity to 0
+            int aggregatedQuantity = 0;
+
+            // Loop through the entire forecast list and aggregate the forecast quantities for the same productLine
+            for (ForecastModel forecast : forecastList) {
+                if (forecast.getProductLine().equals(data.getProductLine())) {
+                    aggregatedQuantity += Math.round(forecast.getForecastQuantity());
+                }
+            }
+
+            // Pass the aggregated forecast quantity and product title to ForecastCategory activity
+            Intent intent = new Intent(context, ForecastCategory.class);
+            intent.putExtra("forecastedQuantity", aggregatedQuantity);  // Send the aggregated quantity
+            intent.putExtra("productTitle", data.getProductLine());  // Send the product title
             context.startActivity(intent);
         });
     }
+
 
     @Override
     public int getItemCount() {
