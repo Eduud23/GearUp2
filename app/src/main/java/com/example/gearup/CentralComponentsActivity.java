@@ -94,15 +94,23 @@ public class CentralComponentsActivity extends AppCompatActivity implements SeeA
     }
 
     // Method to filter products based on search query
+    // Method to filter products based on search query (name, brand, and description)
     private void filterProducts(String query) {
         List<Product> filteredList = productsList.stream()
-                .filter(product -> product.getName().toLowerCase().contains(query.toLowerCase())) // Filter by name
+                .filter(product -> {
+                    String queryLower = query.toLowerCase(); // Make query case-insensitive
+                    // Check if the query matches the name, brand, or description of the product
+                    return product.getName().toLowerCase().contains(queryLower) ||
+                            product.getBrand().toLowerCase().contains(queryLower) ||
+                            product.getDescription().toLowerCase().contains(queryLower);
+                })
                 .collect(Collectors.toList());
 
         // Update the filtered products list and notify the adapter
         filteredProductsList = filteredList;
         adapter.updateProducts(filteredProductsList); // Update the adapter with filtered list
     }
+
 
     // Set up the search functionality (TextWatcher for search)
     private void setUpSearchFunctionality() {

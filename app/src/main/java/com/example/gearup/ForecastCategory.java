@@ -17,12 +17,7 @@ import com.google.firebase.FirebaseApp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ForecastCategory extends AppCompatActivity {
 
@@ -31,11 +26,9 @@ public class ForecastCategory extends AppCompatActivity {
     private List<ForecastCategoryModel> forecastCategoryList;
     private FirebaseFirestore db;
 
-    private int forecastedQuantity;
     private String productTitle;
     private TextView productTitleTextView, forecastTotalTextView;
 
-    // Date format for parsing the date in "yyyy-MM-dd" format
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
@@ -43,20 +36,13 @@ public class ForecastCategory extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_forecast_category);
-        forecastTotalTextView = findViewById(R.id.forecastTotalTextView);
 
+        forecastTotalTextView = findViewById(R.id.forecastTotalTextView);
+        productTitleTextView = findViewById(R.id.productTitleTextView);
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> onBackPressed());
 
-
-        // Initialize the TextView
-        productTitleTextView = findViewById(R.id.productTitleTextView);
-
-        // Get the aggregated forecasted quantity and productTitle passed from the intent
-        forecastedQuantity = getIntent().getIntExtra("forecastedQuantity", 0);
         productTitle = getIntent().getStringExtra("productTitle");
-
-        // Set the product title in the TextView
         if (productTitle != null) {
             productTitleTextView.setText(productTitle);
         }
@@ -69,7 +55,6 @@ public class ForecastCategory extends AppCompatActivity {
 
         forecastCategoryList = new ArrayList<>();
 
-        // Fetch and process data based on title
         fetchCategoryDataFromFirestore();
     }
 
@@ -79,17 +64,13 @@ public class ForecastCategory extends AppCompatActivity {
         salesOrdersCollection.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> documents = queryDocumentSnapshots.getDocuments();
-
-                        // Map to hold sales data by category
                         Map<String, List<Date>> categoryDates = new HashMap<>();
                         Map<String, List<Integer>> categoryQuantities = new HashMap<>();
 
-                        // Loop through documents and organize sales data by category
-                        for (DocumentSnapshot doc : documents) {
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
                             String category = doc.getString("category");
                             Double quantity = doc.getDouble("quantity");
-                            String dateString = doc.getString("date");  // Date as String (yyyy-MM-dd)
+                            String dateString = doc.getString("date");
 
                             if (category != null && quantity != null && dateString != null) {
                                 Date date = parseDate(dateString);
@@ -103,48 +84,32 @@ public class ForecastCategory extends AppCompatActivity {
                             }
                         }
 
-                        // Now, determine the forecasting logic based on the title and category
+                        int totalPredictedQuantity = 0; // Variable to store the total predicted quantity
+
                         for (Map.Entry<String, List<Date>> entry : categoryDates.entrySet()) {
                             String category = entry.getKey();
                             List<Date> dates = entry.getValue();
                             List<Integer> quantities = categoryQuantities.get(category);
 
-                            // Perform linear regression for each category separately
-                            int predictedQuantity = performLinearRegression(dates, quantities);
-                            Log.d("ForecastCategory", "Predicted Quantity for " + category + ": " + predictedQuantity);
-
-                            // Add the predicted quantity for each category to the forecastCategoryList
-                            forecastCategoryList.add(new ForecastCategoryModel(category + " Forecast", predictedQuantity));
-                        }
-
-                        // Call the appropriate forecasting method based on the productTitle
-                        if (productTitle != null) {
-                            switch (productTitle) {
-                                case "Rainy Season":
-                                    forecastForRainySeason(categoryQuantities);  // Adjust for rainy season
-                                    break;
-                                case "Dry Season":
-                                    forecastForDrySeason(categoryQuantities);    // Adjust for dry season
-                                    break;
-                                case "Next Month":
-                                    forecastForNextMonth(categoryQuantities);    // Adjust for next month
-                                    break;
-                                default:
-                                    Log.e("ForecastCategory", "Invalid product title");
-                                    break;
+                            if (dates.size() >= 2 && quantities.size() >= 2) {
+                                int predictedQuantity = performLinearRegression(dates, quantities);
+                                forecastCategoryList.add(new ForecastCategoryModel(category, predictedQuantity));
+                                totalPredictedQuantity += predictedQuantity; // Add the predicted quantity to the total
+                            } else {
+                                forecastCategoryList.add(new ForecastCategoryModel(category, 0));
                             }
                         }
 
-                        // Set the adapter with the updated forecast data
+                        // Display the total predicted forecast instead of the product title
+                        forecastTotalTextView.setText("Predicted Quantity: " + totalPredictedQuantity + " units");
+
                         adapter = new ForecastCategoryAdapter(forecastCategoryList, productTitle);
                         recyclerView.setAdapter(adapter);
-
                     }
                 })
                 .addOnFailureListener(e -> Log.e("FirestoreError", "Error fetching data from Firestore", e));
     }
 
-    // Parse the date from the "yyyy-MM-dd" format
     private Date parseDate(String dateString) {
         try {
             return dateFormat.parse(dateString);
@@ -154,151 +119,76 @@ public class ForecastCategory extends AppCompatActivity {
         }
     }
 
-    // Check if the date is valid for the selected period (based on productTitle)
     private boolean isValidForSelectedPeriod(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
+        // Check for the entire period (6 months for Rainy/Dry seasons)
         switch (productTitle) {
             case "Rainy Season":
-                return isRainySeason(date);
+                return isRainySeason(date); // Returns true for June-November
             case "Dry Season":
-                return isDrySeason(date);
+                return isDrySeason(date); // Returns true for December-May
             case "Next Month":
-                return isNextMonth(date);
+                return isNextMonth(date); // Check for the next month
             default:
-                return false;  // Invalid title or period
+                return false;
         }
     }
 
-    // Linear regression to predict the next value
+    private boolean isRainySeason(Date date) {
+        int month = getMonth(date);
+        return month >= Calendar.JUNE && month <= Calendar.NOVEMBER; // June to November
+    }
+
+    private boolean isDrySeason(Date date) {
+        int month = getMonth(date);
+        return month == Calendar.DECEMBER || month <= Calendar.MAY; // December to May
+    }
+
+    private boolean isNextMonth(Date date) {
+        Calendar nextMonth = Calendar.getInstance();
+        nextMonth.add(Calendar.MONTH, 1);
+        int nextMonthValue = nextMonth.get(Calendar.MONTH);
+
+        Calendar dateCal = Calendar.getInstance();
+        dateCal.setTime(date);
+        return dateCal.get(Calendar.MONTH) == nextMonthValue;
+    }
+
+    private int getMonth(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MONTH);
+    }
+
     private int performLinearRegression(List<Date> dates, List<Integer> quantities) {
-        // Convert the dates to a numeric format (days since the first date)
+        if (dates.size() < 2 || quantities.size() < 2) return 0;
+
         long startDateInMillis = dates.get(0).getTime();
         int n = dates.size();
 
-        // Calculate the sums needed for the linear regression formula
         double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
 
         for (int i = 0; i < n; i++) {
-            long diffDays = (dates.get(i).getTime() - startDateInMillis) / (1000 * 60 * 60 * 24); // Days since first date
+            long diffDays = (dates.get(i).getTime() - startDateInMillis) / (1000 * 60 * 60 * 24);
+            int y = quantities.get(i);
+
             sumX += diffDays;
-            sumY += quantities.get(i);
-            sumXY += diffDays * quantities.get(i);
+            sumY += y;
+            sumXY += diffDays * y;
             sumX2 += diffDays * diffDays;
         }
 
-        // Calculate the slope (m) and intercept (b) for the linear regression line
-        double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double denominator = (n * sumX2 - sumX * sumX);
+        if (denominator == 0) return 0;
+
+        double m = (n * sumXY - sumX * sumY) / denominator;
         double b = (sumY - m * sumX) / n;
 
-        // Predict the value for the next day (after the last date)
-        long nextDay = dates.get(n - 1).getTime() + (1000 * 60 * 60 * 24); // Next day after the last date
+        long nextDay = dates.get(n - 1).getTime() + (1000 * 60 * 60 * 24);
         long diffNextDay = (nextDay - startDateInMillis) / (1000 * 60 * 60 * 24);
 
-        // Calculate the predicted quantity for the next day
-        double predictedQuantity = m * diffNextDay + b;
-
-        return (int) Math.round(predictedQuantity); // Round to the nearest integer
+        return (int) Math.round(m * diffNextDay + b);
     }
-
-    // Validate if the date falls within the Rainy Season (June to November)
-    private boolean isRainySeason(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int month = calendar.get(Calendar.MONTH); // 0 = January, 1 = February, ..., 5 = June, ..., 10 = November
-        return (month >= Calendar.JUNE && month <= Calendar.NOVEMBER);
-    }
-
-    // Validate if the date falls within the Dry Season (December to May)
-    private boolean isDrySeason(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int month = calendar.get(Calendar.MONTH);
-        return (month == Calendar.DECEMBER || month == Calendar.JANUARY || month == Calendar.FEBRUARY ||
-                month == Calendar.MARCH || month == Calendar.APRIL || month == Calendar.MAY);
-    }
-
-    // Validate if the date falls within the Next Month
-    private boolean isNextMonth(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        Calendar nextMonth = Calendar.getInstance();
-        nextMonth.add(Calendar.MONTH, 1);  // Move to the next month
-        int nextMonthValue = nextMonth.get(Calendar.MONTH);
-
-        return calendar.get(Calendar.MONTH) == nextMonthValue;
-    }
-
-    // Function to handle the Rainy Season forecast (June to November)
-    private void forecastForRainySeason(Map<String, List<Integer>> categoryQuantities) {
-        forecastCategoryList.clear();
-
-        // Total sum across all categories
-        int totalHistorical = categoryQuantities.values().stream()
-                .flatMap(List::stream)
-                .mapToInt(Integer::intValue)
-                .sum();
-
-        int totalForecast = forecastedQuantity * 6;
-
-        for (Map.Entry<String, List<Integer>> entry : categoryQuantities.entrySet()) {
-            int categorySum = entry.getValue().stream().mapToInt(Integer::intValue).sum();
-            int adjustedQuantity = totalHistorical == 0 ? 0 : (int) Math.round((double) categorySum / totalHistorical * totalForecast);
-            forecastCategoryList.add(new ForecastCategoryModel(entry.getKey(), adjustedQuantity));
-        }
-
-        // ✅ Set the total forecast in the TextView instead of the list
-        forecastTotalTextView.setText("Total Forecast: " + totalForecast + " units");
-    }
-
-
-    // Function to handle the Dry Season forecast (December to May)
-    private void forecastForDrySeason(Map<String, List<Integer>> categoryQuantities) {
-        forecastCategoryList.clear();
-
-        int totalHistorical = categoryQuantities.values().stream()
-                .flatMap(List::stream)
-                .mapToInt(Integer::intValue)
-                .sum();
-
-        int totalForecast = forecastedQuantity * 6;
-
-        for (Map.Entry<String, List<Integer>> entry : categoryQuantities.entrySet()) {
-            int categorySum = entry.getValue().stream().mapToInt(Integer::intValue).sum();
-            int adjustedQuantity = totalHistorical == 0 ? 0 :
-                    (int) Math.round((double) categorySum / totalHistorical * totalForecast);
-            forecastCategoryList.add(new ForecastCategoryModel(entry.getKey(), adjustedQuantity));
-        }
-
-        // ✅ Set the total forecast in the TextView instead of the list
-        forecastTotalTextView.setText("Total Forecast: " + totalForecast + " units");
-    }
-
-
-    // Function to handle the Next Month forecast (First to Last day of next month)
-    private void forecastForNextMonth(Map<String, List<Integer>> categoryQuantities) {
-        forecastCategoryList.clear();
-
-        int totalHistorical = categoryQuantities.values().stream()
-                .flatMap(List::stream)
-                .mapToInt(Integer::intValue)
-                .sum();
-
-        int totalForecast = forecastedQuantity;
-
-        for (Map.Entry<String, List<Integer>> entry : categoryQuantities.entrySet()) {
-            int categorySum = entry.getValue().stream().mapToInt(Integer::intValue).sum();
-            int adjustedQuantity = totalHistorical == 0 ? 0 :
-                    (int) Math.round((double) categorySum / totalHistorical * totalForecast);
-            forecastCategoryList.add(new ForecastCategoryModel(entry.getKey(), adjustedQuantity));
-        }
-
-        // ✅ Show the total in a TextView instead of adding to the list
-        forecastTotalTextView.setText("Total Forecast: " + totalForecast + " units");
-    }
-
-
-
 }

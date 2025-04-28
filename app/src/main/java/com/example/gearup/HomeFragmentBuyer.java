@@ -5,9 +5,16 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,12 +70,26 @@ public class HomeFragmentBuyer extends Fragment implements ProductAdapterBuyer.O
         viewPagerConnectors = view.findViewById(R.id.viewPager_connectors);
         viewPagerPeripherals = view.findViewById(R.id.viewPager_peripherals);
         searchBar = view.findViewById(R.id.search_bar);
+        TextView btnMarketplace = view.findViewById(R.id.btn_marketplace);
         viewPagerRecommended = view.findViewById(R.id.viewPager_recommended_products);
         recommendationAdapter = new RecommendationAdapter(this::onRecommendedProductClick);
         labelRecommendedProducts = view.findViewById(R.id.label_recommended_products);
         text_see_all_recommended = view.findViewById(R.id.text_see_all_recommended);
 
         TextView unreadMessageTextView = view.findViewById(R.id.unread_message_count);
+
+        SpannableString spannableString = new SpannableString("Marketplace");
+
+// Set the underline
+        spannableString.setSpan(new UnderlineSpan(), 0, spannableString.length(), 0);
+
+// Use a custom color for the underline
+        btnMarketplace.setText(spannableString);
+        btnMarketplace.setTextColor(Color.BLACK);  // Set text color separately
+
+// Set the underline color using a custom drawable (it’s a workaround for color-specific underline)
+        Drawable underlineDrawable = new ColorDrawable(Color.parseColor("#FF0000"));  // Red underline
+        btnMarketplace.setCompoundDrawablesWithIntrinsicBounds(null, null, null, underlineDrawable);
 
 
 

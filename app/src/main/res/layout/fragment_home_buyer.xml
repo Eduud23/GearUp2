@@ -107,7 +107,9 @@
             android:textSize="16sp"
             android:gravity="center"
             android:clickable="true"
-            android:focusable="true" />
+            android:focusable="true"
+           />
+
 
         <!-- Shops TextView -->
         <TextView

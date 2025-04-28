@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fitsSystemWindows="true"
+    android:orientation="vertical"
     android:background="@android:color/background_light"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -17,20 +17,45 @@
         app:navigationIcon="@drawable/ic_back_white"
         android:elevation="4dp" />
 
-        <!-- Inner LinearLayout to hold RecyclerView and other elements -->
-        <LinearLayout
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp" />
+
+    <!-- Button Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDrySeason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:orientation="vertical">
+            android:text="Dry Season"
+            android:textAllCaps="false"
+            android:background="@drawable/textview_border"
+            android:layout_marginBottom="8dp" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:clipToPadding="false"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRainySeason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/textview_border"
+            android:text="Rainy Season"
+            android:textAllCaps="false"
+            android:layout_marginBottom="8dp" />
 
-        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnNextMonth"
+            android:layout_width="match_parent"
+            android:background="@drawable/textview_border"
+            android:layout_height="wrap_content"
+            android:textAllCaps="false"
+            android:text="Next Month" />
+    </LinearLayout>
 
 </LinearLayout>

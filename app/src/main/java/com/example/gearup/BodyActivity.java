@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BodyActivity extends AppCompatActivity implements SeeAllProductAdapter.OnProductClickListener {
 
@@ -94,18 +95,23 @@ public class BodyActivity extends AppCompatActivity implements SeeAllProductAdap
     }
 
     // Method to filter products based on search query
+    // Method to filter products based on search query (name, brand, and description)
     private void filterProducts(String query) {
-        List<Product> filteredList = new ArrayList<>();
-        for (Product product : productsList) {
-            if (product.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredList.add(product);
-            }
-        }
+        List<Product> filteredList = productsList.stream()
+                .filter(product -> {
+                    String queryLower = query.toLowerCase(); // Make query case-insensitive
+                    // Check if the query matches the name, brand, or description of the product
+                    return product.getName().toLowerCase().contains(queryLower) ||
+                            product.getBrand().toLowerCase().contains(queryLower) ||
+                            product.getDescription().toLowerCase().contains(queryLower);
+                })
+                .collect(Collectors.toList());
 
         // Update the filtered products list and notify the adapter
         filteredProductsList = filteredList;
-        adapter.updateProducts(filteredProductsList); // Update the adapter with the filtered list
+        adapter.updateProducts(filteredProductsList); // Update the adapter with filtered list
     }
+
 
     // Set up the search functionality (TextWatcher for search)
     private void setUpSearchFunctionality() {
