@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    android:background="@android:color/background_light">
+    android:background="@drawable/background_wew">
 
     <!-- Toolbar with Back Button and Centered Title -->
     <androidx.appcompat.widget.Toolbar
@@ -21,16 +21,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@android:color/background_light">
-
+            android:padding="16dp">
 
             <TextView
                 android:id="@+id/predictionView"
@@ -38,13 +35,13 @@
                 android:layout_height="wrap_content"
                 android:text="Predicted Services: "
                 android:textSize="16sp"
+                android:visibility="gone"
                 android:layout_marginBottom="16dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recommendedServicesRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:scrollbars="vertical"/>
 
         </LinearLayout>

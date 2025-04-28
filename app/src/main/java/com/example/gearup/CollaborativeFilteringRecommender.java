@@ -28,7 +28,8 @@ public class CollaborativeFilteringRecommender {
             }
 
             Log.d(TAG, "🔥 Retrieved " + allUsers.size() + " users from Firebase.");
-            
+
+            // Get the current user's interacted products
             Set<String> currentUserProducts = new HashSet<>();
             if (allUsers.containsKey(currentUserId)) {
                 currentUserProducts = ((Map<String, Object>) allUsers.get(currentUserId)).keySet();
@@ -43,6 +44,7 @@ public class CollaborativeFilteringRecommender {
                 return;
             }
 
+            // Map for collecting recommendations and popular products
             Map<String, Integer> recommendedProducts = new HashMap<>();
             Map<String, Integer> popularProducts = new HashMap<>();
             Set<String> otherUserProducts = new HashSet<>();
@@ -50,6 +52,7 @@ public class CollaborativeFilteringRecommender {
             double totalSimilarity = 0.0;
             int userComparisons = 0;
 
+            // Loop over other users to calculate similarity
             for (String userId : allUsers.keySet()) {
                 if (userId.equals(currentUserId)) continue; // Skip self
 
@@ -59,10 +62,12 @@ public class CollaborativeFilteringRecommender {
                 Set<String> otherUserProductSet = userProducts.keySet();
                 otherUserProducts.addAll(otherUserProductSet);
 
+                // Update popular products (any product interacted with)
                 for (String productId : otherUserProductSet) {
                     popularProducts.put(productId, popularProducts.getOrDefault(productId, 0) + 1);
                 }
 
+                // Calculate similarity using Jaccard similarity
                 double similarity = jaccardSimilarity(currentUserProducts, otherUserProductSet);
                 Log.d(TAG, "🔗 Similarity with user " + userId + ": " + similarity);
 
@@ -77,6 +82,9 @@ public class CollaborativeFilteringRecommender {
             double similarityThreshold = Math.max(averageSimilarity * 0.5, 0.05);
             Log.d(TAG, "📊 Avg Similarity: " + averageSimilarity + " | Dynamic Threshold: " + similarityThreshold);
 
+            // Create an unmodifiable copy of currentUserProducts before entering the lambda
+            final Set<String> currentUserProductsCopy = Collections.unmodifiableSet(new HashSet<>(currentUserProducts));
+
             // Second pass to collect recommendations based on dynamic threshold
             for (String userId : allUsers.keySet()) {
                 if (userId.equals(currentUserId)) continue;
@@ -87,16 +95,18 @@ public class CollaborativeFilteringRecommender {
                 Set<String> otherUserProductSet = userProducts.keySet();
                 double similarity = jaccardSimilarity(currentUserProducts, otherUserProductSet);
 
+                // If similarity is above the threshold, recommend products not interacted with
                 if (similarity >= similarityThreshold) {
                     for (String productId : otherUserProductSet) {
-                        if (!currentUserProducts.contains(productId)) {
+                        // Use the unmodifiable copy of currentUserProducts to avoid modification inside the lambda
+                        if (!currentUserProductsCopy.contains(productId)) {
                             recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 1);
                         }
                     }
                 }
             }
 
-            // Incorporate reviews and purchases
+            // Incorporate reviews and purchases with a higher weight for purchases
             DatabaseReference reviewsRef = database.getReference("user_reviews");
             DatabaseReference purchasesRef = database.getReference("user_purchases");
 
@@ -106,8 +116,12 @@ public class CollaborativeFilteringRecommender {
                     if (allReviews != null) {
                         allReviews.values().forEach(userReview -> {
                             Map<String, Object> userProducts = (Map<String, Object>) userReview;
-                            userProducts.keySet().forEach(productId ->
-                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 1));
+                            userProducts.keySet().forEach(productId -> {
+                                // Only recommend products that the current user hasn't interacted with
+                                if (!currentUserProductsCopy.contains(productId)) {
+                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 1);
+                                }
+                            });
                         });
                     }
                 }
@@ -119,17 +133,24 @@ public class CollaborativeFilteringRecommender {
                     if (allPurchases != null) {
                         allPurchases.values().forEach(userPurchase -> {
                             Map<String, Object> userProducts = (Map<String, Object>) userPurchase;
-                            userProducts.keySet().forEach(productId ->
-                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 2)); // Higher weight for purchases
+                            userProducts.keySet().forEach(productId -> {
+                                // Only recommend products that the current user hasn't interacted with
+                                if (!currentUserProductsCopy.contains(productId)) {
+                                    // Higher weight for purchases
+                                    recommendedProducts.put(productId, recommendedProducts.getOrDefault(productId, 0) + 2);
+                                }
+                            });
                         });
                     }
                 }
 
+                // Sort the recommendations based on the scores
                 List<String> sortedRecommendations = recommendedProducts.entrySet().stream()
                         .sorted((a, b) -> b.getValue().compareTo(a.getValue()))
                         .map(Map.Entry::getKey)
                         .collect(Collectors.toList());
 
+                // If no recommendations are found, fallback to popular products
                 if (sortedRecommendations.isEmpty()) {
                     sortedRecommendations = popularProducts.entrySet().stream()
                             .sorted((a, b) -> b.getValue().compareTo(a.getValue()))

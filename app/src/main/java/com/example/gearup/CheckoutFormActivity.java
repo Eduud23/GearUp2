@@ -287,7 +287,11 @@ public class CheckoutFormActivity extends AppCompatActivity {
         // Save the order to Firestore
         db.collection("orders")
                 .add(orderDetails)
-                .addOnSuccessListener(docRef -> showCustomDialog(true))
+                .addOnSuccessListener(docRef -> {
+                    // Log purchase interaction
+                    UserInteractionLogger.logPurchaseInteraction(userId, productId, product.get("productName").toString(), sellerId, (double) product.get("totalPrice"));
+                    showCustomDialog(true);
+                })
                 .addOnFailureListener(e -> showCustomDialog(false));
     }
 

@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -25,8 +27,10 @@ public class ServicesRecommendActivity extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private EditText queryInput;
     private Button predictButton;
-    private ImageButton  seeVideos, nearbyServicesButton, tutorialsButton;
+    private ImageButton seeVideos, nearbyServicesButton, tutorialsButton;
     private TextView resultView;
+    private FrameLayout progressBarContainer;
+    private ProgressBar progressBar;
     private final OkHttpClient client = new OkHttpClient();
     private static final String VERCEL_URL = "https://test-sage-nine-37.vercel.app/?q=";
     private static final String YOUTUBE_VERCEL_URL = "https://youtube-mu-one.vercel.app/search?query=";
@@ -47,11 +51,12 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         seeVideos = findViewById(R.id.recommendedVideosButton);
         nearbyServicesButton = findViewById(R.id.recommendedServicesButton);
         tutorialsButton = findViewById(R.id.stepByStepTutorialsButton);
+        progressBarContainer = findViewById(R.id.progress_bar_container);
+        progressBar = findViewById(R.id.progress_bar);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
-
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getUserLocation();
@@ -60,17 +65,17 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             String userQuery = queryInput.getText().toString().trim();
             if (!userQuery.isEmpty()) {
                 if (userLatitude != 0.0 && userLongitude != 0.0) {
+                    showProgressBar(); // Show progress bar when starting the task
                     new Thread(() -> {
                         prediction = askVercel(userQuery).trim();
                         runOnUiThread(() -> {
                             resultView.setText("Prediction: " + prediction);
+                            hideProgressBar(); // Hide progress bar when task completes
 
-                            // Make buttons visible when there’s a prediction
                             if (!prediction.isEmpty()) {
                                 nearbyServicesButton.setVisibility(View.VISIBLE);
                                 seeVideos.setVisibility(View.VISIBLE);
                                 tutorialsButton.setVisibility(View.VISIBLE);
-
                                 findViewById(R.id.tvServices).setVisibility(View.VISIBLE);
                                 findViewById(R.id.tvVideos).setVisibility(View.VISIBLE);
                                 findViewById(R.id.tvTutorials).setVisibility(View.VISIBLE);
@@ -122,7 +127,7 @@ public class ServicesRecommendActivity extends AppCompatActivity {
                 }
             });
         } else {
-            requestPermissions(new String[]{
+            requestPermissions(new String[] {
                     android.Manifest.permission.ACCESS_FINE_LOCATION,
                     android.Manifest.permission.ACCESS_COARSE_LOCATION
             }, LOCATION_PERMISSION_REQUEST_CODE);
@@ -155,5 +160,15 @@ public class ServicesRecommendActivity extends AppCompatActivity {
             e.printStackTrace();
             return "Error: " + e.getMessage();
         }
+    }
+
+    // Function to show the progress bar
+    private void showProgressBar() {
+        progressBarContainer.setVisibility(View.VISIBLE);
+    }
+
+    // Function to hide the progress bar
+    private void hideProgressBar() {
+        progressBarContainer.setVisibility(View.GONE);
     }
 }

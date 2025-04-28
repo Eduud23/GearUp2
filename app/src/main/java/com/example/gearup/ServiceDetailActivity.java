@@ -63,7 +63,6 @@ public class ServiceDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-
         // Get selected service and all services
         Object selectedService = getIntent().getSerializableExtra("selectedService");
         List<Object> allServices = (List<Object>) getIntent().getSerializableExtra("allServices");
@@ -135,50 +134,45 @@ public class ServiceDetailActivity extends AppCompatActivity {
             timeScheduleText.setVisibility(View.GONE);
         }
 
-        if (isGasStation) {
-            contactNumberText.setVisibility(View.GONE);
-            ratingsText.setVisibility(View.GONE);
-            websiteText.setVisibility(View.GONE);
-            callButton.setVisibility(View.GONE);
+        // Check if the website is "none" or empty and hide the views accordingly
+        String website = getIntent().getStringExtra("website");
+        String contactNumber = getIntent().getStringExtra("contactNumber");
+
+        if (website == null || website.equalsIgnoreCase("none") || website.isEmpty()) {
             visitWebsiteButton.setVisibility(View.GONE);
-
-            String contactNumber = getIntent().getStringExtra("contactNumber");
-            if (contactNumber != null && !contactNumber.isEmpty() && !contactNumber.equalsIgnoreCase("none")) {
-                contactNumberText.setText("Contact: " + contactNumber);
-                contactNumberText.setVisibility(View.VISIBLE);
-                labelCall.setVisibility(View.VISIBLE);
-            } else {
-                labelCall.setVisibility(View.GONE);
-            }
-
-            String website = getIntent().getStringExtra("website");
-            if (website != null && !website.isEmpty() && !website.equalsIgnoreCase("none")) {
-                websiteText.setText("Website: " + website);
-                websiteText.setVisibility(View.VISIBLE);
-                labelWebsite.setVisibility(View.VISIBLE);
-            } else {
-                labelWebsite.setVisibility(View.GONE);
-            }
-            if (latitude != 0.0 && longitude != 0.0) {
-                labelNavigate.setVisibility(View.VISIBLE);
-            } else {
-                labelNavigate.setVisibility(View.GONE);  // Hide the 'Navigate' label if no coordinates
-            }
+            websiteText.setVisibility(View.GONE);
+            labelWebsite.setVisibility(View.GONE);
         } else {
-
+            websiteText.setText("Website: " + website);
+            websiteText.setVisibility(View.VISIBLE);
+            labelWebsite.setVisibility(View.VISIBLE);
         }
 
+        if (contactNumber == null || contactNumber.equalsIgnoreCase("none") || contactNumber.isEmpty()) {
+            callButton.setVisibility(View.GONE);
+            contactNumberText.setVisibility(View.GONE);
+            labelCall.setVisibility(View.GONE);
+        } else {
+            contactNumberText.setText("Contact: " + contactNumber);
+            contactNumberText.setVisibility(View.VISIBLE);
+            labelCall.setVisibility(View.VISIBLE);
+        }
+
+        if (latitude != 0.0 && longitude != 0.0) {
+            labelNavigate.setVisibility(View.VISIBLE);
+        } else {
+            labelNavigate.setVisibility(View.GONE);  // Hide the 'Navigate' label if no coordinates
+        }
 
         visitWebsiteButton.setOnClickListener(v -> {
-            String website = getIntent().getStringExtra("website");
             if (website != null && !website.isEmpty()) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(website));
                 startActivity(browserIntent);
             }
         });
+
         // Call button listener
         callButton.setOnClickListener(v -> {
-            String contactNumber = getIntent().getStringExtra("contactNumber");
             if (contactNumber != null && !contactNumber.isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + contactNumber));
                 startActivity(intent);
@@ -194,6 +188,7 @@ public class ServiceDetailActivity extends AppCompatActivity {
                 startActivity(mapIntent);
             }
         });
+
         if (similarServices.size() > 4) {
             seeAllTextView.setVisibility(View.VISIBLE);
         } else {
@@ -206,11 +201,5 @@ public class ServiceDetailActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
-
-
-
-
-
     }
-
 }

@@ -41,7 +41,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
         holder.userName.setText(review.getUserName());
 
         // Set review text
-        holder.reviewText.setText(review.getReviewText());
+        holder.reviewText.setText("Comment: " + review.getReviewText());
 
         // Set star rating and rating value
         if (review.getStarRating() > 0) {

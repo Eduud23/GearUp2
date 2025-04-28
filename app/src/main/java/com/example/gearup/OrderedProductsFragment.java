@@ -1,9 +1,12 @@
 package com.example.gearup;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,13 +34,19 @@ public class OrderedProductsFragment extends Fragment {
     private List<OrderItem> orderedItems;
     private ListenerRegistration orderedListenerRegistration;
     private String currentUserId;
+    private String selectedStatus = "All"; // Default filter is 'All'
+
+    private ImageView filterCategoryIcon; // Filter icon to trigger status selection
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_ordered_products, container, false);
+
         recyclerViewOrdered = view.findViewById(R.id.recyclerView_ordered);
         recyclerViewOrdered.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        filterCategoryIcon = view.findViewById(R.id.spinner_category); // Initialize the filter icon
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -51,13 +60,49 @@ public class OrderedProductsFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             currentUserId = currentUser.getUid();
-            fetchOrderedItems();
+            fetchOrderedItems(); // Fetch the ordered items from Firestore
         }
+
+        // Set up the filter icon's click listener
+        filterCategoryIcon.setOnClickListener(v -> showStatusFilterDialog());
 
         return view;
     }
 
-    // Fetch ordered items for the logged-in user
+    // Show a dialog to choose the order status filter
+    private void showStatusFilterDialog() {
+        final String[] statuses = {"All", "Pending", "Shipping", "Ready to pickup", "Delivered"};
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Select Order Status")
+                .setSingleChoiceItems(statuses, getStatusIndex(), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        selectedStatus = statuses[which];
+                        fetchOrderedItems(); // Re-fetch items based on the selected status filter
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    // Helper method to get the current index of selected status in the filter dialog
+    private int getStatusIndex() {
+        switch (selectedStatus) {
+            case "Pending":
+                return 1;
+            case "Shipping":
+                return 2;
+            case "Ready to pickup":
+                return 3;
+            case "Delivered":
+                return 4;
+            default:
+                return 0; // Default to "All"
+        }
+    }
+
+    // Fetch ordered items for the logged-in user and apply status filtering
     private void fetchOrderedItems() {
         orderedListenerRegistration = db.collection("orders")
                 .whereEqualTo("product.userId", currentUserId)
@@ -107,35 +152,39 @@ public class OrderedProductsFragment extends Fragment {
 
                             String deliveryOption = (String) doc.get("deliveryType");
                             String orderStatus = (String) doc.get("status");
-                            String paymentMethod = (String) productMap.get("paymentMethod");
 
-                            // ✅ Corrected constructor call with all fields in order
-                            OrderItem orderItem = new OrderItem(
-                                    orderId,
-                                    productName,
-                                    productQuantity,
-                                    productPrice,
-                                    customerName,
-                                    shippingAddress,
-                                    paymentMethod,
-                                    orderStatus,
-                                    deliveryOption,
-                                    imageUrl,
-                                    sellerId,
-                                    paymentIntentId,
-                                    productId,
-                                    productBrand,
-                                    productYear
-                            );
+                            // Filter the orders based on the selected status
+                            if (selectedStatus.equals("All") || orderStatus.equals(selectedStatus)) {
+                                String paymentMethod = (String) productMap.get("paymentMethod");
 
-                            orderedItems.add(orderItem);
+                                // Create an OrderItem and add it to the list
+                                OrderItem orderItem = new OrderItem(
+                                        orderId,
+                                        productName,
+                                        productQuantity,
+                                        productPrice,
+                                        customerName,
+                                        shippingAddress,
+                                        paymentMethod,
+                                        orderStatus,
+                                        deliveryOption,
+                                        imageUrl,
+                                        sellerId,
+                                        paymentIntentId,
+                                        productId,
+                                        productBrand,
+                                        productYear
+                                );
+
+                                orderedItems.add(orderItem);
+                            }
                         }
 
+                        // Notify the adapter that the data set has changed
                         purchasedAdapter.notifyDataSetChanged();
                     }
                 });
     }
-
 
     @Override
     public void onDestroy() {

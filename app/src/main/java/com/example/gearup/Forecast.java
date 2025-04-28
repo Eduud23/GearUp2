@@ -201,15 +201,16 @@ public class Forecast extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                     Date date = sdf.parse(dateString);
 
-                    if (firstDate == null) firstDate = date;
-                    long days = (date.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+                    // NO NEED TO CALCULATE DAYS
+                    // long days = (date.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24);
+                    x.add((float) x.size()); // <-- just use the index
 
-                    x.add((float) days);
                     y.add(total.floatValue());
                     quantity.add(qty.floatValue());
                     labels.add(dateString);
                 }
             }
+
 
             if (x.size() > 1) {
                 double[] regressionSales = performLinearRegression(x, y);

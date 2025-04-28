@@ -69,7 +69,7 @@
                 android:text="₱Price" />
 
             <TextView
-                android:id="@+id/tv_product_description"
+                android:id="@+id/tv_product_brand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -144,7 +144,7 @@
                 android:text="₱Price 2" />
 
             <TextView
-                android:id="@+id/tv_product_description_2"
+                android:id="@+id/tv_product_brand_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"

@@ -37,6 +37,9 @@ public class RelatedProductsAdapter extends RecyclerView.Adapter<RelatedProducts
         holder.productName.setText(product.getName());
         holder.productPrice.setText(String.format("₱%,.2f", product.getPrice()));
 
+        // Set the brand
+        holder.productBrand.setText("Brand: " + product.getBrand()); // Added the brand here
+
         // Check if there are any image URLs
         List<String> imageUrls = product.getImageUrls();
         if (imageUrls != null && !imageUrls.isEmpty()) {
@@ -72,13 +75,14 @@ public class RelatedProductsAdapter extends RecyclerView.Adapter<RelatedProducts
     }
 
     public static class RelatedProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productPrice;
+        TextView productName, productPrice, productBrand; // Added productBrand
         ImageView productImage;
 
         public RelatedProductViewHolder(View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.tv_product_name);
             productPrice = itemView.findViewById(R.id.tv_product_price);
+            productBrand = itemView.findViewById(R.id.tv_product_brand); // Added productBrand reference
             productImage = itemView.findViewById(R.id.iv_product_image);
         }
     }

@@ -37,8 +37,16 @@
             android:layout_height="wrap_content"
             android:text="₱0.00"
             android:textSize="14sp"
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/holo_red_light"
             android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/tv_product_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Brand"
+            android:textColor="@android:color/black" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

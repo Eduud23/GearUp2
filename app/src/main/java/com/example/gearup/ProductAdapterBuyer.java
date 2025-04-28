@@ -45,7 +45,7 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             Product firstProduct = displayedProducts.get(firstProductIndex);
             holder.productName[0].setText(firstProduct.getName());
             holder.productPrice[0].setText("Price: "+ String.format("₱%,.2f", firstProduct.getPrice()));
-            holder.productDescription[0].setText("Description: " + firstProduct.getDescription());
+            holder.productBrand[0].setText("Brand: " + firstProduct.getBrand());  // Changed to Brand
 
             // Load product image
             List<String> imageUrls = firstProduct.getImageUrls();
@@ -78,7 +78,7 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             Product secondProduct = displayedProducts.get(secondProductIndex);
             holder.productName[1].setText(secondProduct.getName());
             holder.productPrice[1].setText("Price: " + String.format("₱%,.2f", secondProduct.getPrice()));
-            holder.productDescription[1].setText("Description: " + secondProduct.getDescription());
+            holder.productBrand[1].setText("Brand: " + secondProduct.getBrand());  // Changed to Brand
 
             // Load product image
             List<String> imageUrls = secondProduct.getImageUrls();
@@ -108,7 +108,7 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             holder.productImage[1].setVisibility(View.GONE);
             holder.productName[1].setVisibility(View.GONE);
             holder.productPrice[1].setVisibility(View.GONE);
-            holder.productDescription[1].setVisibility(View.GONE);
+            holder.productBrand[1].setVisibility(View.GONE);  // Hide the Brand if no second product
         }
     }
 
@@ -132,7 +132,7 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView[] productName = new TextView[2];
         TextView[] productPrice = new TextView[2];
-        TextView[] productDescription = new TextView[2];
+        TextView[] productBrand = new TextView[2]; // Changed from productDescription to productBrand
         ImageView[] productImage = new ImageView[2];
         ImageView[] sellerProfileImage = new ImageView[2];
 
@@ -140,14 +140,14 @@ public class ProductAdapterBuyer extends RecyclerView.Adapter<ProductAdapterBuye
             super(itemView);
             productName[0] = itemView.findViewById(R.id.tv_product_name);
             productPrice[0] = itemView.findViewById(R.id.tv_product_price);
-            productDescription[0] = itemView.findViewById(R.id.tv_product_description);
+            productBrand[0] = itemView.findViewById(R.id.tv_product_brand);  // Changed to tv_product_brand
             productImage[0] = itemView.findViewById(R.id.iv_product_image);
             sellerProfileImage[0] = itemView.findViewById(R.id.civ_seller_profile_image);
 
             // Initialize second set of views
             productName[1] = itemView.findViewById(R.id.tv_product_name_2);
             productPrice[1] = itemView.findViewById(R.id.tv_product_price_2);
-            productDescription[1] = itemView.findViewById(R.id.tv_product_description_2);
+            productBrand[1] = itemView.findViewById(R.id.tv_product_brand_2);  // Changed to tv_product_brand_2
             productImage[1] = itemView.findViewById(R.id.iv_product_image_2);
             sellerProfileImage[1] = itemView.findViewById(R.id.civ_seller_profile_image_2);
         }

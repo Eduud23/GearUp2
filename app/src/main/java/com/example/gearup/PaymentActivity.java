@@ -267,11 +267,21 @@ public class PaymentActivity extends AppCompatActivity {
 
             db.collection("orders").add(orderDetails)
                     .addOnSuccessListener(documentReference -> {
+                        // ✅ Log purchase after successful order save
+                        UserInteractionLogger.logPurchaseInteraction(
+                                userId,
+                                item.getProductId(),
+                                item.getProductName(),
+                                item.getSellerId(),
+                                item.getTotalPrice()
+                        );
+
                         deleteCartItems(userId);
                         showCustomDialog(true);
                     })
                     .addOnFailureListener(e -> showCustomDialog(false));
         }
+
     }
 
     private void showCustomDialog(boolean isSuccess) {
