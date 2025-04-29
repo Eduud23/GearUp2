@@ -1,22 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:background="@color/white">
 
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/search_input"
+    <!-- Search Bar Row -->
+    <LinearLayout
+        android:id="@+id/top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search for products..."
-        android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:inputType="text"
-        android:textSize="16sp"/>
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:background="@android:color/holo_blue_light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Back Button -->
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back_white"
+            android:layout_marginTop="5dp"
+            android:contentDescription="Back"
+            android:background="?android:attr/selectableItemBackground"
+            android:elevation="6dp"
+            android:padding="8dp" />
+
+        <!-- Search Field -->
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:inputType="text"
+            android:hint="Search products"
+            android:drawableStart="@drawable/search"
+            android:background="@drawable/search_bar_background"
+            android:padding="12dp"
+            android:textSize="14sp" />
+
+        <!-- Filter Button -->
+        <ImageView
+            android:id="@+id/filter_icon"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/filter_category"
+            android:contentDescription="Category Icon"
+            android:background="@drawable/rounded_bg"
+            android:elevation="6dp"
+            android:padding="8dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
 
     <!-- RecyclerView for Search Results -->
     <androidx.recyclerview.widget.RecyclerView
@@ -24,5 +68,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="8dp"/>
-
+    </LinearLayout>
 </LinearLayout>

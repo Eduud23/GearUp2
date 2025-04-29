@@ -2,7 +2,6 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -13,9 +12,8 @@ import androidx.appcompat.widget.Toolbar;
 
 public class Forecast extends AppCompatActivity {
 
-    private static final String TAG = "Forecasting";
     private WebView webView;
-    private Button btnDrySeason, btnRainySeason, btnNextMonth;
+    private Button btnCategory;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,26 +24,18 @@ public class Forecast extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
+        // Setup WebView
         webView = findViewById(R.id.webView);
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient());
         webView.loadUrl("https://forecast-6rln.onrender.com/");
 
-        // Initialize buttons
-        btnDrySeason = findViewById(R.id.btnDrySeason);
-        btnRainySeason = findViewById(R.id.btnRainySeason);
-        btnNextMonth = findViewById(R.id.btnNextMonth);
-
-        btnDrySeason.setOnClickListener(v -> openForecastCategory("Dry Season"));
-        btnRainySeason.setOnClickListener(v -> openForecastCategory("Rainy Season"));
-        btnNextMonth.setOnClickListener(v -> openForecastCategory("Next Month"));
+        // Initialize and handle button click
+        btnCategory = findViewById(R.id.btnCategory);
+        btnCategory.setOnClickListener(v -> {
+            Intent intent = new Intent(Forecast.this, ForecastCategory.class);
+            startActivity(intent);
+        });
     }
-
-    private void openForecastCategory(String season) {
-        Intent intent = new Intent(Forecast.this, ForecastCategory.class);
-        intent.putExtra("productTitle", season); // Only pass the title/season
-        startActivity(intent);
-    }
-
 }

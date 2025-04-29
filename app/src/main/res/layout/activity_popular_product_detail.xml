@@ -120,16 +120,36 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Similar Products Title -->
-            <TextView
-                android:id="@+id/similarProductsTitle"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Similar Products"
-                android:textSize="18sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:weightSum="1">
+
+                <!-- Similar Shops Title -->
+                <TextView
+                    android:id="@+id/similarProductsTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Similar Products"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:layout_weight="1" /> <!-- This takes up the remaining space -->
+
+                <!-- See All TextView -->
+                <TextView
+                    android:id="@+id/seeAllTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See All"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:visibility="gone"
+                    android:layout_gravity="end" /> <!-- Align to the end of the parent -->
+            </LinearLayout>
+
 
             <!-- RecyclerView for similar products -->
             <androidx.recyclerview.widget.RecyclerView

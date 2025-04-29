@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,7 +20,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +29,7 @@ public class LocalTrendsDetails extends AppCompatActivity {
     private RecyclerView similarProductsRecyclerView;
     private LocalTrendsAdapter similarProductsAdapter;
     private List<LocalTrendsData> similarProductsList = new ArrayList<>();
+    private TextView seeAllTextView;  // Add the See All TextView
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class LocalTrendsDetails extends AppCompatActivity {
         TextView promoTextView = findViewById(R.id.product_promo);
         Button openLinkButton = findViewById(R.id.open_link_button);
         similarProductsRecyclerView = findViewById(R.id.similarProductsRecyclerView);
+        seeAllTextView = findViewById(R.id.seeAllTextView);  // Initialize See All TextView
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -195,6 +197,17 @@ public class LocalTrendsDetails extends AppCompatActivity {
                                     // Update the adapter with the new list of products
                                     similarProductsAdapter.updateProducts(fetchedProducts);
                                     Log.d(TAG, "Similar products updated in RecyclerView.");
+
+                                    // Show "See All" if there are more than 4 products
+                                    if (fetchedProducts.size() > 4) {
+                                        seeAllTextView.setVisibility(View.VISIBLE);
+                                        seeAllTextView.setOnClickListener(v -> {
+                                            // Show all products when "See All" is clicked
+                                            Intent intent = new Intent(LocalTrendsDetails.this, AllSimilarLocalProducts.class);
+                                            intent.putParcelableArrayListExtra("allProducts", new ArrayList<>(fetchedProducts));
+                                            startActivity(intent);
+                                        });
+                                    }
                                 }
 
                             } else {
@@ -209,5 +222,4 @@ public class LocalTrendsDetails extends AppCompatActivity {
             Log.e(TAG, "❌ FirebaseApp 'gearupdataThirdApp' not found.", e);
         }
     }
-
 }

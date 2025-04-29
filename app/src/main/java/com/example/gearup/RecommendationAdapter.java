@@ -58,8 +58,10 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
 
     private void bindProduct(ViewHolder holder, int index, Product product) {
         holder.productName[index].setText(product.getName());
-        holder.productPrice[index].setText("Price: "+ String.format("₱%,.2f", product.getPrice()));
-        holder.productDescription[index].setText("Description "+product.getDescription());
+        holder.productPrice[index].setText("Price: " + String.format("₱%,.2f", product.getPrice()));
+
+        // Change description to brand
+        holder.productDescription[index].setText("Brand: " + product.getBrand());  // Updated line
 
         // Load Product Image
         if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
@@ -110,15 +112,16 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
             super(itemView);
             productName[0] = itemView.findViewById(R.id.tv_product_name);
             productPrice[0] = itemView.findViewById(R.id.tv_product_price);
-            productDescription[0] = itemView.findViewById(R.id.tv_product_description);
+            productDescription[0] = itemView.findViewById(R.id.tv_product_brand);
             productImage[0] = itemView.findViewById(R.id.iv_product_image);
             sellerImage[0] = itemView.findViewById(R.id.civ_seller_profile_image);
 
             productName[1] = itemView.findViewById(R.id.tv_product_name_2);
             productPrice[1] = itemView.findViewById(R.id.tv_product_price_2);
-            productDescription[1] = itemView.findViewById(R.id.tv_product_description_2);
+            productDescription[1] = itemView.findViewById(R.id.tv_product_brand_2);
             productImage[1] = itemView.findViewById(R.id.iv_product_image_2);
             sellerImage[1] = itemView.findViewById(R.id.civ_seller_profile_image_2);
         }
     }
 }
+

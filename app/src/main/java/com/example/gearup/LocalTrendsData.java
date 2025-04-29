@@ -1,6 +1,9 @@
 package com.example.gearup;
 
-public class LocalTrendsData {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class LocalTrendsData implements Parcelable {
     private String image;
     private String link;
     private String name;
@@ -110,5 +113,50 @@ public class LocalTrendsData {
 
     public void setMatchCount(int matchCount) {
         this.matchCount = matchCount;
+    }
+
+    // Parcelable Implementation
+    protected LocalTrendsData(Parcel in) {
+        image = in.readString();
+        link = in.readString();
+        name = in.readString();
+        place = in.readString();
+        price = in.readDouble();
+        promo = in.readString();
+        ratings = in.readDouble();
+        sale = in.readInt();
+        sold = in.readString();
+        matchCount = in.readInt();
+    }
+
+    public static final Creator<LocalTrendsData> CREATOR = new Creator<LocalTrendsData>() {
+        @Override
+        public LocalTrendsData createFromParcel(Parcel in) {
+            return new LocalTrendsData(in);
+        }
+
+        @Override
+        public LocalTrendsData[] newArray(int size) {
+            return new LocalTrendsData[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(image);
+        dest.writeString(link);
+        dest.writeString(name);
+        dest.writeString(place);
+        dest.writeDouble(price);
+        dest.writeString(promo);
+        dest.writeDouble(ratings);
+        dest.writeInt(sale);
+        dest.writeString(sold);
+        dest.writeInt(matchCount);
     }
 }

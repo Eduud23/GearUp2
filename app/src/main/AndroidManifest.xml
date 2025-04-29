@@ -22,6 +22,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".AllSimilarLocalProducts"
+            android:exported="false" />
+        <activity
+            android:name=".AllSimilarInternationalProducts"
+            android:exported="false" />
+        <activity
             android:name=".ForecastCategory"
             android:exported="false" />
         <activity

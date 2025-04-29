@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@android:color/background_light"
+    android:background="@android:color/white"
     android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.Toolbar
@@ -32,30 +32,14 @@
         android:padding="16dp">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnDrySeason"
+            android:id="@+id/btnCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dry Season"
+            android:text="See All Category"
             android:textAllCaps="false"
             android:background="@drawable/textview_border"
             android:layout_marginBottom="8dp" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnRainySeason"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/textview_border"
-            android:text="Rainy Season"
-            android:textAllCaps="false"
-            android:layout_marginBottom="8dp" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnNextMonth"
-            android:layout_width="match_parent"
-            android:background="@drawable/textview_border"
-            android:layout_height="wrap_content"
-            android:textAllCaps="false"
-            android:text="Next Month" />
     </LinearLayout>
 
 </LinearLayout>

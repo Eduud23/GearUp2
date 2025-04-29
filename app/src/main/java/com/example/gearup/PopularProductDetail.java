@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ public class PopularProductDetail extends AppCompatActivity {
     private FirebaseFirestore db;
     private RecyclerView similarProductsRecyclerView;
     private PopularProductAdapter similarProductAdapter;
+    private TextView seeAllTextView;  // Add the TextView for "See All"
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class PopularProductDetail extends AppCompatActivity {
         ImageView productImageView = findViewById(R.id.productImage);
         Button openLinkButton = findViewById(R.id.openItemButton);
         similarProductsRecyclerView = findViewById(R.id.similarProductsRecyclerView);
+        seeAllTextView = findViewById(R.id.seeAllTextView);  // Initialize the "See All" TextView
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -137,6 +140,17 @@ public class PopularProductDetail extends AppCompatActivity {
                             } else {
                                 similarProductAdapter.updateProducts(fetchedProducts);  // Ensure your adapter method is called
                                 Log.d(TAG, "Similar products updated in RecyclerView.");
+
+                                // Show "See All" if there are more than 4 products
+                                if (fetchedProducts.size() > 4) {
+                                    seeAllTextView.setVisibility(View.VISIBLE);
+                                    seeAllTextView.setOnClickListener(v -> {
+                                        // Show all products when "See All" is clicked
+                                        Intent intent = new Intent(PopularProductDetail.this, AllSimilarInternationalProducts.class);
+                                        intent.putParcelableArrayListExtra("allProducts", new ArrayList<>(fetchedProducts));
+                                        startActivity(intent);
+                                    });
+                                }
                             }
                         } else {
                             Log.e(TAG, "❌ Error fetching similar products", task.getException());
@@ -147,5 +161,4 @@ public class PopularProductDetail extends AppCompatActivity {
             Log.e(TAG, "❌ FirebaseApp 'gearupdataThirdApp' not found.", e);
         }
     }
-
 }

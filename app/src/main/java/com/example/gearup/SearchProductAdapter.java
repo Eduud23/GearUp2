@@ -1,21 +1,31 @@
 package com.example.gearup;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.bumptech.glide.Glide;  // For loading images from URLs
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class SearchProductAdapter extends RecyclerView.Adapter<SearchProductAdapter.ProductViewHolder> {
     private List<Product> productList;
     private String category;
     private OnProductClickListener listener;
+    private Context context;
 
-    public SearchProductAdapter(List<Product> productList, String category, OnProductClickListener listener) {
+    public SearchProductAdapter(Context context, List<Product> productList, String category, OnProductClickListener listener) {
+        this.context = context;
         this.productList = productList;
         this.category = category;
         this.listener = listener;
@@ -32,22 +42,28 @@ public class SearchProductAdapter extends RecyclerView.Adapter<SearchProductAdap
     public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
         Product product = productList.get(position);
         holder.productName.setText(product.getName());
-        holder.productDescription.setText(product.getDescription());
-        holder.productPrice.setText(String.format("₱%,.2f", product.getPrice()));
+        holder.productBrand.setText("Brand: " + product.getBrand()); // Changed from description to brand
+        holder.productPrice.setText("Price: " + String.format("₱%,.2f", product.getPrice()));
 
-        // Use Glide to load the first image from the imageUrls list
+        // Load the product image (if any)
         if (product.getImageUrls() != null && !product.getImageUrls().isEmpty()) {
-            // Load the first image from the list
             Glide.with(holder.itemView.getContext())
-                    .load(product.getImageUrls().get(0)) // Get the first image URL
+                    .load(product.getImageUrls().get(0))
                     .into(holder.productImage);
         }
 
-        // Set click listener for each item if needed
+        // Load the seller profile image (if available)
+        if (product.getSellerProfileImageUrl() != null && !product.getSellerProfileImageUrl().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(product.getSellerProfileImageUrl())
+                    .circleCrop()  // Optionally crop it to a circular shape for profile image
+                    .into(holder.sellerProfileImage);
+        }
+
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onProductClick(product);
-            }
+            Intent intent = new Intent(context, ProductDetailsBuyerActivity.class);
+            intent.putExtra("PRODUCT", product);
+            context.startActivity(intent);
         });
     }
 
@@ -57,24 +73,26 @@ public class SearchProductAdapter extends RecyclerView.Adapter<SearchProductAdap
     }
 
     public void updateProductList(List<Product> newProductList) {
-        productList = newProductList;
-        notifyDataSetChanged(); // Notify that the data has changed, which updates the UI
+        Log.d(TAG, "Updating adapter with " + newProductList.size() + " products.");
+        this.productList.clear();
+        this.productList.addAll(newProductList);
+        notifyDataSetChanged();
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productDescription, productPrice;
-        ImageView productImage;
+        TextView productName, productBrand, productPrice;
+        ImageView productImage, sellerProfileImage;
 
         public ProductViewHolder(View itemView) {
             super(itemView);
-            productName = itemView.findViewById(R.id.product_name);
-            productDescription = itemView.findViewById(R.id.product_description);
-            productPrice = itemView.findViewById(R.id.product_price);
-            productImage = itemView.findViewById(R.id.product_image);
+            productName = itemView.findViewById(R.id.tv_product_name);
+            productBrand = itemView.findViewById(R.id.tv_product_brand);
+            productPrice = itemView.findViewById(R.id.tv_product_price);
+            productImage = itemView.findViewById(R.id.iv_product_image);
+            sellerProfileImage = itemView.findViewById(R.id.civ_seller_profile_image); // Added seller profile image view
         }
     }
 
-    // Interface for handling product click events (if you need to do something when a product is clicked)
     public interface OnProductClickListener {
         void onProductClick(Product product);
     }

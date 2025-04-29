@@ -69,13 +69,13 @@
                 android:text="₱Price" />
 
             <TextView
-                android:id="@+id/tv_product_description"
+                android:id="@+id/tv_product_brand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp"
-                android:text="Product Description"
+                android:text="Product Brand"
                 android:singleLine="true"
                 android:maxLines="2"
                 android:ellipsize="end" />
@@ -144,13 +144,13 @@
                 android:text="₱Price 2" />
 
             <TextView
-                android:id="@+id/tv_product_description_2"
+                android:id="@+id/tv_product_brand_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginTop="4dp"
-                android:text="Product Description 2"
+                android:text="Product Brand 2"
                 android:singleLine="true"
                 android:maxLines="2"
                 android:ellipsize="end" />

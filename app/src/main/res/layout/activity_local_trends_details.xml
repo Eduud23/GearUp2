@@ -77,20 +77,45 @@
 
             <Button
                 android:id="@+id/open_link_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View on Shopee"
-                android:layout_marginTop="16dp"/>
-
-            <TextView
-                android:id="@+id/similarProductsTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Similar Products"
+                android:text="Buy Now"
                 android:textSize="18sp"
-                android:textColor="@color/black"
                 android:textStyle="bold"
-                android:layout_marginTop="20dp" />
+                android:backgroundTint="@color/colorPrimary"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:weightSum="1">
+
+                <!-- Similar Shops Title -->
+                <TextView
+                    android:id="@+id/similarProductsTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Similar Products"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:layout_weight="1" /> <!-- This takes up the remaining space -->
+
+                <!-- See All TextView -->
+                <TextView
+                    android:id="@+id/seeAllTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="See All"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:visibility="gone"
+                    android:layout_gravity="end" /> <!-- Align to the end of the parent -->
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/similarProductsRecyclerView"

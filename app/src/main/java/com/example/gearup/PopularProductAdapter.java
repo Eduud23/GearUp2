@@ -45,7 +45,6 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         holder.priceTextView.setText(product.getPrice());
         holder.conditionTextView.setText("Condition: " + (product.getCondition() != null ? product.getCondition() : "N/A"));
         holder.ratedTextView.setText("Rated: " + (product.getRated() != "NaN" ? product.getRated() : "N/A"));
-       // holder.discountTextView.setText("Discount: " + (product.getDiscount() != "NaN" ? product.getDiscount() : "N/A"));
 
         // Load product image using Glide
         Glide.with(holder.itemView.getContext()).load(product.getImageUrl()).into(holder.productImageView);
@@ -66,19 +65,13 @@ public class PopularProductAdapter extends RecyclerView.Adapter<PopularProductAd
         notifyDataSetChanged();
     }
 
-    // Method to update the similar products list
-    public void setSimilarProducts(List<PopularProduct> similarProducts) {
-        this.productList = similarProducts;  // Update the main list to be similar products
-        notifyDataSetChanged();  // Refresh the RecyclerView
-    }
-
     @Override
     public int getItemCount() {
         return productList.size();
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView titleTextView, priceTextView, conditionTextView, ratedTextView, discountTextView;
+        TextView titleTextView, priceTextView, conditionTextView, ratedTextView;
         ImageView productImageView;
 
         public ProductViewHolder(@NonNull View itemView) {
