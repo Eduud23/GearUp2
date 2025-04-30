@@ -27,5 +27,24 @@
         android:id="@+id/spinner_rating_select"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_map_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filter by Map"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/textview_border"
+        android:textColor="@android:color/black" />
+    <TextView
+        android:id="@+id/tv_reset_map_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reset Map Filter"
+        android:textColor="@color/purple_500"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center_horizontal"
+        android:clickable="true"
+        android:focusable="true" />
+
 
 </LinearLayout>

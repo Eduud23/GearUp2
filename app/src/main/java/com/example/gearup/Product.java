@@ -19,11 +19,13 @@ public class Product implements Parcelable {
     private int views; // Number of views
     private double stars; // Average star rating
     private int sold;
+    private double sellerLatitude; // Seller's latitude
+    private double sellerLongitude; // Seller's longitude
 
     // Default constructor
     public Product() {}
 
-    // Constructor with all parameters
+    // Constructor with all parameters, without latitude/longitude
     public Product(String id, String name, double price, String description, List<String> imageUrls,
                    String category, String sellerId, int quantity, String brand, String yearModel,
                    int views, double stars, int sold) {
@@ -40,7 +42,7 @@ public class Product implements Parcelable {
         this.yearModel = yearModel;
         this.views = views;
         this.stars = stars;
-        this.sold=sold;
+        this.sold = sold;
     }
 
     // Parcelable implementation
@@ -58,7 +60,9 @@ public class Product implements Parcelable {
         yearModel = in.readString();
         views = in.readInt();
         stars = in.readDouble();
-        sold =in.readInt();
+        sold = in.readInt();
+        sellerLatitude = in.readDouble();
+        sellerLongitude = in.readDouble();
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -89,6 +93,8 @@ public class Product implements Parcelable {
         dest.writeInt(views);
         dest.writeDouble(stars);
         dest.writeInt(sold);
+        dest.writeDouble(sellerLatitude); // Write latitude
+        dest.writeDouble(sellerLongitude); // Write longitude
     }
 
     @Override
@@ -208,7 +214,25 @@ public class Product implements Parcelable {
     public void setSold(int sold) {
         this.sold = sold;
     }
-    public int getSold(){
+
+    public int getSold() {
         return sold;
+    }
+
+    // Getters and setters for latitude and longitude
+    public double getSellerLatitude() {
+        return sellerLatitude;
+    }
+
+    public void setSellerLatitude(double sellerLatitude) {
+        this.sellerLatitude = sellerLatitude;
+    }
+
+    public double getSellerLongitude() {
+        return sellerLongitude;
+    }
+
+    public void setSellerLongitude(double sellerLongitude) {
+        this.sellerLongitude = sellerLongitude;
     }
 }
