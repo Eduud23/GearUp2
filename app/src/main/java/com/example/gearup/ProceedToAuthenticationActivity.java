@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -29,8 +31,10 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
 
     private ImageView ivSellerPhoto, ivSellerID;
     private Button btnUploadPhoto, btnUploadID, btnSubmit;
-
     private Uri sellerPhotoUri, sellerIDUri;
+
+    // FrameLayout for progress bar
+    private FrameLayout progressBarContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,9 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
         btnUploadPhoto = findViewById(R.id.btnUploadPhoto);
         btnUploadID = findViewById(R.id.btnUploadID);
         btnSubmit = findViewById(R.id.btnSubmit);
+
+        // Bind progress bar container
+        progressBarContainer = findViewById(R.id.progress_bar_container);
 
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> onBackPressed());
@@ -69,9 +76,10 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
         btnUploadID.setOnClickListener(v -> openImageSelector(REQUEST_ID));
 
         // Submit registration
-        btnSubmit.setOnClickListener(v ->
-                submitRegistration(email, password, firstName, lastName, phone, shopName, address, services, latitude, longitude)
-        );
+        btnSubmit.setOnClickListener(v -> {
+            showProgressBar(true); // Show progress bar before starting submission
+            submitRegistration(email, password, firstName, lastName, phone, shopName, address, services, latitude, longitude);
+        });
     }
 
     private void openImageSelector(int requestCode) {
@@ -100,6 +108,7 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
                                     double latitude, double longitude) {
 
         if (sellerPhotoUri == null || sellerIDUri == null) {
+            showProgressBar(false); // Hide progress bar if conditions aren't met
             Toast.makeText(this, "Please upload both photo and ID", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -122,20 +131,30 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
                                                 services, latitude, longitude, photoUri.toString(), idUri.toString());
                                     });
                                 } else {
+                                    showProgressBar(false);
                                     Toast.makeText(this, "ID Upload Failed: " + task2.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             });
                         });
                     } else {
+                        showProgressBar(false);
                         Toast.makeText(this, "Photo Upload Failed: " + task1.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             } else {
+                showProgressBar(false);
                 Toast.makeText(this, "Registration Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void showProgressBar(boolean show) {
+        if (show) {
+            progressBarContainer.setVisibility(View.VISIBLE);  // Show the progress bar container
+        } else {
+            progressBarContainer.setVisibility(View.GONE);  // Hide the progress bar container
+        }
+    }
 
     private void createUserInFirestore(String email, String firstName, String lastName, String phone,
                                        String shopName, String address, String services,
@@ -162,6 +181,7 @@ public class ProceedToAuthenticationActivity extends AppCompatActivity {
 
         db.collection("sellers").document(userId).set(user)
                 .addOnCompleteListener(task -> {
+                    showProgressBar(false); // Hide progress bar once registration is complete
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Registration submitted for admin review", Toast.LENGTH_SHORT).show();
                         navigateToLogin();

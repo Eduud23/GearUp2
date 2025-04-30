@@ -1,260 +1,266 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context=".BuyerRegister">
+    android:orientation="vertical"
+    >
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ImageView
+        android:id="@+id/btn_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_back"
+        android:contentDescription="Back"
+        android:layout_margin="16dp"
+        android:background="@drawable/rounded_bg"
+        android:elevation="6dp"
+        android:padding="12dp"
+        android:layout_gravity="start" />
+
+    <!-- ScrollView that will contain the form elements -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="50dp"
-        android:paddingBottom="20dp">
+        android:padding="16dp"
+        android:fillViewport="true">
 
-        <TextView
-            android:id="@+id/tv1"
-            android:layout_width="wrap_content"
+        <!-- Inner LinearLayout that contains the form -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
-            android:textSize="28sp"
-            android:textFontWeight="900"
-            android:textColor="@color/grey"
-            android:textStyle="bold"
-            android:text="SIGNUP"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:orientation="vertical"
+            android:paddingTop="50dp"
+            android:paddingBottom="20dp">
 
-        <TextView
-            android:id="@+id/fn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="First Name"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/tv1"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="20dp" />
+            <!-- Title TextView -->
+            <TextView
+                android:id="@+id/tv1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:textSize="28sp"
+                android:textFontWeight="900"
+                android:textColor="@color/grey"
+                android:textStyle="bold"
+                android:text="SIGNUP"
+                android:layout_gravity="center" />
 
-        <!-- TextInputLayout for First Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_full_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/fn"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etfn"
+            <!-- Email Address Label -->
+            <TextView
+                android:id="@+id/emailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email Address"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="20dp" />
+
+            <!-- TextInputLayout for Email Address -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="First Name"
-                android:imeOptions="actionNext"
-                android:textColorHint="#FF000000"
-                android:textColor="@color/primary_text"
-                android:backgroundTint="@color/primary_light"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address"
+                    android:textColorHint="#FF000000"
+                    android:imeOptions="actionNext"
+                    android:textColor="@color/primary_text"
+                    android:backgroundTint="@color/primary_light"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Password Label -->
+            <TextView
+                android:id="@+id/passwordLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password"
                 android:textSize="18sp"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/ln"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Last Name"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_full_name"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
-
-        <!-- TextInputLayout for Last Name -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_last_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/ln"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etln"
+            <!-- TextInputLayout for Password -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Last Name"
-                android:textColorHint="#FF000000"
-                android:imeOptions="actionNext"
-                android:textColor="@color/primary_text"
-                android:backgroundTint="@color/primary_light"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    android:imeOptions="actionNext"
+                    android:textColorHint="#FF000000"
+                    android:textColor="@color/primary_text"
+                    android:backgroundTint="@color/primary_light"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Confirm Password Label -->
+            <TextView
+                android:id="@+id/cpasswordLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm Password"
                 android:textSize="18sp"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/mobileno"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mobile Number"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_last_name"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
-
-        <!-- TextInputLayout for Mobile Number -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_mobile_number"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/mobileno"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etemobileno"
+            <!-- TextInputLayout for Confirm Password -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_confirm_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="63 xxxx xxx xxx"
-                android:textColorHint="#FF000000"
-                android:textColor="@color/primary_text"
-                android:backgroundTint="@color/primary_light"
-                android:imeOptions="actionNext"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/cpassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Confirm Password"
+                    android:textColorHint="#FF000000"
+                    android:textColor="@color/primary_text"
+                    android:imeOptions="actionNext"
+                    android:backgroundTint="@color/primary_light"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- First Name Label -->
+            <TextView
+                android:id="@+id/fn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="First Name"
                 android:textSize="18sp"
-                android:inputType="phone" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/emailLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email Address"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_mobile_number"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
-
-        <!-- TextInputLayout for Email Address -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_email"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/emailLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/email"
+            <!-- TextInputLayout for First Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_full_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email Address"
-                android:textColorHint="#FF000000"
-                android:imeOptions="actionNext"
-                android:textColor="@color/primary_text"
-                android:backgroundTint="@color/primary_light"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etfn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="First Name"
+                    android:textColorHint="#FF000000"
+                    android:textColor="@color/primary_text"
+                    android:backgroundTint="@color/primary_light"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Last Name Label -->
+            <TextView
+                android:id="@+id/ln"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last Name"
                 android:textSize="18sp"
-                android:inputType="textEmailAddress" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/passwordLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Password"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_email"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
-
-        <!-- TextInputLayout for Password -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/passwordLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/password"
+            <!-- TextInputLayout for Last Name -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_last_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
-                android:imeOptions="actionNext"
-                android:textColorHint="#FF000000"
-                android:textColor="@color/primary_text"
-                android:backgroundTint="@color/primary_light"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etln"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Last Name"
+                    android:textColorHint="#FF000000"
+                    android:textColor="@color/primary_text"
+                    android:backgroundTint="@color/primary_light"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mobile Number Label -->
+            <TextView
+                android:id="@+id/mobileno"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mobile Number"
                 android:textSize="18sp"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textColor="@android:color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/cpasswordLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Confirm Password"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_password"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="10dp" />
-
-        <!-- TextInputLayout for Confirm Password -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_confirm_password"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/cpasswordLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="10dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/cpassword"
+            <!-- TextInputLayout for Mobile Number -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/input_mobile_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Confirm Password"
-                android:textColorHint="#FF000000"
-                android:textColor="@color/primary_text"
-                android:imeOptions="actionNext"
-                android:backgroundTint="@color/primary_light"
-                android:padding="16dp"
+                android:layout_marginTop="10dp">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etemobileno"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="63 xxxx xxx xxx"
+                    android:textColorHint="#FF000000"
+                    android:textColor="@color/primary_text"
+                    android:backgroundTint="@color/primary_light"
+                    android:imeOptions="actionNext"
+                    android:padding="16dp"
+                    android:textSize="18sp"
+                    android:inputType="phone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Sign-Up Button -->
+            <Button
+                android:id="@+id/btn_signup"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:backgroundTint="#FF018786"
+                android:fontFamily="sans-serif-black"
+                android:text="SIGNUP"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:textStyle="bold"
+                android:layout_marginTop="20dp" />
 
-        <Button
-            android:id="@+id/btn_signup"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:backgroundTint="#FF018786"
-            android:fontFamily="sans-serif-black"
-            android:text="SIGNUP"
-            android:textAllCaps="true"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/input_confirm_password"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp" />
+        </LinearLayout>
+    </ScrollView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+    <!-- Progress Bar Container -->
+    <FrameLayout
+        android:id="@+id/progress_bar_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="@android:color/white"
+        android:alpha="0.5">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+    </FrameLayout>
+
+</LinearLayout>

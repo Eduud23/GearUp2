@@ -3,14 +3,20 @@ package com.example.gearup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
+import android.widget.FrameLayout;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +28,9 @@ public class BuyerRegister extends AppCompatActivity {
     private EditText firstNameEditText, lastNameEditText, mobileNumberEditText, emailEditText, passwordEditText, confirmPasswordEditText;
     private Button signupButton;
 
+    // FrameLayout for progress bar
+    private FrameLayout progressBarContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +39,7 @@ public class BuyerRegister extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        // Bind views
         firstNameEditText = findViewById(R.id.etfn);
         lastNameEditText = findViewById(R.id.etln);
         mobileNumberEditText = findViewById(R.id.etemobileno);
@@ -38,7 +48,13 @@ public class BuyerRegister extends AppCompatActivity {
         confirmPasswordEditText = findViewById(R.id.cpassword);
         signupButton = findViewById(R.id.btn_signup);
 
+        // Bind progress bar container
+        progressBarContainer = findViewById(R.id.progress_bar_container);
+
         signupButton.setOnClickListener(v -> registerUser());
+
+        ImageView backButton = findViewById(R.id.btn_back);
+        backButton.setOnClickListener(v -> onBackPressed());
     }
 
     private void registerUser() {
@@ -70,9 +86,15 @@ public class BuyerRegister extends AppCompatActivity {
 
         if (password.equals(confirmPassword)) {
             signupButton.setEnabled(false); // Disable button to prevent multiple clicks
+
+            // Show progress bar while registration is in progress
+            showProgressBar(true);
+
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         signupButton.setEnabled(true); // Re-enable button
+                        showProgressBar(false); // Hide progress bar after task completion
+
                         if (task.isSuccessful()) {
                             saveUserInformation(firstName, lastName, mobileNumber, email);
                         } else {
@@ -108,5 +130,14 @@ public class BuyerRegister extends AppCompatActivity {
         Intent intent = new Intent(BuyerRegister.this, Login.class);
         startActivity(intent);
         finish();
+    }
+
+    // Method to show or hide the progress bar
+    private void showProgressBar(boolean show) {
+        if (show) {
+            progressBarContainer.setVisibility(View.VISIBLE); // Show progress bar
+        } else {
+            progressBarContainer.setVisibility(View.GONE); // Hide progress bar
+        }
     }
 }
