@@ -9,7 +9,9 @@ public class Message {
 
     // No-argument constructor (required for Firestore)
     public Message() {
-        // Empty constructor required for Firestore deserialization
+        // Default timestamp to current time if not provided
+        this.timestamp = System.currentTimeMillis();
+        this.status = "unread"; // Default status
     }
 
     // Constructor with parameters (used for creating a new message)
@@ -17,8 +19,8 @@ public class Message {
         this.senderId = senderId;
         this.receiverId = receiverId;
         this.content = content;
-        this.timestamp = timestamp;
-        this.status = status;
+        this.timestamp = timestamp != 0 ? timestamp : System.currentTimeMillis(); // Default timestamp if 0
+        this.status = status != null ? status : "unread"; // Default status if not provided
     }
 
     // Getters and setters

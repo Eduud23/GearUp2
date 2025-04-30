@@ -1,16 +1,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/profile_image_receiver"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_vertical"
-        android:src="@drawable/ic_image_placeholder" />
+    <!-- Profile Image CardView -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="12dp"
+        android:elevation="4dp"
+        app:cardCornerRadius="100dp">
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/gear"/>
+    </androidx.cardview.widget.CardView>
 
+    <!-- Message and User Info Layout -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="0dp"
@@ -18,15 +29,27 @@
         android:layout_weight="1"
         android:paddingStart="10dp">
 
+        <!-- User's Name -->
         <TextView
-            android:id="@+id/tv_message_receiver"
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User Name"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"/>
+
+        <!-- Message Content -->
+        <TextView
+            android:id="@+id/tv_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Message content"
             android:textSize="16sp" />
 
+        <!-- Timestamp for Message -->
         <TextView
-            android:id="@+id/tv_timestamp_receiver"
+            android:id="@+id/tv_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Timestamp"
