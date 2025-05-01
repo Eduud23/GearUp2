@@ -128,11 +128,9 @@ public class HomeFragmentSeller extends Fragment implements ProductAdapterBuyer.
 
         // Set click listener for Shops button
         textShops.setOnClickListener(v -> {
-            // Navigate to the ShopsFragment
-            FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-            transaction.replace(R.id.fragment_container, new ShopsFragment());  // Assuming R.id.fragment_container is your FrameLayout container
-            transaction.addToBackStack(null); // Optional, allows user to go back to the HomeFragment
-            transaction.commit();
+            // Navigate to ShopsActivity
+            Intent intent = new Intent(getContext(), ShopsActivity.class); // Assuming 'getContext()' gives the correct context
+            startActivity(intent);  // Start the ShopsActivity
         });
 
         textSeeAllConnectors.setOnClickListener(v -> {

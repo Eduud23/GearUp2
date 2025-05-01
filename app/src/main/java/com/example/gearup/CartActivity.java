@@ -29,36 +29,46 @@ public class CartActivity extends AppCompatActivity {
         constraintLayout = findViewById(R.id.constraintLayout);
 
         ImageView backButton = findViewById(R.id.btn_back);
-        backButton.setOnClickListener(v -> {
-            onBackPressed();
-        });
+        backButton.setOnClickListener(v -> onBackPressed());
 
+        // Check if we should show OrderedProductsFragment initially
+        boolean showOrdered = getIntent().getBooleanExtra("SHOW_ORDERED", false);
+        String orderId = getIntent().getStringExtra("ORDER_ID");
 
-        // Set up initial fragment
         if (savedInstanceState == null) {
-            loadFragment(new CartFragment());
-            highlightButton(buttonCart); // Highlight the cart button initially
-            adjustButtonSizes("cart");
-        }
+            if (showOrdered) {
+                // Pass orderId (optional) to fragment
+                OrderedProductsFragment orderedProductsFragment = new OrderedProductsFragment();
+                if (orderId != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ORDER_ID", orderId);
+                    orderedProductsFragment.setArguments(bundle);
+                }
 
-        buttonCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                loadFragment(orderedProductsFragment);
+                highlightButton(buttonOrdered);
+                resetButton(buttonCart);
+                adjustButtonSizes("ordered");
+            } else {
                 loadFragment(new CartFragment());
                 highlightButton(buttonCart);
                 resetButton(buttonOrdered);
                 adjustButtonSizes("cart");
             }
+        }
+
+        buttonCart.setOnClickListener(v -> {
+            loadFragment(new CartFragment());
+            highlightButton(buttonCart);
+            resetButton(buttonOrdered);
+            adjustButtonSizes("cart");
         });
 
-        buttonOrdered.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadFragment(new OrderedProductsFragment());
-                highlightButton(buttonOrdered);
-                resetButton(buttonCart);
-                adjustButtonSizes("ordered");
-            }
+        buttonOrdered.setOnClickListener(v -> {
+            loadFragment(new OrderedProductsFragment());
+            highlightButton(buttonOrdered);
+            resetButton(buttonCart);
+            adjustButtonSizes("ordered");
         });
     }
 
@@ -70,12 +80,12 @@ public class CartActivity extends AppCompatActivity {
     }
 
     private void highlightButton(Button button) {
-        button.setBackgroundColor(Color.parseColor("#FF6200EE")); // Highlight color
+        button.setBackgroundColor(Color.parseColor("#FF6200EE"));
         button.setTextColor(Color.WHITE);
     }
 
     private void resetButton(Button button) {
-        button.setBackgroundColor(Color.LTGRAY); // Default button color
+        button.setBackgroundColor(Color.LTGRAY);
         button.setTextColor(Color.BLACK);
     }
 
@@ -84,11 +94,9 @@ public class CartActivity extends AppCompatActivity {
         constraintSet.clone(constraintLayout);
 
         if ("cart".equals(clickedButton)) {
-            // Cart button larger
             constraintSet.constrainPercentWidth(R.id.button_cart, 0.6f);
             constraintSet.constrainPercentWidth(R.id.button_ordered, 0.3f);
         } else {
-            // Ordered button larger
             constraintSet.constrainPercentWidth(R.id.button_cart, 0.3f);
             constraintSet.constrainPercentWidth(R.id.button_ordered, 0.6f);
         }
@@ -96,4 +104,3 @@ public class CartActivity extends AppCompatActivity {
         constraintSet.applyTo(constraintLayout);
     }
 }
-

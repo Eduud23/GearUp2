@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -28,7 +29,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SellerShopsFragment extends Fragment implements ShopsFragment.Searchable {
+public class SellerShopsFragment extends Fragment implements ShopsActivity.Searchable {
 
     private RecyclerView recyclerView;
     private ShopAdapter shopAdapter;
@@ -38,6 +39,8 @@ public class SellerShopsFragment extends Fragment implements ShopsFragment.Searc
     private FusedLocationProviderClient fusedLocationClient;
     private double userLatitude, userLongitude;
     private boolean isDataLoaded = false;  // Flag to track if data has been loaded
+
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Nullable
     @Override
@@ -50,6 +53,18 @@ public class SellerShopsFragment extends Fragment implements ShopsFragment.Searc
         // Initialize RecyclerView and Adapter
         recyclerView = view.findViewById(R.id.recyclerViewSellerShops);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+
+// Initialize SwipeRefreshLayout
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            // Clear current data and reload
+            shopList.clear();
+            originalShopList.clear();
+            shopAdapter.notifyDataSetChanged();
+            loadUserLocation(); // This will reload location + data
+        });
+
 
         shopList = new ArrayList<>();
         originalShopList = new ArrayList<>();
@@ -90,47 +105,51 @@ public class SellerShopsFragment extends Fragment implements ShopsFragment.Searc
     }
 
     private void loadShopsFromFirestore() {
+        swipeRefreshLayout.setRefreshing(true); // Start refresh animation
+
         db.collection("sellers").get().addOnCompleteListener(task -> {
+            swipeRefreshLayout.setRefreshing(false); // Stop refresh animation
+
             if (task.isSuccessful()) {
+                // 🔥 Important: Clear previous data first
+                shopList.clear();
+                originalShopList.clear();
+
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String shopName = document.getString("shopName");
                     String address = document.getString("address");
                     String phone = document.getString("phone");
-                    String sellerId = document.getId();  // Get seller ID from Firestore
+                    String sellerId = document.getId();
                     String profileImageUrl = document.getString("profileImageUrl");
 
                     if (profileImageUrl == null) {
-                        profileImageUrl = "default_image_url_here";  // Replace with actual default image URL
+                        profileImageUrl = "default_image_url_here";
                     }
 
                     double sellerLatitude = document.contains("latitude") ? document.getDouble("latitude") : 0.0;
                     double sellerLongitude = document.contains("longitude") ? document.getDouble("longitude") : 0.0;
 
-                    float distanceInKm = -1;  // -1 indicates distance is unavailable
-
+                    float distanceInKm = -1;
                     if (sellerLatitude != 0.0 && sellerLongitude != 0.0) {
-                        // Calculate the distance between the user and the seller
                         float[] results = new float[1];
                         Location.distanceBetween(userLatitude, userLongitude, sellerLatitude, sellerLongitude, results);
-                        float distanceInMeters = results[0];
-                        distanceInKm = distanceInMeters / 1000;  // Convert to kilometers
+                        distanceInKm = results[0] / 1000; // Convert to km
                     }
 
                     Shop shop = new Shop(shopName, address, phone, sellerId, profileImageUrl, distanceInKm);
-                    shopList.add(shop);  // Add to the displayed list
-                    originalShopList.add(shop);  // Add to the original list for filtering
+                    shopList.add(shop);
+                    originalShopList.add(shop);
                 }
 
-                // Sort the list by distance from nearest to farthest
                 shopList.sort((shop1, shop2) -> {
-                    if (shop1.getDistance() == -1) return 1;  // Treat -1 as farthest
-                    if (shop2.getDistance() == -1) return -1;  // Treat -1 as farthest
+                    if (shop1.getDistance() == -1) return 1;
+                    if (shop2.getDistance() == -1) return -1;
                     return Float.compare(shop1.getDistance(), shop2.getDistance());
                 });
 
                 shopAdapter.notifyDataSetChanged();
-                isDataLoaded = true;  // Set flag to true after data is loaded
-                Log.d(TAG, "Data loaded successfully.");
+                isDataLoaded = true;
+                Log.d(TAG, "Data loaded successfully. Shop count: " + shopList.size());
             } else {
                 Log.e(TAG, "Error loading shops: ", task.getException());
             }

@@ -37,7 +37,7 @@ public class NotificationFragmentBuyer extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate your layout
+        // Inflate the layout
         View rootView = inflater.inflate(R.layout.fragment_notification_buyer, container, false);
 
         // Initialize Firebase
@@ -53,37 +53,44 @@ public class NotificationFragmentBuyer extends Fragment {
         notificationAdapter = new NotificationAdapter(notificationList, new NotificationAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Notification notification) {
-                // Handle click: Check the type of notification and navigate accordingly
-                if (notification.getReceiverId() != null) {
-                    // Message notification - Open ConversationListActivity
+                // ✅ First check for order notification
+                if (notification.getOrderId() != null) {
+                    Log.d("NotificationFragment", "Order notification clicked");
+
+                    // Start CartActivity and indicate it should show OrderedProductsFragment
+                    Intent intent = new Intent(getContext(), CartActivity.class);
+                    intent.putExtra("SHOW_ORDERED", true);  // Pass flag to show OrderedProductsFragment
+                    startActivity(intent);
+
+                } else if (notification.getReceiverId() != null) {
+                    // ✅ Then check for message notification
                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                     if (currentUser != null) {
                         String currentUserId = currentUser.getUid();
-
-                        // Create intent and pass the currentUserId
                         Intent intent = new Intent(getContext(), ConversationListActivity.class);
                         intent.putExtra("CURRENT_USER_ID", currentUserId);
                         startActivity(intent);
                     } else {
-                        // Handle case where user is not authenticated
                         Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    // Handle other types of notifications here (e.g., order notifications)
-                    // You can handle other notification types if needed
-                    Log.d("NotificationFragment", "Non-message notification clicked");
+                    Log.d("NotificationFragment", "Unknown notification type clicked");
                 }
             }
+
+
         });
 
         recyclerView.setAdapter(notificationAdapter);
 
-        // Fetch message notifications for the current buyer
-        fetchMessageNotifications();
+        // Fetch both message and order notifications for the current buyer
+        fetchNotifications();
 
         return rootView;
     }
-    private void fetchMessageNotifications() {
+
+    // Fetch both message and order notifications
+    private void fetchNotifications() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             Log.e("NotificationFragment", "User is not logged in");
@@ -91,9 +98,20 @@ public class NotificationFragmentBuyer extends Fragment {
         }
 
         String currentUserId = currentUser.getUid();  // Get the current user ID
+        Log.d("NotificationFragment", "Fetching notifications for receiverId: " + currentUserId);
+
+        // Fetch message notifications
+        fetchMessageNotifications(currentUserId);
+
+        // Fetch order notifications
+        fetchOrderNotifications(currentUserId);
+    }
+
+    // Fetch message notifications from Firestore
+    private void fetchMessageNotifications(String currentUserId) {
         Log.d("NotificationFragment", "Fetching message notifications for receiverId: " + currentUserId);
 
-        // Query Firestore for notifications where the receiverId matches the current user's ID
+        // Query Firestore for message notifications
         db.collectionGroup("messagenotification")  // Using collectionGroup to query all subcollections named 'messagenotification'
                 .whereEqualTo("receiverId", currentUserId)  // Filter by receiverId
                 .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)  // Order by timestamp
@@ -117,6 +135,45 @@ public class NotificationFragmentBuyer extends Fragment {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("NotificationFragment", "Error fetching message notifications", e);
+                });
+    }
+
+    // Fetch order notifications from Firestore
+    private void fetchOrderNotifications(String currentUserId) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.e("NotificationFragment", "User is not logged in");
+            return;
+        }
+
+        Log.d("NotificationFragment", "Fetching order notifications for receiverId: " + currentUserId);
+
+        // Fetch order notifications for the current user
+        db.collection("notifications")  // Reference to the 'notifications' collection
+                .document(currentUserId)  // Use the current user's ID to access their notifications document
+                .collection("ordernotifications")  // Access the 'ordernotifications' sub-collection
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)  // Order by timestamp
+                .get()  // Fetch the notifications
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("NotificationFragment", "No order notifications found for this buyer.");
+                    } else {
+                        Log.d("NotificationFragment", "Found " + queryDocumentSnapshots.size() + " order notifications.");
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            // Map the document to a Notification object
+                            Notification notification = documentSnapshot.toObject(Notification.class);
+                            if (notification != null) {
+                                // Add the order notification to the list
+                                notificationList.add(notification);
+                                Log.d("NotificationFragment", "Order notification: " + notification.getMessage());
+                            }
+                        }
+                        // Notify the adapter that data has changed and update the UI
+                        notificationAdapter.notifyDataSetChanged();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("NotificationFragment", "Error fetching order notifications", e);
                 });
     }
 }

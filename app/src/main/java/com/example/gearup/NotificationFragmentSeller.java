@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,9 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +33,10 @@ public class NotificationFragmentSeller extends Fragment {
         // Required empty public constructor
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_notification_seller, container, false);
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
@@ -46,30 +46,33 @@ public class NotificationFragmentSeller extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         notificationList = new ArrayList<>();
 
-        // Set up the adapter with the item click listener
         notificationAdapter = new NotificationAdapter(notificationList, new NotificationAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Notification notification) {
-                // Handle click: Check the type of notification and navigate accordingly
-                if (notification.getReceiverId() != null) {
-                    // Message notification - Open ConversationSellerActivity
-                    Intent intent = new Intent(getContext(), ConversationSellerActivity.class);
+                // ✅ First check for order notification
+                if (notification.getOrderId() != null) {
+                    Log.d("NotificationFragment", "Order notification clicked");
+
+                    Intent intent = new Intent(getContext(), ManageOrderActivity.class);
+                    intent.putExtra("ORDER_ID", notification.getOrderId()); // Optional: pass the order ID
+                    startActivity(intent);
+                }
+                // ✅ Then check for message notification
+                else if (notification.getReceiverId() != null) {
                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                     if (currentUser != null) {
                         String currentUserId = currentUser.getUid();
-                        intent.putExtra("CURRENT_USER_ID", currentUserId); // Pass currentUserId
+                        Intent intent = new Intent(getContext(), ConversationSellerActivity.class);
+                        intent.putExtra("CURRENT_USER_ID", currentUserId);
                         startActivity(intent);
                     }
                 } else {
-                    // Order notification - Open ManageOrderActivity
-                    Intent intent = new Intent(getContext(), ManageOrderActivity.class);
-                    startActivity(intent);
+                    Log.d("NotificationFragment", "Unknown notification type clicked");
                 }
             }
         });
 
         recyclerView.setAdapter(notificationAdapter);
-
         fetchNotifications();
 
         return rootView;
@@ -92,14 +95,18 @@ public class NotificationFragmentSeller extends Fragment {
     private void fetchOrderNotifications(String currentUserId) {
         db.collectionGroup("ordernotification")
                 .whereEqualTo("sellerId", currentUserId)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(orderNotificationSnapshots -> {
-                    if (!orderNotificationSnapshots.isEmpty()) {
-                        for (DocumentSnapshot orderSnapshot : orderNotificationSnapshots) {
-                            Notification notification = orderSnapshot.toObject(Notification.class);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("NotificationFragment", "No order notifications found for seller.");
+                    } else {
+                        Log.d("NotificationFragment", "Found " + queryDocumentSnapshots.size() + " order notifications.");
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Notification notification = documentSnapshot.toObject(Notification.class);
                             if (notification != null) {
                                 notificationList.add(notification);
+                                Log.d("NotificationFragment", "Order notification: " + notification.getMessage());
                             }
                         }
                         notificationAdapter.notifyDataSetChanged();
@@ -111,14 +118,18 @@ public class NotificationFragmentSeller extends Fragment {
     private void fetchMessageNotifications(String currentUserId) {
         db.collectionGroup("messagenotification")
                 .whereEqualTo("receiverId", currentUserId)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(messageNotificationSnapshots -> {
-                    if (!messageNotificationSnapshots.isEmpty()) {
-                        for (DocumentSnapshot messageSnapshot : messageNotificationSnapshots) {
-                            Notification notification = messageSnapshot.toObject(Notification.class);
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("NotificationFragment", "No message notifications found for seller.");
+                    } else {
+                        Log.d("NotificationFragment", "Found " + queryDocumentSnapshots.size() + " message notifications.");
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Notification notification = documentSnapshot.toObject(Notification.class);
                             if (notification != null) {
                                 notificationList.add(notification);
+                                Log.d("NotificationFragment", "Message notification: " + notification.getMessage());
                             }
                         }
                         notificationAdapter.notifyDataSetChanged();

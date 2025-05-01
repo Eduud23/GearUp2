@@ -52,9 +52,10 @@ public class MeFragmentSeller extends Fragment {
         // Load seller info
         loadSellerInfo();
 
-        // Set up the upload button
-        Button uploadButton = view.findViewById(R.id.uploadButton);
-        uploadButton.setOnClickListener(v -> openImageChooser());
+        // Removed the upload button functionality
+        // If you want to hide the button completely, uncomment the next line:
+        // Button uploadButton = view.findViewById(R.id.uploadButton);
+        // uploadButton.setVisibility(View.GONE);  // This hides the button
 
         // Set up the manage order button
         Button manageOrderButton = view.findViewById(R.id.manageOrderButton);
@@ -125,58 +126,6 @@ public class MeFragmentSeller extends Fragment {
     }
 
     /**
-     * Open the image chooser to select a profile picture
-     */
-    private void openImageChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST) {
-            if (resultCode == getActivity().RESULT_OK && data != null && data.getData() != null) {
-                imageUri = data.getData();
-                profileImageView.setImageURI(imageUri);  // Display the selected image in ImageView
-                uploadImageToFirebase(imageUri);  // Upload the image to Firebase Storage
-            } else {
-                Toast.makeText(getContext(), "Image selection failed", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    /**
-     * Upload the selected image to Firebase Storage
-     */
-    private void uploadImageToFirebase(Uri uri) {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-            StorageReference storageReference = FirebaseStorage.getInstance()
-                    .getReference("profile_images/" + userId + ".jpg");
-
-            storageReference.putFile(uri).addOnSuccessListener(taskSnapshot -> {
-                Toast.makeText(getContext(), "Upload successful", Toast.LENGTH_SHORT).show();
-                // Get the download URL and save it to Firestore
-                storageReference.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                    db.collection("sellers").document(userId)
-                            .update("profileImageUrl", downloadUrl.toString())
-                            .addOnSuccessListener(aVoid -> {
-                                // Update the UI with the new profile image
-                                Glide.with(this)
-                                        .load(downloadUrl)
-                                        .into(profileImageView);
-                            });
-                });
-            }).addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            });
-        }
-    }
-
-    /**
      * Log out the user and navigate to the Login screen
      */
     private void logoutUser() {
@@ -196,12 +145,10 @@ public class MeFragmentSeller extends Fragment {
      */
     private void navigateToEditProfileSeller() {
         // Replace current fragment with EditProfileSellerFragment
-        EditProfileSellerFragment fragment = new EditProfileSellerFragment();
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment); // Use your fragment container ID
-        transaction.addToBackStack(null); // Optionally add to back stack
-        transaction.commit();
+        Intent intent = new Intent(getActivity(), EditProfileSellerActivity.class);
+        startActivity(intent);
     }
+
     private void navigateToInventoryFragment() {
         // Replace current fragment with InventoryFragment
         InventoryFragment fragment = new InventoryFragment();

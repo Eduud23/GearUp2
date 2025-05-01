@@ -33,29 +33,29 @@ public class SettingsFragment extends Fragment {
         accountButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager = getParentFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
                 // Check the user's role and navigate accordingly
+                Intent intent;
+
                 if ("buyer".equals(userRole)) {
-                    // Navigate to EditProfileBuyerFragment
-                    fragmentTransaction.replace(R.id.fragment_container, new EditProfileBuyerFragment());
+                    // Navigate to EditProfileBuyerActivity
+                    intent = new Intent(getActivity(), EditProfileBuyerActivity.class);
                 } else if ("seller".equals(userRole)) {
-                    // Navigate to EditProfileSellerFragment
-                    fragmentTransaction.replace(R.id.fragment_container, new EditProfileSellerFragment());
+                    // Navigate to EditProfileSellerActivity
+                    intent = new Intent(getActivity(), EditProfileSellerActivity.class);
+                } else {
+                    return;  // Default case (handle as needed)
                 }
 
-                fragmentTransaction.addToBackStack(null);  // Allow back navigation
-                fragmentTransaction.commit();
+                startActivity(intent);  // Start the selected activity
             }
         });
 
         // Set up the other buttons as usual
-
         Button addressesButton = view.findViewById(R.id.addressesbutton);
         addressesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Navigate to AddressesFragment (or use an activity)
                 FragmentManager fragmentManager = getParentFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.fragment_container, new AddressesFragment());
@@ -63,10 +63,6 @@ public class SettingsFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-
-
-
-
 
         return view;
     }

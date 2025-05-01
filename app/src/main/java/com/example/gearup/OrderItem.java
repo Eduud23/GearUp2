@@ -19,16 +19,17 @@ public class OrderItem implements Parcelable {
     private String paymentIntentId;
     private String brand;
     private String productYear;
+    private String buyerId; // Add buyerId field
 
     // ✅ No-argument constructor for Firestore
     public OrderItem() {
     }
 
-    // ✅ Full constructor with brand and productYear
+    // ✅ Full constructor with buyerId, brand, and productYear
     public OrderItem(String orderId, String productName, Long quantity, double totalPrice,
                      String customerName, String shippingAddress, String paymentMethod, String orderStatus,
                      String deliveryOption, String imageUrl, String sellerId, String paymentIntentId,
-                     String productId, String brand, String productYear) {
+                     String productId, String brand, String productYear, String buyerId) {
         this.orderId = orderId;
         this.productName = productName;
         this.quantity = quantity;
@@ -44,8 +45,10 @@ public class OrderItem implements Parcelable {
         this.productId = productId;
         this.brand = brand;
         this.productYear = productYear;
+        this.buyerId = buyerId; // Initialize buyerId
     }
 
+    // Getters
     public String getOrderId() { return orderId; }
     public String getProductId() { return productId; }
     public String getProductName() { return productName; }
@@ -61,8 +64,9 @@ public class OrderItem implements Parcelable {
     public String getPaymentIntentId() { return paymentIntentId; }
     public String getBrand() { return brand; }
     public String getProductYear() { return productYear; }
+    public String getBuyerId() { return buyerId; } // Getter for buyerId
 
-    // ✅ Setters
+    // Setters
     public void setOrderId(String orderId) { this.orderId = orderId; }
     public void setProductId(String productId) { this.productId = productId; }
     public void setProductName(String productName) { this.productName = productName; }
@@ -78,6 +82,7 @@ public class OrderItem implements Parcelable {
     public void setPaymentIntentId(String paymentIntentId) { this.paymentIntentId = paymentIntentId; }
     public void setBrand(String brand) { this.brand = brand; }
     public void setProductYear(String productYear) { this.productYear = productYear; }
+    public void setBuyerId(String buyerId) { this.buyerId = buyerId; } // Setter for buyerId
 
     // ✅ Parcelable implementation
     @Override
@@ -101,7 +106,8 @@ public class OrderItem implements Parcelable {
         dest.writeString(paymentIntentId);
         dest.writeString(productId);
         dest.writeString(brand);
-        dest.writeString(productYear); // ✅ write productYear
+        dest.writeString(productYear);
+        dest.writeString(buyerId); // Write buyerId to parcel
     }
 
     public static final Creator<OrderItem> CREATOR = new Creator<OrderItem>() {
@@ -123,6 +129,7 @@ public class OrderItem implements Parcelable {
             item.setProductId(in.readString());
             item.setBrand(in.readString());
             item.setProductYear(in.readString());
+            item.setBuyerId(in.readString()); // Read buyerId from parcel
             return item;
         }
 

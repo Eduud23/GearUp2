@@ -2,34 +2,31 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ShopsActivity">
+    android:layout_height="match_parent">
 
-    <!-- Back Icon and Search Bar -->
+    <!-- Top bar: back + search -->
     <LinearLayout
         android:id="@+id/top"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:padding="10dp"
-        android:gravity="center_vertical"
         android:background="@android:color/holo_blue_light"
-        tools:ignore="MissingConstraints">
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Back Button -->
         <ImageView
             android:id="@+id/btn_back"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_back_white"
-            android:contentDescription="Back"
-            android:layout_marginEnd="10dp"
+            android:padding="12dp"
             android:background="?android:attr/selectableItemBackground"
-            android:padding="12dp"/>
+            android:contentDescription="Back" />
 
-        <!-- Search EditText -->
         <EditText
             android:id="@+id/et_search"
             android:layout_width="0dp"
@@ -37,17 +34,14 @@
             android:layout_weight="1"
             android:drawableStart="@drawable/search"
             android:hint="Search Shop"
-            android:inputType="text"
-            android:drawablePadding="8dp"
             android:padding="8dp"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/search_bar_background"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:inputType="text"
+            android:background="@drawable/search_bar_background"/>
     </LinearLayout>
 
-    <!-- Line Divider -->
+    <!-- Divider -->
     <View
-        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
@@ -55,38 +49,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- TabLayout for switching between Seller and Local Shops -->
+    <!-- Tab Layout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:tabIndicatorColor="@color/primaryColor"
-        app:tabTextColor="@color/black"
-        app:tabSelectedTextColor="@color/primaryColor"
         app:tabGravity="fill"
         app:tabMode="fixed"
-        app:layout_constraintTop_toBottomOf="@id/view"
+        app:tabIndicatorColor="@color/primaryColor"
+        app:tabSelectedTextColor="@color/primaryColor"
+        app:tabTextColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/top"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ViewPager2 for swiping between fragments -->
+    <!-- ViewPager2 -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/fragment_container"/>
-
-    <!-- Fragment container for dynamically added fragments, placed below ViewPager2 -->
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toBottomOf="@id/viewPager"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.location.*;
 import com.google.firebase.FirebaseApp;
@@ -29,7 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnItemClickListener, ShopsFragment.Searchable {
+public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnItemClickListener, ShopsActivity.Searchable {
 
     private RecyclerView recyclerView;
     private LocalShopAdapter shopAdapter;
@@ -39,6 +40,8 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
     private LocationRequest locationRequest;
     private static final int LOCATION_PERMISSION_REQUEST = 100;
     private static final String TAG = "LocalShopsFragment";
+    private SwipeRefreshLayout swipeRefreshLayout;
+
 
     private String searchQuery = "";  // Store the search query here
 
@@ -53,6 +56,10 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
         shopList = new ArrayList<>();
         shopAdapter = new LocalShopAdapter(shopList, getContext(), this);
         recyclerView.setAdapter(shopAdapter);
+
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> getUserLocation());
+
 
         // Initialize Firestore
         try {
@@ -123,7 +130,15 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
     }
 
     private void loadLocalShops(double userLatitude, double userLongitude) {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(true); // Start refresh spinner
+        }
+
         db.collection("auto_parts_shops").get().addOnCompleteListener(task -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false); // Stop refresh spinner
+            }
+
             if (task.isSuccessful() && task.getResult() != null) {
                 shopList.clear();
                 for (QueryDocumentSnapshot document : task.getResult()) {
@@ -135,22 +150,18 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                         String place = document.getString("place");
                         String contactNumber = document.getString("contact_number");
 
-                        // Retrieve ratings field safely, accounting for non-numeric values
                         Object ratingsField = document.get("ratings");
-                        double ratings = 0.0; // Default rating value if not found or invalid
-
-                        if (ratingsField != null) {
-                            if (ratingsField instanceof Number) {
-                                ratings = ((Number) ratingsField).doubleValue(); // Safely cast to double
-                            } else if (ratingsField instanceof String) {
-                                String ratingsString = (String) ratingsField;
-                                if (!ratingsString.equalsIgnoreCase("none")) {
-                                    try {
-                                        ratings = Double.parseDouble(ratingsString); // Try to parse the string as a number
-                                    } catch (NumberFormatException e) {
-                                        Log.e(TAG, "Invalid rating value: " + ratingsString, e);
-                                        ratings = 0.0; // Default to 0.0 if parsing fails
-                                    }
+                        double ratings = 0.0;
+                        if (ratingsField instanceof Number) {
+                            ratings = ((Number) ratingsField).doubleValue();
+                        } else if (ratingsField instanceof String) {
+                            String ratingsString = (String) ratingsField;
+                            if (!ratingsString.equalsIgnoreCase("none")) {
+                                try {
+                                    ratings = Double.parseDouble(ratingsString);
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "Invalid rating value: " + ratingsString, e);
+                                    ratings = 0.0;
                                 }
                             }
                         }
@@ -160,24 +171,27 @@ public class LocalShopsFragment extends Fragment implements LocalShopAdapter.OnI
                         double longitude = document.getDouble("longitude") != null ? document.getDouble("longitude") : 0.0;
                         double distance = calculateDistance(userLatitude, userLongitude, latitude, longitude);
 
-                        // Filter by search query (check all fields except lat and long)
                         if (isSearchMatch(shopName, kindOfRepair, timeSchedule, place, contactNumber, website)) {
                             shopList.add(new LocalShop(shopName, image, kindOfRepair, timeSchedule, place, contactNumber, ratings, website, latitude, longitude, distance));
                         }
+
                     } catch (Exception e) {
                         Log.e(TAG, "Error parsing document: " + document.getId(), e);
                     }
                 }
 
-                // Sort by distance from nearest to farthest
                 Collections.sort(shopList, Comparator.comparingDouble(LocalShop::getDistance));
-
-                // Update the adapter
                 shopAdapter.notifyDataSetChanged();
             } else {
                 Log.e(TAG, "Error getting shops: ", task.getException());
             }
-        }).addOnFailureListener(e -> Log.e(TAG, "Firestore request failed", e));
+
+        }).addOnFailureListener(e -> {
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            Log.e(TAG, "Firestore request failed", e);
+        });
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {

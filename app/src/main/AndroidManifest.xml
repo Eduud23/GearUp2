@@ -98,8 +98,15 @@
             android:name=".CheckoutFormActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
-            android:name=".RecommendationActivity"
+            android:name=".EditProfileSellerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditProfileBuyerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ShopsActivity"
             android:exported="false" />
         <activity
             android:name=".PopularProductDetail"

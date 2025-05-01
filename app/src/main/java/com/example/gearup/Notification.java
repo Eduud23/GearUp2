@@ -75,8 +75,8 @@ public class Notification {
 
     // Method to format the timestamp into a readable string
     public String getFormattedTimestamp() {
-        Date date = new Date(timestamp); // Convert timestamp (in milliseconds) to Date
+        Date date = new Date(timestamp);  // Convert timestamp (in milliseconds) to Date
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return sdf.format(date); // Return the formatted date as a string
+        return sdf.format(date);  // Return the formatted date as a string
     }
 }

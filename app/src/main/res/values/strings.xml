@@ -16,7 +16,7 @@
         <item>Pending</item>
         <item>Shipping</item>
         <item>Ready to pickup</item>
-        <item>Delivered</item>
+        <item>Complete</item>
     </string-array>
     <string name="category_image">Category Image</string>
     <string name="product_image_desc">Product Image</string>

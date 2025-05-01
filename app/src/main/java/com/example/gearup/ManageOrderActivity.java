@@ -74,7 +74,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
     }
 
     private void showOrderStatusDialog() {
-        final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Delivered"};
+        final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Complete"};
 
         new AlertDialog.Builder(this)
                 .setTitle("Select Order Status")
@@ -101,7 +101,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
 
                         Double totalPriceObj = document.getDouble("product.totalPrice");
                         double totalPrice = totalPriceObj != null ? totalPriceObj : 0.0;
-
+                        String buyerId = document.getString("product.userId");
                         String customerName = document.getString("customerInfo.fullName");
                         String shippingAddress = document.getString("shippingAddress");
                         String paymentMethod = document.getString("product.paymentMethod");
@@ -112,12 +112,12 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         String paymentIntentId = document.getString("product.paymentIntentId");
                         String productId = document.getString("product.productId");
                         String brand = document.getString("product.productBrand");
-                        String productYear = document.getString("product.productYear"); // ✅ new line
+                        String productYear = document.getString("product.productYear");
 
                         // Pass productYear to OrderItem constructor
                         OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
                                 customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl,
-                                sellerId, paymentIntentId, productId, brand, productYear); // ✅ updated constructor
+                                sellerId, paymentIntentId, productId, brand, productYear, buyerId);
 
                         orderList.add(orderItem);
                     }
@@ -128,7 +128,6 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     Toast.makeText(this, "Failed to load orders", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
     private void filterOrdersByStatusAndSearch(String status, String searchQuery) {
         filteredOrderList.clear();
@@ -147,7 +146,12 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
 
     @Override
     public void onStatusUpdate(OrderItem orderItem) {
-        final String[] statuses = {"Pending", "Shipping", "Ready to pickup", "Delivered"};
+        final String[] statuses;
+        if ("pickup".equalsIgnoreCase(orderItem.getDeliveryOption())) {
+            statuses = new String[]{"Pending", "Ready to pickup", "Complete"};
+        } else {
+            statuses = new String[]{"Pending", "Shipping", "Ready to pickup", "Complete"};
+        }
 
         new AlertDialog.Builder(this)
                 .setTitle("Select Order Status")
@@ -186,10 +190,11 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     orderItem.getPaymentIntentId(),
                     orderItem.getProductId(),
                     orderItem.getBrand(),
-                    orderItem.getProductYear() // ✅ new field added here
+                    orderItem.getProductYear(),
+                    orderItem.getBuyerId()// ✅ new field added here
             );
 
-        orderList.set(position, updatedOrderItem);
+            orderList.set(position, updatedOrderItem);
             adapter.notifyItemChanged(position);
 
             // Update Firestore
@@ -200,6 +205,9 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Order status updated to " + newStatus, Toast.LENGTH_SHORT).show();
 
+                        // Send notification to the buyer
+                        sendNotificationToBuyer(orderItem, newStatus);
+
                         // Subtract quantity when shipped or delivered
                         if (newStatus.equals("Shipping") || newStatus.equals("Delivered")) {
                             subtractProductQuantity(orderItem.getProductId(), orderItem.getQuantity());
@@ -209,6 +217,32 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                         Toast.makeText(this, "Failed to update order status", Toast.LENGTH_SHORT).show();
                     });
         }
+    }
+
+    private void sendNotificationToBuyer(OrderItem orderItem, String newStatus) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification message
+        String message = "Order status update: " + newStatus + " for " + orderItem.getProductName();
+        String buyerId = orderItem.getBuyerId();  // Assuming buyerId is already part of OrderItem
+        String sellerId = orderItem.getSellerId();
+        String orderId = orderItem.getOrderId();  // Get order ID from the OrderItem
+        String receiverId = buyerId; // In this case, the receiver is the buyer, but could be the seller if you want to notify both
+
+        // Create a Notification object
+        Notification notification = new Notification(message, buyerId, orderId, System.currentTimeMillis(), sellerId, receiverId);
+
+        // Store the notification in Firestore
+        db.collection("notifications")
+                .document(buyerId) // Use buyerId as the document ID
+                .collection("ordernotifications") // Use ordernotifications as the collection name
+                .add(notification)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Notification sent to buyer", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void subtractProductQuantity(String productId, long orderedQuantity) {

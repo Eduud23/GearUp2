@@ -71,7 +71,7 @@ public class OrderedProductsFragment extends Fragment {
 
     // Show a dialog to choose the order status filter
     private void showStatusFilterDialog() {
-        final String[] statuses = {"All", "Pending", "Shipping", "Ready to pickup", "Delivered"};
+        final String[] statuses = {"All", "Pending", "Shipping", "Ready to pickup", "Complete"};
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Select Order Status")
@@ -122,6 +122,7 @@ public class OrderedProductsFragment extends Fragment {
                             String productBrand = (String) productMap.get("productBrand");
                             String productYear = (String) productMap.get("productYear");
                             String productId = (String) productMap.get("productId");
+                            String buyerId = (String) productMap.get("userId");
                             String sellerId = (String) productMap.get("sellerId");
                             String paymentIntentId = (String) productMap.get("paymentIntentId");
 
@@ -173,7 +174,8 @@ public class OrderedProductsFragment extends Fragment {
                                         paymentIntentId,
                                         productId,
                                         productBrand,
-                                        productYear
+                                        productYear,
+                                        buyerId
                                 );
 
                                 orderedItems.add(orderItem);

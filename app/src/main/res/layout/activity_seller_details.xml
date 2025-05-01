@@ -216,29 +216,49 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Add Review (AFTER address, as requested) -->
+            </LinearLayout>
+
+            <!-- Button Row for Add Review and Go Now -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="24dp">
+
                 <TextView
                     android:id="@+id/tv_add_review"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:text="Add Review"
                     android:textSize="16sp"
                     android:textColor="#1976D2"
                     android:padding="12dp"
                     android:textStyle="bold"
-                    android:layout_gravity="center"
                     android:background="@drawable/textview_border"
-                    android:layout_marginBottom="24dp"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center" />
 
+                <TextView
+                    android:id="@+id/goNow"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Go Now"
+                    android:textSize="16sp"
+                    android:textColor="#2196F3"
+                    android:clickable="true"
+                    android:padding="12dp"
+                    android:focusable="true"
+                    android:background="@drawable/textview_border"
+                    android:textStyle="bold"
+                    android:gravity="center" />
+
             </LinearLayout>
 
-            <!-- Go Now -->
-
-
-            <!-- Map -->
+            <!-- Map Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
@@ -253,24 +273,18 @@
                     android:name="com.google.android.gms.maps.SupportMapFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
-
-
             </LinearLayout>
 
+            <!-- Comments Label -->
             <TextView
-                android:id="@+id/goNow"
-                android:layout_width="match_parent"
+                android:id="@+id/tv_comments_label"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Go Now"
-                android:textSize="16sp"
-                android:textColor="#2196F3"
-                android:clickable="true"
-                android:padding="20dp"
-                android:focusable="true"
-                android:background="@drawable/textview_border"
-                android:textStyle="bold"
-                android:layout_marginTop="5dp"
-                android:gravity="center" />
+                android:text="Comments"
+                android:textSize="18sp"
+                android:textColor="#212121"
+                android:layout_marginBottom="16dp"
+                android:textStyle="bold" />
 
             <!-- RecyclerView for Comments and Reviews -->
             <androidx.recyclerview.widget.RecyclerView
@@ -279,7 +293,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:padding="8dp"
-                android:scrollbars="vertical"/>
+                android:scrollbars="vertical" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
