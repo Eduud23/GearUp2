@@ -17,12 +17,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class EditProfileSellerActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int PICK_LOCATION_REQUEST = 2;
     private Uri profileImageUri;
-    private double shopLat, shopLon;
+    private double latitude, longitude;
 
     private FrameLayout progressBarContainer;
     private ProgressBar progressBar;
@@ -134,11 +134,11 @@ public class EditProfileSellerActivity extends AppCompatActivity {
         userNameTextView.setText(String.format("%s %s", firstName, lastName));
         userEmailTextView.setText(mAuth.getCurrentUser().getEmail());
 
-        if (sellerData.containsKey("shopLat") && sellerData.containsKey("shopLon")) {
-            shopLat = (double) sellerData.get("shopLat");
-            shopLon = (double) sellerData.get("shopLon");
-            latitudeEditText.setText(String.valueOf(shopLat));
-            longitudeEditText.setText(String.valueOf(shopLon));
+        if (sellerData.containsKey("latitude") && sellerData.containsKey("longitude")) {
+            latitude = (double) sellerData.get("latitude");
+            longitude = (double) sellerData.get("longitude");
+            latitudeEditText.setText(String.valueOf(latitude));
+            longitudeEditText.setText(String.valueOf(longitude));
         }
 
         if (profileImageUrl != null) {
@@ -171,8 +171,8 @@ public class EditProfileSellerActivity extends AppCompatActivity {
         sellerUpdates.put("shopName", shopName);
         sellerUpdates.put("address", address);
         sellerUpdates.put("services", services);
-        sellerUpdates.put("latitude", shopLat);
-        sellerUpdates.put("longitude", shopLon);
+        sellerUpdates.put("latitude", latitude);
+        sellerUpdates.put("longitude", longitude);
 
         if (profileImageUri != null) {
             uploadProfileImage(uid, sellerUpdates);
@@ -219,8 +219,8 @@ public class EditProfileSellerActivity extends AppCompatActivity {
 
     private void openLocationPicker() {
         Intent intent = new Intent(this, MapsActivity.class);
-        intent.putExtra("latitude", shopLat);
-        intent.putExtra("longitude", shopLon);
+        intent.putExtra("latitude", latitude);
+        intent.putExtra("longitude", longitude);
         startActivityForResult(intent, PICK_LOCATION_REQUEST);
     }
 
@@ -232,11 +232,11 @@ public class EditProfileSellerActivity extends AppCompatActivity {
             profileImageUri = data.getData();
             profileImageView.setImageURI(profileImageUri);
         } else if (requestCode == PICK_LOCATION_REQUEST && resultCode == RESULT_OK && data != null) {
-            shopLat = data.getDoubleExtra("latitude", 0.0);
-            shopLon = data.getDoubleExtra("longitude", 0.0);
-            latitudeEditText.setText(String.valueOf(shopLat));
-            longitudeEditText.setText(String.valueOf(shopLon));
-            Log.d("Location", "Updated: Lat=" + shopLat + ", Lon=" + shopLon);
+            latitude = data.getDoubleExtra("latitude", 0.0);
+            longitude = data.getDoubleExtra("longitude", 0.0);
+            latitudeEditText.setText(String.valueOf(latitude));
+            longitudeEditText.setText(String.valueOf(longitude));
+            Log.d("Location", "Updated: Lat=" + latitude + ", Lon=" + longitude);
         }
     }
 }

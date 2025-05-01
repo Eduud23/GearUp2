@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -44,35 +45,30 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
     private static final int PICK_IMAGE_REQUEST = 1;
     private Uri imageUri;
 
-    // Add reference for progress bar container
     private FrameLayout progressBarContainer;
     private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_edit_profile_buyer); // Ensure the layout file has the progress bar
+        setContentView(R.layout.fragment_edit_profile_buyer);
 
-        // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Bind views
         bindViews();
-
-        // Load and display user data
         loadUserData();
 
-        // Handle update button click
         updateButton.setOnClickListener(v -> updateProfileAndPassword());
 
-        // Back button logic
         ImageView backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(v -> onBackPressed());
+
+        // Profile image click opens image picker
+        profileImageView.setOnClickListener(this::openImagePicker);
     }
 
     private void bindViews() {
-        // Bind views from XML
         firstNameEditText = findViewById(R.id.etFirstName);
         lastNameEditText = findViewById(R.id.etLastName);
         mobileEditText = findViewById(R.id.etPhoneNumber);
@@ -86,7 +82,6 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
         userEmailTextView = findViewById(R.id.tvUserEmail);
         profileImageView = findViewById(R.id.imageProfile);
 
-        // Bind the progress bar and container
         progressBarContainer = findViewById(R.id.progress_bar_container);
         progressBar = findViewById(R.id.progress_bar);
     }
@@ -98,13 +93,11 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
             return;
         }
 
-        // Display progress bar while loading data
         showProgressBar();
 
         db.collection("buyers").document(user.getUid())
                 .get()
                 .addOnCompleteListener(task -> {
-                    // Hide progress bar once data is loaded
                     hideProgressBar();
 
                     if (task.isSuccessful() && task.getResult() != null) {
@@ -121,12 +114,20 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
     }
 
     public void openImagePicker(View view) {
-        // Create an intent to pick an image from the gallery
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageUri = data.getData();
+            profileImageView.setImageURI(imageUri); // Show selected image
+        }
+    }
 
     private void populateUserData(Map<String, Object> userData) {
         String firstName = (String) userData.get("firstName");
@@ -135,25 +136,18 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
         String email = (String) userData.get("email");
         String profileImageUrl = (String) userData.get("profileImageUrl");
 
-        // Set the user data to respective views
         userNameTextView.setText(String.format("%s %s", firstName, lastName));
         userEmailTextView.setText(email);
 
-        // Fill edit text fields with user data
         firstNameEditText.setText(firstName);
         lastNameEditText.setText(lastName);
         mobileEditText.setText(mobile);
         emailEditText.setText(email);
 
-        // Load profile image using Glide
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(profileImageUrl)
-                    .into(profileImageView);
+            Glide.with(this).load(profileImageUrl).into(profileImageView);
         } else {
-            Glide.with(this)
-                    .load(R.drawable.gear)
-                    .into(profileImageView);
+            Glide.with(this).load(R.drawable.gear).into(profileImageView);
         }
     }
 
@@ -168,25 +162,22 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
         String confirmNewPassword = confirmNewPasswordEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName) && TextUtils.isEmpty(mobile)
-                && TextUtils.isEmpty(address) && TextUtils.isEmpty(email) && TextUtils.isEmpty(currentPassword)) {
+                && TextUtils.isEmpty(address) && TextUtils.isEmpty(email) && TextUtils.isEmpty(currentPassword) && imageUri == null) {
             Toast.makeText(this, "At least one field must be updated", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Show progress bar before starting the update process
         showProgressBar();
 
-        // Update profile in Firestore
-        if (!TextUtils.isEmpty(firstName) || !TextUtils.isEmpty(lastName) || !TextUtils.isEmpty(mobile) || !TextUtils.isEmpty(address) || !TextUtils.isEmpty(email)) {
+        if (!TextUtils.isEmpty(firstName) || !TextUtils.isEmpty(lastName) || !TextUtils.isEmpty(mobile)
+                || !TextUtils.isEmpty(address) || !TextUtils.isEmpty(email)) {
             updateUserProfile(firstName, lastName, mobile, address, email);
         }
 
-        // If the user has selected a new profile image, upload it
         if (imageUri != null) {
             uploadProfileImage();
         }
 
-        // Update password if provided
         if (!TextUtils.isEmpty(currentPassword) || !TextUtils.isEmpty(newPassword) || !TextUtils.isEmpty(confirmNewPassword)) {
             updatePassword(currentPassword, newPassword, confirmNewPassword);
         }
@@ -206,13 +197,11 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
             addressMap.put("fullName", firstName + " " + lastName);
             addressMap.put("mobileNumber", mobile);
             addressMap.put("address", address);
-
             userUpdates.put("addresses", Collections.singletonList(addressMap));
         }
 
         db.collection("buyers").document(uid).update(userUpdates)
                 .addOnCompleteListener(task -> {
-                    // Hide the progress bar after the task is complete
                     hideProgressBar();
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
@@ -224,22 +213,19 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
     }
 
     private void uploadProfileImage() {
-        if (imageUri != null) {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference("profile_images")
-                    .child(mAuth.getCurrentUser().getUid() + ".jpg");
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference("profile_images")
+                .child(mAuth.getCurrentUser().getUid() + ".jpg");
 
-            storageReference.putFile(imageUri)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
-                            String profileImageUrl = uri.toString();
-                            updateUserProfileImage(profileImageUrl);
-                        });
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show();
-                        Log.e("DEBUG", "Error uploading image", e);
-                    });
-        }
+        storageReference.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                    String profileImageUrl = uri.toString();
+                    updateUserProfileImage(profileImageUrl);
+                }))
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show();
+                    Log.e("DEBUG", "Error uploading image", e);
+                    hideProgressBar();
+                });
     }
 
     private void updateUserProfileImage(String profileImageUrl) {
@@ -249,6 +235,7 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
 
         db.collection("buyers").document(uid).update(userUpdates)
                 .addOnCompleteListener(task -> {
+                    hideProgressBar();
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Profile image updated successfully", Toast.LENGTH_SHORT).show();
                     } else {
@@ -276,10 +263,12 @@ public class EditProfileBuyerActivity extends AppCompatActivity {
                                         });
                             } else {
                                 Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show();
+                                hideProgressBar();
                             }
                         });
             } else {
                 Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+                hideProgressBar();
             }
         }
     }

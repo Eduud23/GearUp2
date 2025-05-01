@@ -79,6 +79,7 @@
                 android:layout_height="55dp"
                 android:text="Account Settings"
                 android:layout_marginBottom="8dp"
+                android:visibility="gone"
                 android:background="@drawable/profile_btn"
                 android:gravity="center_vertical|start"
                 android:drawableStart="@drawable/settings"

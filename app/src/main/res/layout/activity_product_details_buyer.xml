@@ -212,9 +212,12 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:layout_marginStart="8dp"
+                android:lineSpacingExtra="8dp"
+                android:lineSpacingMultiplier="1.1"
+                android:text="This is the detailed product description where the product's features, benefits, and specifications are explained in full detail. It provides all the necessary information that a potential buyer needs to know before making a purchase decision. This could include dimensions, materials, technology, and how the product can be used effectively in everyday life."
                 app:layout_constraintTop_toBottomOf="@id/tv_product_price"
                 app:layout_constraintStart_toEndOf="@id/tv_label_product_description"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                app:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tv_average_rating"
@@ -225,7 +228,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
-                app:layout_constraintTop_toBottomOf="@id/tv_label_product_description"
+                app:layout_constraintTop_toBottomOf="@id/tv_product_description"
                 app:layout_constraintStart_toStartOf="parent"/>
 
             <ImageButton
@@ -234,11 +237,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:background="@drawable/star"
-                app:layout_constraintTop_toBottomOf="@id/tv_label_product_description"
+                app:layout_constraintTop_toBottomOf="@id/tv_product_description"
                 app:layout_constraintStart_toEndOf="@id/tv_average_rating"
                 android:layout_marginStart="8dp"/>
-
-
 
 
             <TextView

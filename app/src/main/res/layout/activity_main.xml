@@ -86,26 +86,45 @@
             app:layout_constraintTop_toBottomOf="@id/cv1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-             android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp">
 
-            <EditText
-                android:id="@+id/password"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:fontFamily="serif-monospace"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:imeOptions="actionNext"
-                android:hint="Password"
-                android:textColorHint="#FF000000"
-                android:textStyle="bold"
-                android:textAlignment="center"
-                android:textColor="#FF000000"
-                android:background="@color/white"
-                android:drawableStart="@drawable/lock"
-                android:inputType="textPassword"
-                android:textSize="18sp"/>
+                android:background="@color/white">
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:drawableStart="@drawable/lock"
+                    android:fontFamily="serif-monospace"
+                    android:hint="Password"
+                    android:inputType="textPassword"
+                    android:imeOptions="actionNext"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:background="@color/white"
+                    android:textColor="#FF000000"
+                    android:textColorHint="#FF000000"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="50dp"
+                    android:textAlignment="center"/>
+
+                <ImageView
+                    android:id="@+id/eyeToggle"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/eye_close"
+                    android:contentDescription="Toggle password visibility"/>
+            </RelativeLayout>
         </androidx.cardview.widget.CardView>
+
 
         <TextView
             android:id="@+id/titleText1"
@@ -113,6 +132,7 @@
             android:layout_height="wrap_content"
             android:text="Forgot Password?"
             android:textSize="12sp"
+            android:visibility="gone"
             android:textColor="@android:color/black"
             app:layout_constraintTop_toBottomOf="@id/cv2"
             app:layout_constraintStart_toStartOf="parent"

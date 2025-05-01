@@ -42,7 +42,7 @@
             android:id="@+id/titleText2"
             android:layout_width="290dp"
             android:layout_height="wrap_content"
-            android:text="Discover and manage automotive parts with ease, stay ahead of trends, optimize your inventory, and connect with trusted suppliers all in one place."
+            android:text="Discover and manage automotive parts with ease, stay ahead of trends, optimize your inventory, and connect with trusted sellers all in one place."
             android:textSize="14sp"
             android:textAlignment="center"
             android:textColor="@android:color/black"

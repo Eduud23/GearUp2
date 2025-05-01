@@ -3,8 +3,11 @@ package com.example.gearup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +24,8 @@ public class Login extends AppCompatActivity {
     private Button loginButton;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private ImageView eyeToggle;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +45,11 @@ public class Login extends AppCompatActivity {
 
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
+        eyeToggle = findViewById(R.id.eyeToggle);
         loginButton = findViewById(R.id.loginbtn);
 
         loginButton.setOnClickListener(v -> loginUser());
+        eyeToggle.setOnClickListener(v -> togglePasswordVisibility());
     }
 
     private void loginUser() {
@@ -68,6 +75,19 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(Login.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+    private void togglePasswordVisibility() {
+        // Toggle the visibility of the password
+        if (passwordEditText.getTransformationMethod() instanceof PasswordTransformationMethod) {
+            // If password is hidden, show it
+            passwordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            eyeToggle.setImageResource(R.drawable.eye); // Set the open eye icon
+        } else {
+            // If password is visible, hide it
+            passwordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            eyeToggle.setImageResource(R.drawable.eye_close); // Set the closed eye icon
+        }
+        passwordEditText.setSelection(passwordEditText.getText().length()); // Keep the cursor at the end of the text
     }
 
     private void checkUserRole(String uid) {

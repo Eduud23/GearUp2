@@ -55,6 +55,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:singleLine="true"
                 android:layout_marginTop="8dp"
                 android:text="Product Name" />
@@ -77,7 +78,7 @@
                 android:layout_marginTop="4dp"
                 android:text="Product Brand"
                 android:singleLine="true"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -128,6 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@android:color/black"
@@ -152,7 +154,7 @@
                 android:layout_marginTop="4dp"
                 android:text="Product Brand 2"
                 android:singleLine="true"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>

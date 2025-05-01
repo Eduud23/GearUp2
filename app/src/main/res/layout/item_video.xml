@@ -28,16 +28,6 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <!-- Channel Icon Placeholder -->
-        <ImageView
-            android:id="@+id/channelIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="12dp"
-            android:scaleType="centerCrop"
-            android:background="@drawable/gear"
-            android:elevation="4dp"/>
-
         <!-- Text Content -->
         <LinearLayout
             android:layout_width="0dp"
