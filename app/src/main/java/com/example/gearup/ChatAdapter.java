@@ -1,5 +1,6 @@
 package com.example.gearup;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,8 +49,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         holder.messageTextView.setText(message.getContent());
         holder.timestampTextView.setText(formatTimestamp(message.getTimestamp()));
-        loadProfileImage(message.getSenderId(), holder.profileImageView);
-        loadUserName(message.getSenderId(), holder.nameTextView);
+
+        // Load profile image and name for the sender
+        loadSenderInfo(message.getSenderId(), holder.profileImageView, holder.senderNameTextView);
     }
 
     @Override
@@ -60,38 +62,52 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public int getItemViewType(int position) {
         if (messages.get(position).getSenderId().equals(currentUserId)) {
-            return 1;
+            return 1; // Sender
         } else {
-            return 0;
+            return 0; // Receiver
         }
     }
 
-    private void loadProfileImage(String userId, final ImageView imageView) {
-        String collection = userId.equals(currentUserId) ? "buyers" : "sellers";
-        db.collection(collection).document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
-                        Glide.with(imageView.getContext())
-                                .load(profileImageUrl)
-                                .placeholder(R.drawable.gear)
-                                .into(imageView);
-                    }
-                });
+    // Load profile image and sender's name based on userId
+    private void loadSenderInfo(String userId, final ImageView imageView, final TextView senderNameTextView) {
+        // We will check both the 'buyers' and 'sellers' collections
+        // and fetch the profile image and name accordingly.
+        checkSenderInfo(userId, "buyers", imageView, senderNameTextView);
+        checkSenderInfo(userId, "sellers", imageView, senderNameTextView);
     }
 
-    private void loadUserName(String userId, final TextView nameTextView) {
-        String collection = userId.equals(currentUserId) ? "buyers" : "sellers";
+    // Check if profile image and sender's name exist in a specific collection
+    private void checkSenderInfo(String userId, String collection, final ImageView imageView, final TextView senderNameTextView) {
         db.collection(collection).document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        String name = userId.equals(currentUserId)
-                                ? documentSnapshot.getString("firstName") + " " + documentSnapshot.getString("lastName")
-                                : documentSnapshot.getString("shopName");
-                        nameTextView.setText(name != null ? name : "Unknown");
+                        if (collection.equals("buyers")) {
+                            // For buyers, get the first and last name
+                            String firstName = documentSnapshot.getString("firstName");
+                            String lastName = documentSnapshot.getString("lastName");
+                            senderNameTextView.setText(firstName + " " + lastName);
+                        } else if (collection.equals("sellers")) {
+                            // For sellers, get the shop name
+                            String shopName = documentSnapshot.getString("shopName");
+                            senderNameTextView.setText(shopName != null ? shopName : "Shop");
+                        }
+
+                        // Load the profile image if available
+                        String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (profileImageUrl != null) {
+                            Log.d("ChatAdapter", "Profile image URL for userId: " + userId + " from collection: " + collection + " -> " + profileImageUrl);
+                            Glide.with(imageView.getContext())
+                                    .load(profileImageUrl)
+                                    .placeholder(R.drawable.gear)
+                                    .into(imageView);
+                        }
+                    } else {
+                        Log.d("ChatAdapter", "No profile found for userId: " + userId + " in collection: " + collection);
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ChatAdapter", "Error fetching profile image for userId: " + userId + " from collection: " + collection, e);
                 });
     }
 
@@ -103,15 +119,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public static class ChatViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
         TextView timestampTextView;
+        TextView senderNameTextView;  // Added for sender's name
         ImageView profileImageView;
-        TextView nameTextView;
 
         public ChatViewHolder(View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.tv_message);
             timestampTextView = itemView.findViewById(R.id.tv_timestamp);
+            senderNameTextView = itemView.findViewById(R.id.tv_name);  // Initialize sender's name TextView
             profileImageView = itemView.findViewById(R.id.profile_image);
-            nameTextView = itemView.findViewById(R.id.tv_name);
         }
     }
 }

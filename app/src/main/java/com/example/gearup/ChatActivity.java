@@ -124,12 +124,12 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessageToFirestore(message);
             }
 
+            // Create a notification (this doesn't need to be changed)
             createNotification(System.currentTimeMillis(), messageText);
         } else {
             Toast.makeText(ChatActivity.this, "Please enter a message", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     private void createChatroomAndSendMessage(Message message) {
         Map<String, Object> chatroomData = new HashMap<>();
@@ -146,13 +146,14 @@ public class ChatActivity extends AppCompatActivity {
                 .add(chatroomData)
                 .addOnSuccessListener(documentReference -> {
                     chatroomId = documentReference.getId();
-                    sendMessageToFirestore(message);
+                    sendMessageToFirestore(message); // Send the message after chatroom is created
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(ChatActivity.this, "Error creating chatroom", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 });
     }
+
 
     private void sendMessageToFirestore(Message message) {
         db.collection("chatrooms").document(chatroomId)
