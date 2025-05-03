@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -39,21 +38,20 @@ public class ForecastDetail extends AppCompatActivity {
         if (productTitle != null) {
             productTitle = normalizeProductTitle(productTitle);
         }
+
         TextView productTitleTextView = findViewById(R.id.productTitleText);
         productTitleTextView.setText(productTitle);
-
 
         recyclerView = findViewById(R.id.forecastDetailRecycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ForecastDetailAdapter(productItemList);
         recyclerView.setAdapter(adapter);
 
+        // Use the already initialized named app
         FirebaseApp sixthApp = FirebaseApp.getInstance("gearupdataSixthApp");
         FirebaseFirestore db = FirebaseFirestore.getInstance(sixthApp);
 
-        db.setFirestoreSettings(new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(false)
-                .build());
+        // ❌ Do NOT call setFirestoreSettings() here
 
         CollectionReference productsRef = db.collection("products");
         productsRef.whereEqualTo("category", productTitle)
@@ -71,6 +69,7 @@ public class ForecastDetail extends AppCompatActivity {
                     Toast.makeText(this, "Failed to load data", Toast.LENGTH_SHORT).show();
                 });
     }
+
     private String normalizeProductTitle(String title) {
         switch (title.toLowerCase()) {
             case "electrical system":
@@ -85,5 +84,4 @@ public class ForecastDetail extends AppCompatActivity {
                 return title; // return as-is if no match
         }
     }
-
 }

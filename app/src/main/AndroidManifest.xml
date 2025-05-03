@@ -22,6 +22,10 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".ForgotPassword"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" />
+        <activity
             android:name=".MapFilterActivity"
             android:exported="false" />
         <activity
@@ -98,7 +102,6 @@
             android:name=".CheckoutFormActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".EditProfileSellerActivity"
             android:exported="false" />

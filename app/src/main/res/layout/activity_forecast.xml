@@ -35,7 +35,7 @@
             android:id="@+id/btnCategory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="See All Category"
+            android:text="Category Detail"
             android:textAllCaps="false"
             android:background="@drawable/textview_border"
             android:layout_marginBottom="8dp" />

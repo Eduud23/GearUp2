@@ -127,9 +127,9 @@ public class MyApp extends Application {
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setApplicationId("1:852626210125:android:45ed84b8f1d733a712cb04") // Replace with actual Firebase App ID
                     .setApiKey("AIzaSyAtej_Uj9kfPQTCZaK2bIpNzkjCFVzu0qQ") // Replace with your actual API Key
-                    .setProjectId("forecast-7ba66") // Replace with your Project ID
-                    .setStorageBucket("forecast-7ba66.appspot.com") // Replace with your Storage Bucket
-                    .setGcmSenderId("852626210125") // Replace with your Sender ID
+                    .setProjectId("forecast-da5fd") // Replace with your Project ID
+                    .setStorageBucket("forecast-da5fd.appspot.com") // Replace with your Storage Bucket
+                    .setGcmSenderId("1095983547174") // Replace with your Sender ID
                     .build();
 
             FirebaseApp.initializeApp(this, options, fifthAppName);

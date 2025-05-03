@@ -33,9 +33,15 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         TextView newAcc = findViewById(R.id.newAccount);
+        TextView forgot = findViewById(R.id.forgot);
 
         newAcc.setOnClickListener(v -> {
             Intent intent = new Intent(Login.this, ChooseUser.class);
+            startActivity(intent);
+        });
+
+        forgot.setOnClickListener(v -> {
+            Intent intent = new Intent(Login.this, ForgotPassword.class);
             startActivity(intent);
         });
 

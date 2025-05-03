@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,9 @@ public class ForecastCategoryAdapter extends RecyclerView.Adapter<ForecastCatego
     public ForecastCategoryAdapter(List<ForecastCategoryModel> categoryList) {
         this.categoryList = categoryList;
 
-        FirebaseApp gearupdataFifthApp = FirebaseApp.getInstance("gearupdataFifthApp");
-        this.db = FirebaseFirestore.getInstance(gearupdataFifthApp);
+        FirebaseApp gearupdataSixthApp = FirebaseApp.getInstance("gearupdataSixthApp");
+        Log.d("ForecastAdapter", "Using Firebase App: " + gearupdataSixthApp.getName());
+        this.db = FirebaseFirestore.getInstance(gearupdataSixthApp);
     }
 
     @NonNull
@@ -60,7 +62,7 @@ public class ForecastCategoryAdapter extends RecyclerView.Adapter<ForecastCatego
     }
 
     private void loadCategoryImage(ImageView imageView, String categoryTitle) {
-        CollectionReference categoryImagesRef = db.collection("category_image");
+            CollectionReference categoryImagesRef = db.collection("category_image");
 
         categoryImagesRef.whereEqualTo("category", categoryTitle).limit(1)
                 .get()
@@ -77,7 +79,7 @@ public class ForecastCategoryAdapter extends RecyclerView.Adapter<ForecastCatego
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // Log error or set a default image
+                    Log.e("ForecastAdapter", "Failed to load image for category: " + categoryTitle, e);
                 });
     }
 
