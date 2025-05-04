@@ -54,9 +54,30 @@ public class ServicesRecommendActivity extends AppCompatActivity {
         progressBarContainer = findViewById(R.id.progress_bar_container);
         progressBar = findViewById(R.id.progress_bar);
 
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        // Typing effect for hint
+        String fullHint = "Describe your vehicle issue or ask for services...";
+        final int[] index = {0};
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        long delay = 50; // Typing speed in milliseconds
+
+        Runnable typingRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (index[0] <= fullHint.length()) {
+                    queryInput.setHint(fullHint.substring(0, index[0]));
+                    index[0]++;
+                    handler.postDelayed(this, delay);
+                }
+            }
+        };
+
+        handler.post(typingRunnable);
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         getUserLocation();

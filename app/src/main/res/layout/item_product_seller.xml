@@ -44,6 +44,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/black"
         android:layout_marginTop="8dp"
@@ -57,6 +58,7 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/darker_gray"
         android:layout_marginTop="4dp"
+        android:maxLines="1"
         android:text="Brand" />
 
     <!-- Product Price -->
@@ -67,5 +69,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/holo_red_dark"
         android:layout_marginTop="4dp"
+        android:maxLines="1"
         android:text="₱Price" />
 </LinearLayout>
