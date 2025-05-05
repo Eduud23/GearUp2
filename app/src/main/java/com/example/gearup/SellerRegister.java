@@ -2,6 +2,7 @@ package com.example.gearup;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,7 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class SellerRegister extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText;
+    private EditText emailEditText, passwordEditText, confirmPasswordEditText, firstNameEditText, lastNameEditText, phoneEditText, shopNameEditText, addressEditText, servicesEditText,etPhone;
     private TextView tvLatitude, tvLongitude;
     private Button registerButton, locationButton;
     private double selectedLatitude = 0.0;
@@ -46,6 +47,19 @@ public class SellerRegister extends AppCompatActivity {
         tvLongitude = findViewById(R.id.tvLongitude);
         registerButton = findViewById(R.id.btnregister);
         locationButton = findViewById(R.id.imgAddress);
+
+        phoneEditText.setFilters(new InputFilter[]{
+                new InputFilter.LengthFilter(11), // Max 11 characters
+                (source, start, end, dest, dstart, dend) -> {
+                    for (int i = start; i < end; i++) {
+                        if (!Character.isDigit(source.charAt(i))) {
+                            return ""; // Reject non-digit
+                        }
+                    }
+                    return null; // Accept the input
+                }
+        });
+
 
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> onBackPressed());
@@ -104,6 +118,10 @@ public class SellerRegister extends AppCompatActivity {
         }
         if (password.length() < 6) {
             Toast.makeText(SellerRegister.this, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (phone.length() != 11) {
+            Toast.makeText(this, "Phone number must be exactly 11 digits", Toast.LENGTH_SHORT).show();
             return;
         }
 

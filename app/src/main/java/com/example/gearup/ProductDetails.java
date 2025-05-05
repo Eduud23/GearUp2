@@ -62,39 +62,54 @@ public class ProductDetails extends AppCompatActivity {
 
 
         btnSave.setOnClickListener(v -> {
-            String name = etProductName.getText().toString();
-            String priceString = etProductPrice.getText().toString();
-            String description = etProductDescription.getText().toString();
-            String quantityString = etProductQuantity.getText().toString();
-            String brand = etProductBrand.getText().toString();
-            String yearModel = etProductYearModel.getText().toString();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Confirm Update")
+                    .setMessage("Are you sure you want to update this product?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        String name = etProductName.getText().toString();
+                        String priceString = etProductPrice.getText().toString();
+                        String description = etProductDescription.getText().toString();
+                        String quantityString = etProductQuantity.getText().toString();
+                        String brand = etProductBrand.getText().toString();
+                        String yearModel = etProductYearModel.getText().toString();
 
-            if (!name.isEmpty() && !priceString.isEmpty() && !quantityString.isEmpty() && !brand.isEmpty() && !yearModel.isEmpty()) {
-                double price = Double.parseDouble(priceString);
-                int quantity = Integer.parseInt(quantityString);
-                product.setName(name);
-                product.setPrice(price);
-                product.setDescription(description);
-                product.setQuantity(quantity);
-                product.setBrand(brand); // Assuming setBrand() exists
-                product.setYearModel(yearModel); // Assuming setYearModel() exists
+                        if (!name.isEmpty() && !priceString.isEmpty() && !quantityString.isEmpty() && !brand.isEmpty() && !yearModel.isEmpty()) {
+                            double price = Double.parseDouble(priceString);
+                            int quantity = Integer.parseInt(quantityString);
+                            product.setName(name);
+                            product.setPrice(price);
+                            product.setDescription(description);
+                            product.setQuantity(quantity);
+                            product.setBrand(brand);
+                            product.setYearModel(yearModel);
 
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("UPDATED_PRODUCT", product);
-                resultIntent.putExtra("POSITION", position);
-                setResult(RESULT_OK, resultIntent);
-                finish();
-            } else {
-                Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show();
-            }
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("UPDATED_PRODUCT", product);
+                            resultIntent.putExtra("POSITION", position);
+                            setResult(RESULT_OK, resultIntent);
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Please fill out all fields", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         });
 
         btnDelete.setOnClickListener(v -> {
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("DELETE_PRODUCT", true);
-            resultIntent.putExtra("POSITION", position);
-            setResult(RESULT_OK, resultIntent);
-            finish();
+            new androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Confirm Delete")
+                    .setMessage("Are you sure you want to delete this product?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("DELETE_PRODUCT", true);
+                        resultIntent.putExtra("POSITION", position);
+                        setResult(RESULT_OK, resultIntent);
+                        finish();
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
         });
+
     }
 }

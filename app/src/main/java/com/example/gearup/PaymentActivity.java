@@ -337,10 +337,24 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     private void checkFormCompletion() {
+        EditText phoneField = findViewById(R.id.phone_number);
         String email = ((EditText) findViewById(R.id.email)).getText().toString().trim();
         String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString().trim();
         String phone = ((EditText) findViewById(R.id.phone_number)).getText().toString().trim();
         boolean isDelivery = radioDelivery.isChecked();
+
+        boolean isEmailValid = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        boolean isPhoneValid = phone.matches("\\d{11}");
+
+
+        if (!isEmailValid && !email.isEmpty()) {
+            ((EditText) findViewById(R.id.email)).setError("Invalid email format");
+        }
+
+        if (!phone.isEmpty() && !isPhoneValid) {
+            phoneField.setError("Phone number must be exactly 11 digits");
+        }
+
 
         // Required fields for both Delivery and Pickup
         boolean allFilled = !email.isEmpty() && !fullName.isEmpty() && !phone.isEmpty();

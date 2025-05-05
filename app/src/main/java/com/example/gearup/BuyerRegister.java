@@ -83,6 +83,10 @@ public class BuyerRegister extends AppCompatActivity {
             Toast.makeText(BuyerRegister.this, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (mobileNumber.length() != 11) {
+            Toast.makeText(this, "Phone number must be exactly 11 digits", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (password.equals(confirmPassword)) {
             signupButton.setEnabled(false); // Disable button to prevent multiple clicks

@@ -117,23 +117,30 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Product Description Text and TextInputLayout -->
+            <!-- Product Description Text and TextInputLayout -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/input_product_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_product_description"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="150dp"
                     android:hint="Enter Product Description"
                     android:textColorHint="@color/grey"
                     android:textColor="@color/primary_text"
                     android:backgroundTint="@color/primary_light"
                     android:padding="16dp"
                     android:textSize="16sp"
-                    android:inputType="textMultiLine" />
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:maxLines="10"
+                    android:minLines="5"
+                    android:scrollbars="vertical" />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <!-- Product Quantity Text and TextInputLayout -->
             <com.google.android.material.textfield.TextInputLayout
