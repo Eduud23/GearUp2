@@ -55,11 +55,25 @@
             android:background="@drawable/rounded_bg"
             android:elevation="6dp"
             android:padding="8dp" />
+
+
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_active_filters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:visibility="gone"
+        android:textColor="@android:color/black"
+        android:background="@android:color/darker_gray"
+        android:textSize="14sp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp">
+
 
 
     <!-- RecyclerView for Search Results -->

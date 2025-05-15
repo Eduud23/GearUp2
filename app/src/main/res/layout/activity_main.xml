@@ -2,16 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/white"
-    android:padding="16dp"
+    android:fitsSystemWindows="true"
     tools:context=".Login">
 
-    <!-- ScrollView to make the content scrollable -->
     <ScrollView
-        android:id="@+id/mainScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -20,142 +17,148 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            >
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="50dp"
+            android:paddingBottom="20dp">
 
-            <!-- GearUp Logo and Title -->
-            <LinearLayout
-                android:id="@+id/loginCardTitle"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                >
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="sans-serif-black"
+                android:textSize="28sp"
+                android:textFontWeight="900"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:text="GearUp" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/imageView1"
+                android:layout_width="150dp"
+                android:layout_height="130dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                app:cardCornerRadius="100dp">
 
                 <ImageView
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
-                    android:src="@drawable/img_3"
-                    android:layout_marginTop="20dp"
-                    android:layout_gravity="center" />
-            </LinearLayout>
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    app:srcCompat="@drawable/automotive" />
+            </androidx.cardview.widget.CardView>
 
-            <!-- Login Card -->
-            <LinearLayout
-                android:id="@+id/loginCard"
+            <!-- Username Field -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_card_bg"
-                android:padding="32dp"
-                android:elevation="10dp"
-                android:layout_centerHorizontal="true">
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="20dp">
 
-                <!-- Email Field -->
-                <LinearLayout
+                <EditText
+                    android:id="@+id/email"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center_vertical">
+                    android:layout_height="60dp"
+                    android:background="@color/white"
+                    android:drawableStart="@drawable/user"
+                    android:fontFamily="serif-monospace"
+                    android:hint="Username"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:textAlignment="center"
+                    android:textColor="#FF000000"
+                    android:textColorHint="#FF000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/user" />
+            <!-- Password Field with Eye Icon -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:cardCornerRadius="20dp">
 
-                    <EditText
-                        android:id="@+id/email"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:hint="EMAIL"
-                        android:textColorHint="#F4C430"
-                        android:textColor="#FFFFFF"
-                        android:background="@android:color/transparent"
-                        android:layout_marginStart="12dp"
-                        android:inputType="textEmailAddress" />
-                </LinearLayout>
-
-                <View
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#F4C430"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Password Field -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
-                    android:gravity="center_vertical">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/lock" />
+                    android:layout_height="60dp"
+                    android:background="@color/white">
 
                     <EditText
                         android:id="@+id/password"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="50dp"
-                        android:hint="PASSWORD"
-                        android:textColorHint="#F4C430"
-                        android:textColor="#FFFFFF"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fontFamily="serif-monospace"
+                        android:paddingStart="20dp"
+                        android:paddingEnd="50dp"
+                        android:imeOptions="actionNext"
+                        android:hint="Password"
+                        android:textColorHint="#FF000000"
+                        android:textStyle="bold"
+                        android:textAlignment="center"
+                        android:textColor="#FF000000"
                         android:background="@android:color/transparent"
-                        android:layout_marginStart="12dp"
-                        android:inputType="textPassword" />
+                        android:drawableStart="@drawable/lock"
+                        android:inputType="textPassword"
+                        android:textSize="18sp" />
 
-                    <!-- Eye Toggle Button -->
                     <ImageView
                         android:id="@+id/eyeToggle"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/eye_close"
-                        android:contentDescription="Toggle password visibility"
-                        android:layout_gravity="center_vertical"/>
-                </LinearLayout>
+                        android:contentDescription="Toggle password visibility" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#F4C430"
-                    android:layout_marginBottom="12dp" />
+            <!-- Forgot Password and New Account Links -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
 
-                <!-- Forgot Password -->
                 <TextView
                     android:id="@+id/forgot"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Forgotten your password?"
-                    android:textColor="#F4C430"
-                    android:textSize="13sp"
-                    android:layout_marginTop="10dp" />
+                    android:layout_weight="1"
+                    android:text="Forgot Password?"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black" />
 
-                <!-- Login Button -->
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/loginbtn"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="Log in"
-                    android:textColor="#000000"
-                    android:background="@drawable/rounded_button"
-                    android:textStyle="bold"
-                    android:layout_marginTop="20dp" />
-
-                <!-- Bottom Text -->
                 <TextView
                     android:id="@+id/newAccount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No account? Create One"
-                    android:textColor="#F4C430"
-                    android:textStyle="bold"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="20dp" />
+                    android:text="New Account?"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/black" />
             </LinearLayout>
 
+
+            <!-- Login Button -->
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/loginbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:backgroundTint="#FF018786"
+                android:background="@drawable/password_btn"
+                android:fontFamily="sans-serif-medium"
+                android:text="LOGIN"
+                android:textAllCaps="true"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="@color/white" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

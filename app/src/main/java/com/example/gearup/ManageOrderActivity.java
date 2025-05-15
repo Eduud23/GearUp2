@@ -14,6 +14,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -88,38 +90,49 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
     }
 
     private void fetchOrdersFromFirestore() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String currentSellerId = currentUser.getUid();
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("orders")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     orderList.clear();
                     for (DocumentSnapshot document : queryDocumentSnapshots) {
-                        String orderId = document.getId();
-                        String productName = document.getString("product.productName");
-                        Long quantityObj = document.getLong("product.productQuantity");
-                        long quantity = quantityObj != null ? quantityObj : 0;
-
-                        Double totalPriceObj = document.getDouble("product.totalPrice");
-                        double totalPrice = totalPriceObj != null ? totalPriceObj : 0.0;
-                        String buyerId = document.getString("product.userId");
-                        String customerName = document.getString("customerInfo.fullName");
-                        String shippingAddress = document.getString("shippingAddress");
-                        String paymentMethod = document.getString("product.paymentMethod");
-                        String orderStatus = document.getString("status");
-                        String imageUrl = document.getString("product.imageUrl");
-                        String deliveryOption = document.getString("deliveryType");
                         String sellerId = document.getString("product.sellerId");
-                        String paymentIntentId = document.getString("product.paymentIntentId");
-                        String productId = document.getString("product.productId");
-                        String brand = document.getString("product.productBrand");
-                        String productYear = document.getString("product.productYear");
 
-                        // Pass productYear to OrderItem constructor
-                        OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
-                                customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl,
-                                sellerId, paymentIntentId, productId, brand, productYear, buyerId);
+                        // Only add if the current user is the seller
+                        if (currentSellerId.equals(sellerId)) {
+                            String orderId = document.getId();
+                            String productName = document.getString("product.productName");
+                            Long quantityObj = document.getLong("product.productQuantity");
+                            long quantity = quantityObj != null ? quantityObj : 0;
 
-                        orderList.add(orderItem);
+                            Double totalPriceObj = document.getDouble("product.totalPrice");
+                            double totalPrice = totalPriceObj != null ? totalPriceObj : 0.0;
+                            String buyerId = document.getString("product.userId");
+                            String customerName = document.getString("customerInfo.fullName");
+                            String shippingAddress = document.getString("shippingAddress");
+                            String paymentMethod = document.getString("product.paymentMethod");
+                            String orderStatus = document.getString("status");
+                            String imageUrl = document.getString("product.imageUrl");
+                            String deliveryOption = document.getString("deliveryType");
+                            String paymentIntentId = document.getString("product.paymentIntentId");
+                            String productId = document.getString("product.productId");
+                            String brand = document.getString("product.productBrand");
+                            String productYear = document.getString("product.productYear");
+
+                            OrderItem orderItem = new OrderItem(orderId, productName, quantity, totalPrice,
+                                    customerName, shippingAddress, paymentMethod, orderStatus, deliveryOption, imageUrl,
+                                    sellerId, paymentIntentId, productId, brand, productYear, buyerId);
+
+                            orderList.add(orderItem);
+                        }
                     }
 
                     filterOrdersByStatusAndSearch(selectedStatus, "");
@@ -128,6 +141,7 @@ public class ManageOrderActivity extends AppCompatActivity implements ManageOrde
                     Toast.makeText(this, "Failed to load orders", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void filterOrdersByStatusAndSearch(String status, String searchQuery) {
         filteredOrderList.clear();

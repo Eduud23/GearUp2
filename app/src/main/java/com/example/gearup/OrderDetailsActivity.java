@@ -72,15 +72,20 @@ public class OrderDetailsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
-        // Set the data to the UI elements
         tvProductName.setText("Product Name: " + productName);
         tvProductQuantity.setText("Quantity: " + productQuantity);
         tvProductPrice.setText(String.format("Total Price: ₱%.2f", productPrice));
-        tvShippingAddress.setText("Shipping Address: " + shippingAddress);
         tvDeliveryOption.setText("Delivery Option: " + deliveryOption);
         tvOrderStatus.setText("Order Status: " + orderStatus);
         tvProductBrand.setText("Brand: " + productBrand);
         tvProductYear.setText("Model Year: " + productYear);
+
+        if ("Pickup".equalsIgnoreCase(deliveryOption)) {
+            tvShippingAddress.setVisibility(View.GONE);
+        } else {
+            tvShippingAddress.setText("Shipping Address: " + shippingAddress);
+            tvShippingAddress.setVisibility(View.VISIBLE);
+        }
 
 
         // Load the product image using Glide

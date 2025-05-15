@@ -56,6 +56,7 @@
         android:layout_height="wrap_content"
         android:text="See Forecast"
         android:textAllCaps="false"
+        android:visibility="gone"
         android:layout_marginHorizontal="16dp"
         android:backgroundTint="@color/purple_500"
         android:textColor="@android:color/white"

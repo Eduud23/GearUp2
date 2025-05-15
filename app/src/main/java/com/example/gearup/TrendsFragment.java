@@ -7,15 +7,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +26,6 @@ public class TrendsFragment extends Fragment {
     private TrendsPagerAdapter pagerAdapter;
     private EditText etSearch;
 
-    // Keep references to the fragments so we can access them later
-    private InternationalTrendsFragment internationalTrendsFragment;
     private LocalTrendsFragment localTrendsFragment;
 
     @Nullable
@@ -41,34 +39,14 @@ public class TrendsFragment extends Fragment {
 
         List<Fragment> fragments = new ArrayList<>();
 
-        internationalTrendsFragment = new InternationalTrendsFragment();
         localTrendsFragment = new LocalTrendsFragment();
-        SocialMediaTrendsFragment socialMediaTrendsFragment = new SocialMediaTrendsFragment();
-
-        // Default search argument for international
-        Bundle searchBundle = new Bundle();
-        searchBundle.putString("search_query", "");
-        internationalTrendsFragment.setArguments(searchBundle);
-
-        fragments.add(internationalTrendsFragment);
         fragments.add(localTrendsFragment);
-        fragments.add(socialMediaTrendsFragment);
 
         pagerAdapter = new TrendsPagerAdapter(this, fragments);
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
-            switch (position) {
-                case 0:
-                    tab.setText("International");
-                    break;
-                case 1:
-                    tab.setText("Philippines");
-                    break;
-                case 2:
-                    tab.setText("Social Media");
-                    break;
-            }
+            tab.setText("Philippines");
         }).attach();
 
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -78,8 +56,7 @@ public class TrendsFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
                 String searchQuery = charSequence.toString();
-                internationalTrendsFragment.setSearchQuery(searchQuery);
-                localTrendsFragment.setSearchQuery(searchQuery); // 🔍 added line
+                localTrendsFragment.setSearchQuery(searchQuery);
             }
 
             @Override

@@ -27,8 +27,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import org.apache.commons.text.similarity.FuzzyScore;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 public class SearchActivity extends AppCompatActivity {
@@ -50,6 +53,8 @@ public class SearchActivity extends AppCompatActivity {
     private static final String PREF_MIN_RATING = "minRating";
     private float minRating = -1;
     private ImageView filterIcon;
+    private TextView tvActiveFilters;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +64,9 @@ public class SearchActivity extends AppCompatActivity {
         searchInput = findViewById(R.id.et_search);
         recyclerSearchResults = findViewById(R.id.recycler_search_results);
         filterIcon = findViewById(R.id.filter_icon);
+
+        tvActiveFilters = findViewById(R.id.tv_active_filters);
+
 
         ImageView backButton = findViewById(R.id.btn_back);
         backButton.setOnClickListener(v -> onBackPressed());
@@ -81,6 +89,8 @@ public class SearchActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         loadProducts();
+        updateActiveFiltersText();
+
 
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -194,13 +204,42 @@ public class SearchActivity extends AppCompatActivity {
                 productList.clear();
                 productList.addAll(updatedProducts);
                 filterProducts(searchInput.getText().toString().trim());
+                updateActiveFiltersText();
+
             });
         }
     }
+    private void updateActiveFiltersText() {
+        StringBuilder sb = new StringBuilder("Filters applied: ");
+
+        boolean hasFilter = false;
+
+        if (!"All".equals(selectedCategory)) {
+            sb.append("Category: ").append(selectedCategory).append("  ");
+            hasFilter = true;
+        }
+
+        if (minRating != -1) {
+            sb.append("Min Rating: ").append(minRating).append("★  ");
+            hasFilter = true;
+        }
+
+        if (filterCenterLat != -1 && filterCenterLng != -1 && filterRadius > 0) {
+            sb.append("Location within ").append((int)(filterRadius / 1000)).append("km  ");
+            hasFilter = true;
+        }
+
+        if (hasFilter) {
+            tvActiveFilters.setText(sb.toString());
+            tvActiveFilters.setVisibility(View.VISIBLE);
+        } else {
+            tvActiveFilters.setVisibility(View.GONE);
+        }
+    }
+
 
     private void filterProducts(String query) {
-        List<Product> filteredList = new ArrayList<>();
-        String[] keywords = query.toLowerCase().split("\\s+");
+        List<ScoredProduct> scoredList = new ArrayList<>();
 
         for (Product product : productList) {
             // Filter by category
@@ -226,36 +265,56 @@ public class SearchActivity extends AppCompatActivity {
                 }
             }
 
-            // Relevance check
-            int relevanceScore = calculateRelevance(product, keywords);
+            int relevanceScore = calculateRelevance(product, query);
             if (relevanceScore > 0 || query.isEmpty()) {
-                filteredList.add(product);
+                scoredList.add(new ScoredProduct(product, relevanceScore));
             }
         }
 
-        // Sort by stars
-        filteredList.sort((p1, p2) -> Double.compare(p2.getStars(), p1.getStars()));
+        // Sort by relevance score (descending), then by stars if equal
+        scoredList.sort((a, b) -> {
+            int cmp = Integer.compare(b.relevanceScore, a.relevanceScore);
+            return (cmp != 0) ? cmp : Double.compare(b.product.getStars(), a.product.getStars());
+        });
 
-        // Update RecyclerView visibility and adapter
-        recyclerSearchResults.setVisibility(filteredList.isEmpty() ? View.GONE : View.VISIBLE);
-        adapter.updateProductList(filteredList);
+        // Extract final sorted product list
+        List<Product> sortedProducts = new ArrayList<>();
+        for (ScoredProduct sp : scoredList) {
+            sortedProducts.add(sp.product);
+        }
+
+        recyclerSearchResults.setVisibility(sortedProducts.isEmpty() ? View.GONE : View.VISIBLE);
+        adapter.updateProductList(sortedProducts);
     }
 
-    private int calculateRelevance(Product product, String[] keywords) {
-        int score = 0;
-        String name = product.getName() != null ? product.getName().toLowerCase() : "";
-        String description = product.getDescription() != null ? product.getDescription().toLowerCase() : "";
-        String brand = product.getBrand() != null ? product.getBrand().toLowerCase() : "";
-        String category = product.getCategory() != null ? product.getCategory().toLowerCase() : "";
-        String yearModel = product.getYearModel() != null ? product.getYearModel().toLowerCase() : "";
+    private static class ScoredProduct {
+        Product product;
+        int relevanceScore;
 
-        for (String keyword : keywords) {
-            if (name.contains(keyword)) score += 3;
-            if (description.contains(keyword)) score += 2;
-            if (brand.contains(keyword)) score += 1;
-            if (category.contains(keyword)) score += 1;
-            if (yearModel.contains(keyword)) score += 1;
+        ScoredProduct(Product product, int score) {
+            this.product = product;
+            this.relevanceScore = score;
         }
+    }
+
+
+
+    private int calculateRelevance(Product product, String query) {
+        FuzzyScore fuzzyScore = new FuzzyScore(Locale.ENGLISH);
+        int score = 0;
+
+        String name = product.getName() != null ? product.getName() : "";
+        String description = product.getDescription() != null ? product.getDescription() : "";
+        String brand = product.getBrand() != null ? product.getBrand() : "";
+        String category = product.getCategory() != null ? product.getCategory() : "";
+        String yearModel = product.getYearModel() != null ? product.getYearModel() : "";
+
+        // Apply fuzzy match
+        score += fuzzyScore.fuzzyScore(name, query) * 3;
+        score += fuzzyScore.fuzzyScore(description, query) * 2;
+        score += fuzzyScore.fuzzyScore(brand, query);
+        score += fuzzyScore.fuzzyScore(category, query);
+        score += fuzzyScore.fuzzyScore(yearModel, query);
 
         return score;
     }
@@ -311,6 +370,8 @@ public class SearchActivity extends AppCompatActivity {
                     editor.apply();
 
                     filterProducts(searchInput.getText().toString().trim());
+                    updateActiveFiltersText();
+
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
