@@ -26,7 +26,7 @@ import java.net.URL;
 public class OrderDetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
-    private Button btnGoToShop;
+    private Button btnGoToShop, btn_payment_details;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         TextView tvDeliveryOption = findViewById(R.id.tv_delivery_option);
         TextView tvOrderStatus = findViewById(R.id.tv_order_status);
         TextView tvPaymentStatus = findViewById(R.id.payment_status); // New TextView for payment status
-        TextView tvPaymentDetails = findViewById(R.id.tv_payment_details); // TextView to show all payment details
+        Button tvPaymentDetails = findViewById(R.id.btn_payment_details); // TextView to show all payment details
         ImageView ivProductImage = findViewById(R.id.iv_product_image);
         TextView tvProductBrand = findViewById(R.id.tv_product_brand);
         TextView tvProductYear = findViewById(R.id.tv_product_year);
@@ -80,12 +80,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
         tvProductBrand.setText("Brand: " + productBrand);
         tvProductYear.setText("Model Year: " + productYear);
 
+        String customerFullName = intent.getStringExtra("customerFullName");
+
         if ("Pickup".equalsIgnoreCase(deliveryOption)) {
-            tvShippingAddress.setVisibility(View.GONE);
+            tvShippingAddress.setText("Full Name: " + customerFullName);
+            tvShippingAddress.setVisibility(View.VISIBLE);
         } else {
             tvShippingAddress.setText("Shipping Address: " + shippingAddress);
             tvShippingAddress.setVisibility(View.VISIBLE);
         }
+
 
 
         // Load the product image using Glide
@@ -137,7 +141,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchPaymentSummary(String paymentIntentId, TextView tvPaymentStatus, TextView tvPaymentDetails) {
+    private void fetchPaymentSummary(String paymentIntentId, TextView tvPaymentStatus, Button tvPaymentDetails) {
         String urlString = "https://payment-summary-git-master-eduud23s-projects.vercel.app/payment-summary?payment_intent_id=" + paymentIntentId;
 
         new Thread(() -> {
@@ -155,18 +159,28 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 reader.close();
 
                 JSONObject jsonResponse = new JSONObject(response.toString());
-                String receiptUrl = jsonResponse.optString("receipt_url", "Not Available");
+                String receiptUrl = jsonResponse.optString("receipt_url", null);
 
                 runOnUiThread(() -> {
-                    tvPaymentStatus.setText("Payment Status: Success");
-                    tvPaymentDetails.setText(receiptUrl);
+                    if (receiptUrl != null) {
+                        tvPaymentStatus.setText("Payment Status: Success");
+                        // Set click listener to open the link
+                        tvPaymentDetails.setVisibility(View.VISIBLE);
+                        tvPaymentDetails.setOnClickListener(v -> {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(receiptUrl));
+                            startActivity(browserIntent);
+                        });
+                    } else {
+                        tvPaymentStatus.setText("Payment Status: No receipt found");
+                        tvPaymentDetails.setVisibility(View.GONE);
+                    }
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     tvPaymentStatus.setText("Payment Status: Error fetching data");
-                    tvPaymentDetails.setText("No receipt available");
+                    tvPaymentDetails.setVisibility(View.GONE);
                 });
             }
         }).start();

@@ -187,37 +187,18 @@
                         android:textColor="#757575"
                         />
 
-                    <!-- Label and URL (in one line) -->
-                    <LinearLayout
+                    <Button
+                        android:id="@+id/btn_payment_details"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingTop="8dp">
+                        android:text="View Receipt"
+                        android:textSize="14sp"
+                        android:textColor="@android:color/white"
+                        android:backgroundTint="@android:color/holo_blue_dark"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:layout_marginTop="8dp"/>
 
-
-
-                        <!-- Receipt URL Label -->
-                        <TextView
-                            android:id="@+id/tv_receipt_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Receipt Url:"
-                            android:textSize="14sp"
-                            android:textColor="#757575"
-                            android:layout_marginEnd="8dp" />
-
-                        <!-- Receipt URL Link -->
-                        <TextView
-                            android:id="@+id/tv_payment_details"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Payment Details"
-                            android:textSize="14sp"
-                            android:textColor="#212121"
-                            android:autoLink="web"
-                            android:linksClickable="true" />
-
-                    </LinearLayout>
 
                 </LinearLayout>
 

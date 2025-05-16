@@ -96,6 +96,7 @@
                         android:fontFamily="serif-monospace"
                         android:paddingStart="20dp"
                         android:paddingEnd="50dp"
+                        android:drawablePadding="20dp"
                         android:imeOptions="actionNext"
                         android:hint="Password"
                         android:textColorHint="#FF000000"
