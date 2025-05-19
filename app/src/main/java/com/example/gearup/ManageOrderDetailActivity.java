@@ -3,6 +3,7 @@ package com.example.gearup;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,11 +21,15 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ManageOrderDetailActivity extends AppCompatActivity {
 
-    private TextView productName, quantity, totalPrice, orderStatus, deliveryOption, tvPaymentStatus, tvPaymentDetails, productBrandView, productYearView;
+    private TextView productName, quantity, totalPrice, orderStatus, deliveryOption, tvPaymentStatus, productBrandView, productYearView;
     private ImageView productImageView;
+    private Button tvPaymentDetails;
+    private String receiptUrl = null; // Store the receipt URL here
+
     private TextView customerEmail, customerFullName, customerPhoneNumber, customerRiderMessage, customerZipCode;
     private FirebaseFirestore db;
 
@@ -44,7 +49,7 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
         deliveryOption = findViewById(R.id.delivery_option);
         productImageView = findViewById(R.id.product_image);
         tvPaymentStatus = findViewById(R.id.payment_status);
-        tvPaymentDetails = findViewById(R.id.payment_details);
+        tvPaymentDetails = findViewById(R.id.btn_payment_details);
         productBrandView = findViewById(R.id.product_brand);
         productYearView = findViewById(R.id.product_year);
 
@@ -58,6 +63,14 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
 
         // Customer info layout
         customerInfoLayout = findViewById(R.id.customer_info_layout);
+
+        tvPaymentDetails.setOnClickListener(v -> {
+            if (receiptUrl != null && !receiptUrl.isEmpty()) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(receiptUrl));
+                startActivity(browserIntent);
+            }
+        });
+
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -102,13 +115,18 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
             tvPaymentDetails.setText("Receipt not available.");
         }
 
-        // If the delivery option is "Delivery", fetch the customer info and make it visible
+        customerInfoLayout.setVisibility(View.VISIBLE);
+
+        fetchCustomerInfo(orderId);
+
         if ("Delivery".equalsIgnoreCase(deliveryOptionValue)) {
-            customerInfoLayout.setVisibility(View.VISIBLE);  // Show customer info layout
-            fetchCustomerInfo(orderId);
+            customerRiderMessage.setVisibility(View.VISIBLE);
+            customerZipCode.setVisibility(View.VISIBLE);
         } else {
-            customerInfoLayout.setVisibility(View.GONE);  // Hide customer info layout
+            customerRiderMessage.setVisibility(View.GONE);
+            customerZipCode.setVisibility(View.GONE);
         }
+
     }
 
     private void fetchPaymentSummary(String paymentIntentId) {
@@ -130,19 +148,23 @@ public class ManageOrderDetailActivity extends AppCompatActivity {
 
                 // Parse the response
                 JSONObject jsonResponse = new JSONObject(response.toString());
-                String receiptUrl = jsonResponse.optString("receipt_url", "Not Available");
+                receiptUrl = jsonResponse.optString("receipt_url", null);
 
-                // Update UI on the main thread
                 runOnUiThread(() -> {
                     tvPaymentStatus.setText("Payment Status: Success");
-                    tvPaymentDetails.setText(receiptUrl);
+                    tvPaymentDetails.setEnabled(receiptUrl != null && !receiptUrl.isEmpty());
                 });
+
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
                     tvPaymentStatus.setText("Payment Status: Error fetching data");
-                    tvPaymentDetails.setText("No receipt available");
+                    runOnUiThread(() -> {
+                        receiptUrl = null;
+                        tvPaymentStatus.setText("Payment Status: Error fetching data");
+                        tvPaymentDetails.setEnabled(false);
+                    });
                 });
             }
         }).start();
