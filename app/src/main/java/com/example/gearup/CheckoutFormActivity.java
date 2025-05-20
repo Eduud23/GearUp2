@@ -294,8 +294,12 @@ public class CheckoutFormActivity extends AppCompatActivity {
                 .addOnSuccessListener(docRef -> {
                     // Log purchase interaction
                     UserInteractionLogger.logPurchaseInteraction(userId, productId, product.get("productName").toString(), sellerId, (double) product.get("totalPrice"));
+
+                    updateProductQuantityInCollectionGroup(productId, quantity); // Deduct the purchased quantity
+
                     showCustomDialog(true);
                 })
+
                 .addOnFailureListener(e -> showCustomDialog(false));
     }
 
@@ -535,6 +539,40 @@ public class CheckoutFormActivity extends AppCompatActivity {
             }
         }).addOnFailureListener(e -> Log.e("Firestore", "Error fetching from buyers: " + e.getMessage()));
     }
+
+    private void updateProductQuantityInCollectionGroup(String productId, int purchasedQuantity) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collectionGroup("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    boolean found = false;
+
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        if (document.getId().equals(productId)) {
+                            found = true;
+                            DocumentReference productRef = document.getReference();
+                            Long currentQuantity = document.getLong("quantity");
+
+                            if (currentQuantity != null && currentQuantity >= purchasedQuantity) {
+                                long updatedQuantity = currentQuantity - purchasedQuantity;
+                                productRef.update("quantity", updatedQuantity)
+                                        .addOnSuccessListener(aVoid -> Log.d("InventoryUpdate", "Product quantity updated successfully"))
+                                        .addOnFailureListener(e -> Log.e("InventoryUpdate", "Failed to update product quantity: " + e.getMessage()));
+                            } else {
+                                Log.w("InventoryUpdate", "Not enough inventory or quantity field is missing.");
+                            }
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        Log.w("InventoryUpdate", "Product with ID " + productId + " not found in collectionGroup 'products'");
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("InventoryUpdate", "Error querying collectionGroup: " + e.getMessage()));
+    }
+
 
 
 

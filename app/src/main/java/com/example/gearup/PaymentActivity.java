@@ -21,6 +21,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.stripe.android.PaymentConfiguration;
@@ -84,6 +85,8 @@ public class PaymentActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> onBackPressed());
+
+        fetchAndSetUserEmail();
 
         validateVoucherButton.setOnClickListener(v -> {
             String voucherCode = voucherEditText.getText().toString().trim();
@@ -245,6 +248,7 @@ public class PaymentActivity extends AppCompatActivity {
             product.put("productQuantity", item.getQuantity());
             product.put("sellerId", item.getSellerId());
             product.put("userId", userId);
+            product.put("productBrand", item.getBrand());
             product.put("paymentMethod", "Stripe");
             product.put("totalPrice", item.getTotalPrice());
             product.put("paymentIntentId", paymentIntentId);
@@ -267,7 +271,6 @@ public class PaymentActivity extends AppCompatActivity {
 
             db.collection("orders").add(orderDetails)
                     .addOnSuccessListener(documentReference -> {
-                        // ✅ Log purchase after successful order save
                         UserInteractionLogger.logPurchaseInteraction(
                                 userId,
                                 item.getProductId(),
@@ -276,10 +279,13 @@ public class PaymentActivity extends AppCompatActivity {
                                 item.getTotalPrice()
                         );
 
+                        updateProductQuantityInCollectionGroup(item.getProductId(), item.getQuantity());
+
                         deleteCartItems(userId);
                         showCustomDialog(true);
                     })
                     .addOnFailureListener(e -> showCustomDialog(false));
+
         }
 
     }
@@ -497,6 +503,79 @@ public class PaymentActivity extends AppCompatActivity {
         btnStripePayment.setText("Pay with Stripe (₱" + String.format("%.2f", finalPrice) + ")");
         Log.d("DiscountApplied", "Final price after ₱" + discount + " discount: ₱" + finalPrice);
     }
+
+    private void fetchAndSetUserEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        DocumentReference buyerRef = db.collection("buyers").document(userId);
+        DocumentReference sellerRef = db.collection("sellers").document(userId);
+
+        // Try to get from buyers
+        buyerRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                String email = documentSnapshot.getString("email");
+                if (email != null) {
+                    ((EditText) findViewById(R.id.email)).setText(email);
+                }
+            } else {
+                // Try to get from sellers
+                sellerRef.get().addOnSuccessListener(sellerDoc -> {
+                    if (sellerDoc.exists()) {
+                        String email = sellerDoc.getString("email");
+                        if (email != null) {
+                            ((EditText) findViewById(R.id.email)).setText(email);
+                        }
+                    } else {
+                        Log.w("UserEmail", "Email not found in both buyers and sellers collection.");
+                    }
+                }).addOnFailureListener(e -> Log.e("Firestore", "Error fetching from sellers: " + e.getMessage()));
+            }
+        }).addOnFailureListener(e -> Log.e("Firestore", "Error fetching from buyers: " + e.getMessage()));
+    }
+
+    private void updateProductQuantityInCollectionGroup(String productId, int purchasedQuantity) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collectionGroup("products")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    boolean found = false;
+
+                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                        if (document.getId().equals(productId)) {
+                            found = true;
+                            DocumentReference productRef = document.getReference();
+                            Long currentQuantity = document.getLong("quantity");
+
+                            if (currentQuantity != null && currentQuantity >= purchasedQuantity) {
+                                long updatedQuantity = currentQuantity - purchasedQuantity;
+                                productRef.update("quantity", updatedQuantity)
+                                        .addOnSuccessListener(aVoid ->
+                                                Log.d("InventoryUpdate", "Product quantity updated successfully for " + productId))
+                                        .addOnFailureListener(e ->
+                                                Log.e("InventoryUpdate", "Failed to update product quantity: " + e.getMessage()));
+                            } else {
+                                Log.w("InventoryUpdate", "Not enough inventory or quantity field missing for " + productId);
+                            }
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        Log.w("InventoryUpdate", "Product with ID " + productId + " not found in collectionGroup 'products'");
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("InventoryUpdate", "Error querying products: " + e.getMessage()));
+    }
+
+
 
 
 }
