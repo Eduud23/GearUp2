@@ -140,6 +140,27 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         checkoutButton.setOnClickListener(v -> checkout());
         productName.setOnClickListener(v -> openSellerShop());
         sellerProfileImage.setOnClickListener(v -> openSellerShop());
+        addReviewButton.setVisibility(View.GONE);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("orders")
+                .whereEqualTo("product.userId", currentUserId)
+                .whereEqualTo("product.productId", product.getId())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // User has ordered the product
+                        addReviewButton.setVisibility(View.VISIBLE);
+                        Log.d("ReviewButton", "User has purchased this product. Showing review button.");
+                    } else {
+                        Log.d("ReviewButton", "No matching order found for this product.");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ReviewButton", "Failed to check orders", e);
+                });
+
         addReviewButton.setOnClickListener(v -> showReviewDialog());
 
 
@@ -345,18 +366,28 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
         String brand = product.getBrand(); // Assuming Product has getBrand()
         String yearModel = product.getYearModel(); // Assuming Product has getYearModel()
 
-        // Assuming you have a way to generate a document ID, use an empty string for now if not available
         String documentId = "";  // Set it to an empty string or null if you don't have a specific document ID
 
-        // Create the CartItem with the required constructor (passing documentId)
+        // Log product details
+        Log.d("CartItemDebug", "Saving item to Firestore: " +
+                "\nProduct Name: " + productName +
+                "\nQuantity: " + quantity +
+                "\nTotal Price: " + totalPrice +
+                "\nImage URL: " + imageUrl +
+                "\nBrand: " + brand +
+                "\nYear Model: " + yearModel +
+                "\nProduct ID: " + product.getId() +
+                "\nUser ID: " + currentUserId +
+                "\nSeller ID: " + sellerId);
+
         CartItem cartItem = new CartItem(productName, quantity, sellerId, totalPrice, currentUserId, imageUrl, brand, yearModel, product.getId(), documentId);
 
-        // Save the cart item to Firestore
         db.collection("buyers").document(currentUserId).collection("cartItems").add(cartItem)
                 .addOnSuccessListener(documentReference -> {
-                    // Handle success
+                    Log.d("CartItemDebug", "Successfully added item to cart with ID: " + documentReference.getId());
                 })
                 .addOnFailureListener(e -> {
+                    Log.e("CartItemError", "Failed to add item to cart", e);
                     Toast.makeText(this, "Failed to add to cart", Toast.LENGTH_SHORT).show();
                 });
     }
