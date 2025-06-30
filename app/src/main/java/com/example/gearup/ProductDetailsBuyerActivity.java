@@ -137,7 +137,28 @@ public class ProductDetailsBuyerActivity extends AppCompatActivity {
 
         // Set up button click listeners
         addToCartButton.setOnClickListener(v -> addToCart(product));
-        checkoutButton.setOnClickListener(v -> checkout());
+        checkoutButton.setOnClickListener(v -> {
+            // Get the quantity entered by the user
+            String quantityText = productQuantity.getText().toString().trim();
+
+            if (quantityText.isEmpty()) {
+                // Check if the input is empty
+                Toast.makeText(ProductDetailsBuyerActivity.this, "Please enter a quantity", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int quantity = Integer.parseInt(quantityText);
+
+            // Validate if the quantity entered is greater than the available stock
+            if (quantity > maxQuantity) {
+                // Show an error message if the quantity exceeds the available quantity
+                Toast.makeText(ProductDetailsBuyerActivity.this, "Quantity exceeds available stock", Toast.LENGTH_SHORT).show();
+            } else {
+                // Proceed to checkout if the quantity is valid
+                checkout();
+            }
+        });
+
         productName.setOnClickListener(v -> openSellerShop());
         sellerProfileImage.setOnClickListener(v -> openSellerShop());
         addReviewButton.setVisibility(View.GONE);
